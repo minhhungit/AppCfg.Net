@@ -49,8 +49,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DemoJsonTypeParser.cs" />
-    <Compile Include="DemoTypeParser.cs" />
+    <Compile Include="DemoJsonParserWithSetting.cs" />
+    <Compile Include="DemoJsonParser.cs" />
+    <Compile Include="CustomTypeParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

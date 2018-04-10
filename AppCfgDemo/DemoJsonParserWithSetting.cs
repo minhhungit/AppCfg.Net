@@ -4,18 +4,15 @@ using System;
 
 namespace AppCfgDemo
 {
-    public class Animal : IJsonDataType
+    public class Machine : IJsonDataTypeWithSetting
     {
-        public string Name { get; }
-        public int Legs { get; }
-        public bool CanSwim { get;  }
-        public DateTime SampleDay { get; }
+        public DateTime DayWithNewFormat { get; }
 
         public JsonSerializerSettings BuildJsonSerializerSettings()
         {
             return new JsonSerializerSettings
             {
-                DateFormatString = "dd+MM+yyyy"
+                DateFormatString = "dd|MMM+yyyy"
             };
         }
     }

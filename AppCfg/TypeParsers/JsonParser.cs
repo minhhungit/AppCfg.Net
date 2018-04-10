@@ -1,10 +1,14 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System;
 
 namespace AppCfg.TypeParsers
 {
     public interface IJsonDataType
+    {
+        
+    }
+
+    public interface IJsonDataTypeWithSetting : IJsonDataType
     {
         JsonSerializerSettings BuildJsonSerializerSettings();
     }
@@ -14,15 +18,19 @@ namespace AppCfg.TypeParsers
         public T Parse(string rawValue)
         {
             var jsonSettings = new JsonSerializerSettings();
+            if (MyAppCfg.JsonSerializerSettings != null)
+            {
+                jsonSettings = MyAppCfg.JsonSerializerSettings;
+            }            
 
-            var iObj = Activator.CreateInstance<T>();
-            if (iObj is IJsonDataType jsonDataType)
+            var iObj = System.Activator.CreateInstance<T>();
+            if (iObj is IJsonDataTypeWithSetting jsonDataType)
             {
                 var js = jsonDataType.BuildJsonSerializerSettings();
                 if (js != null)
                 {
                     jsonSettings = js;
-                }                
+                }
             }
 
             jsonSettings.ContractResolver = new PrivateSetterContractResolver();

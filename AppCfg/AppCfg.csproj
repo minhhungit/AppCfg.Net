@@ -47,7 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AppCfg.cs" />
+    <Compile Include="MyAppCfg.cs" />
     <Compile Include="TypeParsers\GuidParser.cs" />
     <Compile Include="TypeParsers\IntParser.cs" />
     <Compile Include="Core\ITypeParser.cs" />
