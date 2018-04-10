@@ -12,9 +12,9 @@ namespace AppCfg
         {
             Stores = new Dictionary<Type, object>();
 
-            AddParser(new IntTypeParser());
-            AddParser(new LongTypeParser());
-            AddParser(new GuidTypeParser());
+            AddParser(new IntParser());
+            AddParser(new LongParser());
+            AddParser(new GuidParser());
         }
 
         public static void AddParser<T>(ITypeParser<T> item)

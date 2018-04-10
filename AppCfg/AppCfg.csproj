@@ -48,20 +48,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppCfg.cs" />
-    <Compile Include="IJsonData.cs" />
-    <Compile Include="TypeParsers\GuidTypeParser.cs" />
-    <Compile Include="TypeParsers\IntTypeParser.cs" />
-    <Compile Include="ITypeParser.cs" />
-    <Compile Include="TypeParsers\JsonTypeParser.cs" />
-    <Compile Include="TypeParsers\LongTypeParser.cs" />
-    <Compile Include="OptionAttribute.cs" />
+    <Compile Include="TypeParsers\GuidParser.cs" />
+    <Compile Include="TypeParsers\IntParser.cs" />
+    <Compile Include="Core\ITypeParser.cs" />
+    <Compile Include="TypeParsers\JsonParser.cs" />
+    <Compile Include="TypeParsers\LongParser.cs" />
+    <Compile Include="Attributes\OptionAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SettingTypeMixer.cs" />
-    <Compile Include="TypeParserFactory.cs" />
+    <Compile Include="Core\SettingTypeMixer.cs" />
+    <Compile Include="Core\TypeParserFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

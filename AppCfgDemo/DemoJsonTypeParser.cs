@@ -1,4 +1,4 @@
-﻿using AppCfg;
+﻿using AppCfg.TypeParsers;
 using Newtonsoft.Json;
 using System;
 

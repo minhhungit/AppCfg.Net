@@ -1,6 +1,6 @@
 ﻿namespace AppCfg.TypeParsers
 {
-    internal class LongTypeParser : ITypeParser<long>
+    internal class LongParser : ITypeParser<long>
     {
         public long Parse(string rawValue)
         {

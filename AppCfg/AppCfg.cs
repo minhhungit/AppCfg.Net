@@ -28,7 +28,7 @@ namespace AppCfg
                     var jsObj = Activator.CreateInstance(prop.PropertyType);
                     if (jsObj is IJsonDataType)
                     {
-                        var jsParser = Activator.CreateInstance(typeof(JsonTypeParser<>).MakeGenericType(prop.PropertyType));
+                        var jsParser = Activator.CreateInstance(typeof(JsonParser<>).MakeGenericType(prop.PropertyType));
                         TypeParserFactory.Stores.Add(prop.PropertyType, jsParser);
                     }
                 }
