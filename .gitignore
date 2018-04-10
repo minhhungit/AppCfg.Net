@@ -7,3 +7,5 @@
 /AppCfg/obj/Debug
 /AppCfgDemo/bin/Debug
 /AppCfgDemo/obj/Debug
+/packages
+/.vs/config

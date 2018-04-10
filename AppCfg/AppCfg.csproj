@@ -42,15 +42,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppCfg.cs" />
-    <Compile Include="ConfigurationStores\ConfigurationStoreType.cs" />
     <Compile Include="TypeParsers\GuidTypeParser.cs" />
     <Compile Include="TypeParsers\IntTypeParser.cs" />
-    <Compile Include="TypeParsers\ITypeParser.cs" />
+    <Compile Include="ITypeParser.cs" />
     <Compile Include="TypeParsers\LongTypeParser.cs" />
     <Compile Include="OptionAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SettingTypeMixer.cs" />
-    <Compile Include="TypeParsers\TypeParserFactory.cs" />
+    <Compile Include="TypeParserFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

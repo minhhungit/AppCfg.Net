@@ -1,6 +1,6 @@
 ﻿namespace AppCfg.TypeParsers
 {
-    public class IntTypeParser : ITypeParser<int>
+    internal class IntTypeParser : ITypeParser<int>
     {
         public int Parse(string rawValue)
         {

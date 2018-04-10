@@ -2,7 +2,7 @@
 
 namespace AppCfg.TypeParsers
 {
-    public class GuidTypeParser : ITypeParser<Guid>
+    internal class GuidTypeParser : ITypeParser<Guid>
     {
         public Guid Parse(string rawValue)
         {

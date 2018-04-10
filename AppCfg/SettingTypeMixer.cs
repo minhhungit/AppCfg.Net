@@ -10,12 +10,12 @@ using System.Reflection.Emit;
 
 namespace AppCfg
 {
-    internal static class SettingTypeMixer<T>
+    internal class SettingTypeMixer<T>
     {
-        private static readonly BindingFlags visibilityFlags = BindingFlags.Public | BindingFlags.Instance;
+        private readonly BindingFlags visibilityFlags = BindingFlags.Public | BindingFlags.Instance;
 
-        private static Dictionary<string, OptionAttribute> attributeBank = new Dictionary<string, OptionAttribute>();
-        internal static K ExtendWith<K>()
+        private Dictionary<string, OptionAttribute> attributeBank = new Dictionary<string, OptionAttribute>();
+        internal K ExtendWith<K>()
         {
             var assemblyName = new Guid().ToString();
 

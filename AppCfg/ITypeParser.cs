@@ -1,4 +1,4 @@
-﻿namespace AppCfg.TypeParsers
+﻿namespace AppCfg
 {
     public interface ITypeParser<T>
     {

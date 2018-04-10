@@ -7,7 +7,7 @@ namespace AppCfgDemo
     {
         [Option(DefaultValue = 99)] int DemoInt { get; }
         [Option(Alias = "long-key")] long DemoLong { get; }
-        MyCustomType CustomProp { get; }
+        [Option(Alias = "author")] Person Person { get; }
         Guid ThisIsGuid { get; }
     }
 
@@ -15,15 +15,16 @@ namespace AppCfgDemo
     {
         static void Main(string[] args)
         {
-            // setup custom type-parser
-            MyAppCfg.TypeParserFactory.AddParser(new CustomTypeParser());
+            // setup custom typeparser
+            TypeParserFactory.AddParser(new PersonParser());
 
             Console.WriteLine($"DemoInt: {MyAppCfg.Get<ISetting>().DemoInt}");
             Console.WriteLine($"DemoLong: {MyAppCfg.Get<ISetting>().DemoLong}");
-            Console.WriteLine($"ThisIsGuid: {MyAppCfg.Get<ISetting>().ThisIsGuid}");
-
-            Console.WriteLine($"Custom - Name: {MyAppCfg.Get<ISetting>().CustomProp.Name}");
-            Console.WriteLine($"Custom - TextLength: {MyAppCfg.Get<ISetting>().CustomProp.TextLength}");
+            Console.WriteLine($"ThisIsGuid: {MyAppCfg.Get<ISetting>().ThisIsGuid}\n");
+            Console.WriteLine($"Custom - Name: {MyAppCfg.Get<ISetting>().Person.Name}");
+            Console.WriteLine($"Custom - Age: {MyAppCfg.Get<ISetting>().Person.Age}");
+            Console.WriteLine($"Custom - Birthday: {MyAppCfg.Get<ISetting>().Person.Birthday:yyyy-MM-dd}");
+            Console.WriteLine($"Custom - IsMarried: {MyAppCfg.Get<ISetting>().Person.IsMarried}");
 
             Console.ReadKey();
         }
