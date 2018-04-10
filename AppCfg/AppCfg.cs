@@ -10,14 +10,14 @@ namespace AppCfg
     {
         private static Dictionary<Type, object> _settingItemStores = new Dictionary<Type, object>();
 
-        public static T Get<T>()
+        public static TSetting Get<TSetting>()
         {
-            if (_settingItemStores.ContainsKey(typeof(T)))
+            if (_settingItemStores.ContainsKey(typeof(TSetting)))
             {
-                return (T)_settingItemStores[typeof(T)];
+                return (TSetting)_settingItemStores[typeof(TSetting)];
             }
 
-            T setting = new SettingTypeMixer<object>().ExtendWith<T>();
+            TSetting setting = new SettingTypeMixer<object>().ExtendWith<TSetting>();
 
             var props = setting.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
@@ -49,9 +49,9 @@ namespace AppCfg
                 }                
             }
 
-            if (!_settingItemStores.ContainsKey(typeof(T)))
+            if (!_settingItemStores.ContainsKey(typeof(TSetting)))
             {
-                _settingItemStores.Add(typeof(T), setting);
+                _settingItemStores.Add(typeof(TSetting), setting);
             }
 
             return setting;
