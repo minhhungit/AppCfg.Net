@@ -16,7 +16,10 @@ A mini configuration framework for .NET developers
 public interface ISetting
 {
     int DemoInt { get; }
-    long DemoLong { get; }
+	
+    [Option(Alias = "long-key")] 
+	long DemoLong { get; }
+	
     Guid ThisIsGuid { get; }
 }
 
