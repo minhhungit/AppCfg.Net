@@ -3,12 +3,12 @@ A mini configuration framework for .NET developers
 
 > Note: This project is still ongoing
 
-<br /><br />
+<br />
 
 ```xml
 <appSettings>
-  <add key="DemoInt" value="1"/>
-  <add key="long-key" value="9223372036854775807"/>
+  <add key="Age" value="29"/>
+  <add key="user-name" value="Hung Vo"/>
 </appSettings>
 ```
 <br />
@@ -16,15 +16,17 @@ A mini configuration framework for .NET developers
 ```csharp
 public interface ISetting
 {
-    int DemoInt { get; }
+    int Age { get; }
 	
-    [Option(Alias = "long-key")] 
-	long DemoLong { get; }
-	
-    Guid ThisIsGuid { get; }
+    [Option(Alias = "user-name")] 
+    long Username { get; }
 }
 
-var myIntValue = MyAppCfg.Get<ISetting>().DemoInt;
-var myLongValue = MyAppCfg.Get<ISetting>().DemoLong;
+var age = MyAppCfg.Get<ISetting>().Age;
+var username = MyAppCfg.Get<ISetting>().Username;
 
 ```
+<br />
+
+**Need demo?**
+> https://github.com/minhhungit/AppCfg/tree/master/AppCfgDemo
