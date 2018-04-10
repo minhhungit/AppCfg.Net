@@ -11,6 +11,11 @@ namespace AppCfgDemo
         Guid ThisIsGuid { get; }
     }
 
+    public interface IJsonSetting
+    {
+        [Option(Alias = "cute_animal")] Animal CuteAnimal { get; }
+    }
+
     class Program
     {
         static void Main(string[] args)
@@ -21,10 +26,16 @@ namespace AppCfgDemo
             Console.WriteLine($"DemoInt: {MyAppCfg.Get<ISetting>().DemoInt}");
             Console.WriteLine($"DemoLong: {MyAppCfg.Get<ISetting>().DemoLong}");
             Console.WriteLine($"ThisIsGuid: {MyAppCfg.Get<ISetting>().ThisIsGuid}\n");
+
             Console.WriteLine($"Custom - Name: {MyAppCfg.Get<ISetting>().Person.Name}");
             Console.WriteLine($"Custom - Age: {MyAppCfg.Get<ISetting>().Person.Age}");
             Console.WriteLine($"Custom - Birthday: {MyAppCfg.Get<ISetting>().Person.Birthday:yyyy-MM-dd}");
-            Console.WriteLine($"Custom - IsMarried: {MyAppCfg.Get<ISetting>().Person.IsMarried}");
+            Console.WriteLine($"Custom - IsMarried: {MyAppCfg.Get<ISetting>().Person.IsMarried}\n");
+
+            Console.WriteLine($"Animal - Name: {MyAppCfg.Get<IJsonSetting>().CuteAnimal.Name}");
+            Console.WriteLine($"Animal - Legs: {MyAppCfg.Get<IJsonSetting>().CuteAnimal.Legs}");
+            Console.WriteLine($"Animal - CanSwim: {MyAppCfg.Get<IJsonSetting>().CuteAnimal.CanSwim}");
+            Console.WriteLine($"Animal - SampleDay: {MyAppCfg.Get<IJsonSetting>().CuteAnimal.SampleDay:MMM dd, yyyy}");
 
             Console.ReadKey();
         }

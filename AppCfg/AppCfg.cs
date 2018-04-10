@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AppCfg.TypeParsers;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Reflection;
@@ -22,10 +23,20 @@ namespace AppCfg
 
             foreach (var prop in props)
             {
-                if (TypeParserFactory.Stores.ContainsKey(prop.PropertyType) && TypeParserFactory.Stores[prop.PropertyType] != null)
+                if (!TypeParserFactory.Stores.ContainsKey(prop.PropertyType) || TypeParserFactory.Stores[prop.PropertyType] == null)
+                {
+                    var jsObj = Activator.CreateInstance(prop.PropertyType);
+                    if (jsObj is IJsonDataType)
+                    {
+                        var jsParser = Activator.CreateInstance(typeof(JsonTypeParser<>).MakeGenericType(prop.PropertyType));
+                        TypeParserFactory.Stores.Add(prop.PropertyType, jsParser);
+                    }
+                }
+
+                if(TypeParserFactory.Stores.ContainsKey(prop.PropertyType) && TypeParserFactory.Stores[prop.PropertyType] != null)
                 {
                     var optAttr = prop.GetCustomAttribute<OptionAttribute>();
-                    
+
                     var value = GetRawValue(optAttr?.Alias ?? prop.Name);
                     if (value != null)
                     {
@@ -35,7 +46,7 @@ namespace AppCfg
                 else
                 {
                     throw new Exception($"There is no type parser for type [{prop.PropertyType}]. You maybe need to create a custom type parser for it");
-                }
+                }                
             }
 
             if (!_settingItemStores.ContainsKey(typeof(T)))

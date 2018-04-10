@@ -6,7 +6,7 @@ namespace AppCfg
 {
     public class TypeParserFactory
     {
-        internal static Dictionary<Type, object> Stores;
+        internal static Dictionary<Type, object> Stores { get; private set; }
 
         static TypeParserFactory()
         {
