@@ -52,6 +52,9 @@
     <Compile Include="TypeParsers\IntParser.cs" />
     <Compile Include="Core\ITypeParser.cs" />
     <Compile Include="TypeParsers\JsonParser.cs" />
+    <Compile Include="TypeParsers\DoubleParser.cs" />
+    <Compile Include="TypeParsers\TimeSpanParser.cs" />
+    <Compile Include="TypeParsers\StringParser.cs" />
     <Compile Include="TypeParsers\LongParser.cs" />
     <Compile Include="Attributes\OptionAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

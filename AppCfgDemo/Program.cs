@@ -6,10 +6,21 @@ namespace AppCfgDemo
 {
     public interface ISetting
     {
-        [Option(DefaultValue = 99)] int DemoInt { get; }
-        [Option(Alias = "long-key")] long DemoLong { get; }
+        double DemoDouble { get; }
+        Guid DemoGuid { get; }
+
+        [Option(DefaultValue = 99)]
+        int DemoInt { get; }
+
+        [Option(Alias = "long-key")]
+        long DemoLong { get; }
+
+        string DemoString { get; }
+        TimeSpan DemoTimeSpanFirst { get; }
+        TimeSpan DemoTimeSpanSecond { get; }
+
         List<int> Numbers { get; }
-        Guid ThisIsGuid { get; }
+        
     }
 
     public interface IJsonSetting
@@ -35,9 +46,14 @@ namespace AppCfgDemo
                 DateFormatString = "dd+MM+yyyy" // ex: setup default format
             };
 
+            Console.WriteLine($"DemoDouble: {MyAppCfg.Get<ISetting>().DemoDouble}");
+            Console.WriteLine($"DemoGuid: {MyAppCfg.Get<ISetting>().DemoGuid}");
             Console.WriteLine($"DemoInt: {MyAppCfg.Get<ISetting>().DemoInt}");
             Console.WriteLine($"DemoLong: {MyAppCfg.Get<ISetting>().DemoLong}");
-            Console.WriteLine($"ThisIsGuid: {MyAppCfg.Get<ISetting>().ThisIsGuid}\n");
+            Console.WriteLine($"DemoString: {MyAppCfg.Get<ISetting>().DemoString}");
+            Console.WriteLine($"DemoTimeSpanFirst: {MyAppCfg.Get<ISetting>().DemoTimeSpanFirst}");
+            Console.WriteLine($"DemoTimeSpanSecond: {MyAppCfg.Get<ISetting>().DemoTimeSpanSecond}\n");
+
 
             Console.WriteLine($"Numbers:");
             foreach (var num in MyAppCfg.Get<ISetting>().Numbers)
