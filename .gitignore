@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/AppCfgSolution/v15
+/AppCfg/bin/Debug
+/AppCfg/obj/Debug
+/AppCfgDemo/bin/Debug
+/AppCfgDemo/obj/Debug
