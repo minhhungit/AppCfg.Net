@@ -1,14 +1,12 @@
 ﻿/**
- * Rewrite based on https://blog.iamnguele.com/2016/11/20/dynamic-interface-implementation-runtime/
+ * Rewrite based on https://gist.github.com/IamNguele/bdc79d0d83a7895e693bc3b5cae543d7#file-typemixer-cs
  */
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace AppCfg
 {
@@ -80,31 +78,6 @@ namespace AppCfg
             }
 
             return newObject;
-        }
-
-        static byte[] ObjectToByteArray(object obj)
-        {
-            if (obj == null)
-                return null;
-            BinaryFormatter bf = new BinaryFormatter();
-            using (MemoryStream ms = new MemoryStream())
-            {
-                bf.Serialize(ms, obj);
-                return ms.ToArray();
-            }
-        }
-        private static K CopyValues<K>(T source, K destination)
-        {
-            foreach (PropertyInfo property in source.GetType().GetProperties(visibilityFlags))
-            {
-                var prop = destination.GetType().GetProperty(property.Name, visibilityFlags);
-                if (prop != null && prop.CanWrite) {
-                    var optAttr = property.GetCustomAttribute<OptionAttribute>();
-                    prop.SetValue(destination, optAttr?.DefaultValue ?? property.GetValue(source), null);
-                }
-            }
-
-            return destination;
         }
     }
 }
