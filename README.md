@@ -26,3 +26,7 @@ var age = MyAppCfg.Get<ISetting>().Age;
 var username = MyAppCfg.Get<ISetting>().Username;
 
 ```
+<br />
+
+**Need demo?**
+> https://github.com/minhhungit/AppCfg/tree/master/AppCfgDemo
