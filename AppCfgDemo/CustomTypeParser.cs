@@ -11,7 +11,7 @@ namespace AppCfgDemo
     {
         public List<int> Parse(string rawValue)
         {
-            return rawValue.Split(',').Select(int.Parse).ToList();
+            return new List<int>(rawValue.Split(';').Select(s => int.Parse(s, NumberStyles.Integer | NumberStyles.AllowThousands, CultureInfo.InvariantCulture)));
         }
     }
     #endregion
