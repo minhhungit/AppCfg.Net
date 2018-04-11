@@ -7,6 +7,7 @@ namespace AppCfgDemo
     public interface ISetting
     {
         bool DemoBoolean { get; }
+        DateTime DemoDateTime { get; }
         decimal DemoDecimal { get; }
         double DemoDouble { get; }
         Guid DemoGuid { get; }
@@ -49,8 +50,8 @@ namespace AppCfgDemo
             };
 
             Console.WriteLine($"DemoBoolean: {MyAppCfg.Get<ISetting>().DemoBoolean}");
+            Console.WriteLine($"DemoDateTime: {MyAppCfg.Get<ISetting>().DemoDateTime}");
             Console.WriteLine($"DemoDecimal: {MyAppCfg.Get<ISetting>().DemoDecimal}");
-
             Console.WriteLine($"DemoDouble: {MyAppCfg.Get<ISetting>().DemoDouble}");
             Console.WriteLine($"DemoGuid: {MyAppCfg.Get<ISetting>().DemoGuid}");
             Console.WriteLine($"DemoInt: {MyAppCfg.Get<ISetting>().DemoInt}");
