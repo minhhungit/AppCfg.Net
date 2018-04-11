@@ -13,8 +13,8 @@ namespace AppCfg
     {
         internal K ExtendWith<K>()
         {
-            AssemblyBuilder assembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(new Guid().ToString()), AssemblyBuilderAccess.Run);
-            ModuleBuilder module = assembly.DefineDynamicModule("Module");
+            AssemblyBuilder assembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
+            ModuleBuilder module = assembly.DefineDynamicModule("AppCfgModule");
 
             var typeBuilder = module.DefineType(typeof(T).Name + "_" + typeof(K).Name, TypeAttributes.Public, typeof(T));
             typeBuilder.AddInterfaceImplementation(typeof(K));
