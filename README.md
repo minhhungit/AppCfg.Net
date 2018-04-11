@@ -1,9 +1,11 @@
-# AppCfg [![Build status](https://ci.appveyor.com/api/projects/status/8ifb08lenlmbdf0p?svg=true)](https://ci.appveyor.com/project/minhhungit/appcfg)
+# AppCfg.Net [![Build status](https://ci.appveyor.com/api/projects/status/8ifb08lenlmbdf0p?svg=true)](https://ci.appveyor.com/project/minhhungit/appcfg)
 A mini configuration framework for .NET developers
 
-> Note: This project is still ongoing
+### Installation
+> Install-Package AppCfg.Net
 
-<br />
+
+### First look
 
 ```xml
 <appSettings>
@@ -33,4 +35,4 @@ var username = MyAppCfg.Get<ISetting>().Username;
 
 <br />
 
-<img src="https://raw.githubusercontent.com/minhhungit/AppCfg/master/wiki/images/demo.png" style="width: 100%;" />
+<img src="https://raw.githubusercontent.com/minhhungit/AppCfg/master/wiki/images/demo.png" />
