@@ -30,3 +30,7 @@ var username = MyAppCfg.Get<ISetting>().Username;
 
 **Need demo?**
 > https://github.com/minhhungit/AppCfg/tree/master/AppCfgDemo
+
+<br />
+
+<img src="https://raw.githubusercontent.com/minhhungit/AppCfg/master/wiki/images/demo.png" style="width: 100%;" />
