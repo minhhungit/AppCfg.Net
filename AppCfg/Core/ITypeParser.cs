@@ -2,6 +2,6 @@
 {
     public interface ITypeParser<T>
     {
-        T Parse(string rawValue);
+        T Parse(string rawValue, string inputFormat = null, string separator = null);
     }
 }

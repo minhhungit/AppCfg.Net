@@ -1,5 +1,5 @@
 ﻿/**
- * Rewrite based on https://gist.github.com/IamNguele/bdc79d0d83a7895e693bc3b5cae543d7#file-typemixer-cs
+ * Idea is from https://gist.github.com/IamNguele/bdc79d0d83a7895e693bc3b5cae543d7#file-typemixer-cs
  */
 
 using System;
@@ -12,8 +12,6 @@ namespace AppCfg
 {
     internal class SettingTypeMixer<T>
     {
-        private readonly BindingFlags visibilityFlags = BindingFlags.Public | BindingFlags.Instance;
-
         private Dictionary<string, OptionAttribute> attributeBank = new Dictionary<string, OptionAttribute>();
         internal K ExtendWith<K>()
         {
@@ -52,32 +50,50 @@ namespace AppCfg
                 propertyBuilder.SetGetMethod(getter);
                 propertyBuilder.SetSetMethod(setter);
 
-                var attrType = typeof(OptionAttribute);
-                var ctorInfo = attrType.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).FirstOrDefault();
-                var lstProperties = new PropertyInfo[2];
-                lstProperties[0] = attrType.GetProperties().FirstOrDefault(x => x.Name == "Alias");
-                lstProperties[1] = attrType.GetProperties().FirstOrDefault(x => x.Name == "DefaultValue");
-
-                var attributeBuilder = new CustomAttributeBuilder(ctorInfo, new object[] { }, lstProperties, new object[] { v.GetCustomAttribute<OptionAttribute>()?.Alias, v.GetCustomAttribute<OptionAttribute>()?.DefaultValue });
-
-                propertyBuilder.SetCustomAttribute(attributeBuilder);
-
+                var optAttr = v.GetCustomAttribute<OptionAttribute>();
+                if (optAttr != null)
+                {
+                    var attrType = typeof(OptionAttribute);
+                    var attributeBuilder = CreateAttributeBuilderFor(attrType, v.GetCustomAttribute(attrType));
+                    if (attributeBuilder != null)
+                    {
+                        propertyBuilder.SetCustomAttribute(attributeBuilder);
+                    }
+                }                
 
                 if (v.GetGetMethod() != null) typeBuilder.DefineMethodOverride(getter, v.GetGetMethod());
                 if (v.GetSetMethod() != null) typeBuilder.DefineMethodOverride(setter, v.GetSetMethod());
             }
 
-            var newObject = (K)Activator.CreateInstance(typeBuilder.CreateTypeInfo());
-            foreach (PropertyInfo prop in newObject.GetType().GetProperties(visibilityFlags))
+            return (K)Activator.CreateInstance(typeBuilder.CreateTypeInfo());
+        }
+
+        private CustomAttributeBuilder CreateAttributeBuilderFor(Type attrType, Attribute origialAttr)
+        {
+            var attrCtor = attrType.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).FirstOrDefault();
+
+            if (attrType == typeof(OptionAttribute))
             {
-                if (prop != null && prop.CanWrite)
-                {
-                    var propAttr = attributeBank[prop.Name];
-                    prop.SetValue(newObject, propAttr?.DefaultValue ?? prop.GetValue(newObject), null);
-                }
+                var origialAttrData = (OptionAttribute)origialAttr;
+                var lstProperties = new PropertyInfo[4];
+
+                var properties = attrType.GetProperties();
+
+                lstProperties[0] = properties.FirstOrDefault(x => x.Name == "Alias");
+                lstProperties[1] = properties.FirstOrDefault(x => x.Name == "DefaultValue");
+                lstProperties[2] = properties.FirstOrDefault(x => x.Name == "InputFormat");
+                lstProperties[3] = properties.FirstOrDefault(x => x.Name == "Separator");
+
+                return new CustomAttributeBuilder(attrCtor, new object[] { }, lstProperties.ToArray(),
+                    new object[] {
+                        origialAttrData?.Alias,
+                        origialAttrData?.DefaultValue,
+                        origialAttrData?.InputFormat,
+                        origialAttrData?.Separator
+                    });
             }
 
-            return newObject;
+            return null;
         }
     }
 }

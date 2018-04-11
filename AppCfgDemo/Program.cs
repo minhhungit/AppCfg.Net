@@ -8,6 +8,10 @@ namespace AppCfgDemo
     {
         bool DemoBoolean { get; }
         DateTime DemoDateTime { get; }
+
+        [Option(InputFormat = "dd+MM/yyyy")]
+        DateTime DemoDateTimeWithFormat { get; }
+
         decimal DemoDecimal { get; }
         double DemoDouble { get; }
         Guid DemoGuid { get; }
@@ -22,6 +26,7 @@ namespace AppCfgDemo
         TimeSpan DemoTimeSpanFirst { get; }
         TimeSpan DemoTimeSpanSecond { get; }
 
+        [Option(Separator = "^")]
         List<int> Numbers { get; }
         
     }
@@ -51,6 +56,7 @@ namespace AppCfgDemo
 
             Console.WriteLine($"DemoBoolean: {MyAppCfg.Get<ISetting>().DemoBoolean}");
             Console.WriteLine($"DemoDateTime: {MyAppCfg.Get<ISetting>().DemoDateTime}");
+            Console.WriteLine($"DemoDateTimeWithFormat: {MyAppCfg.Get<ISetting>().DemoDateTimeWithFormat:MMM dd, yyyy}");
             Console.WriteLine($"DemoDecimal: {MyAppCfg.Get<ISetting>().DemoDecimal}");
             Console.WriteLine($"DemoDouble: {MyAppCfg.Get<ISetting>().DemoDouble}");
             Console.WriteLine($"DemoGuid: {MyAppCfg.Get<ISetting>().DemoGuid}");

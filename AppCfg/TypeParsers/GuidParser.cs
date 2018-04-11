@@ -4,9 +4,16 @@ namespace AppCfg.TypeParsers
 {
     internal class GuidParser : ITypeParser<Guid>
     {
-        public Guid Parse(string rawValue)
+        public Guid Parse(string rawValue, string inputFormat = null, string separator = null)
         {
-            return Guid.Parse(rawValue);
+            if (inputFormat == null)
+            {
+                return Guid.Parse(rawValue);
+            }
+            else
+            {
+                return Guid.ParseExact(rawValue, inputFormat);
+            }
         }
     }
 }

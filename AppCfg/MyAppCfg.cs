@@ -38,17 +38,28 @@ namespace AppCfg
 
                 if(TypeParserFactory.Stores.ContainsKey(prop.PropertyType) && TypeParserFactory.Stores[prop.PropertyType] != null)
                 {
-                    var optAttr = prop.GetCustomAttribute<OptionAttribute>();
-
-                    var value = GetRawValue(optAttr?.Alias ?? prop.Name);
-                    if (value != null)
+                    try
                     {
-                        prop.SetValue(setting, typeof(ITypeParser<>).MakeGenericType(prop.PropertyType).GetMethod("Parse").Invoke(TypeParserFactory.Stores[prop.PropertyType], new[] { value }), null);
+                        var optAttr = prop.GetCustomAttribute<OptionAttribute>();
+                        var rawValue = GetRawValue(optAttr?.Alias ?? prop.Name);
+                        if (rawValue != null)
+                        {
+                            prop.SetValue(setting, typeof(ITypeParser<>).MakeGenericType(prop.PropertyType).GetMethod("Parse").Invoke(TypeParserFactory.Stores[prop.PropertyType], new[] { rawValue, optAttr?.InputFormat, optAttr?.Separator }), null);
+                        }
+                        else
+                        {
+                            prop.SetValue(setting, optAttr?.DefaultValue);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        var tParserType = TypeParserFactory.Stores.ContainsKey(prop.PropertyType) ? TypeParserFactory.Stores[prop.PropertyType].GetType().ToString() : "null";
+                        throw new AppCfgException($"{ex.InnerException?.Message ?? ex.Message}\n - Setting: {typeof(TSetting)}\n - PropName: {prop.Name}\n - PropType: {prop.PropertyType}\n - Parser: {tParserType}", ex);
                     }
                 }
                 else
                 {
-                    throw new Exception($"There is no type parser for type [{prop.PropertyType}]. You maybe need to create a custom type parser for it");
+                    throw new AppCfgException($"There is no type parser for type [{prop.PropertyType}]. You maybe need to create a custom type parser for it");
                 }                
             }
 
@@ -92,7 +103,7 @@ namespace AppCfg
                 }
                 else
                 {
-                    throw new Exception("Duplicate type parser");
+                    throw new AppCfgException("Duplicate type parser");
                 }
             }
 

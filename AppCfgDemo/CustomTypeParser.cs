@@ -9,9 +9,10 @@ namespace AppCfgDemo
     #region List<int>
     public class ListIntParser : ITypeParser<List<int>>
     {
-        public List<int> Parse(string rawValue)
+        public List<int> Parse(string rawValue, string inputFormat = null, string separator = null)
         {
-            return new List<int>(rawValue.Split(';').Select(s => int.Parse(s, NumberStyles.Integer | NumberStyles.AllowThousands, CultureInfo.InvariantCulture)));
+            separator = separator ?? ";";
+            return new List<int>(rawValue.Split(new string[] { separator }, StringSplitOptions.None).Select(s => int.Parse(s, NumberStyles.Integer | NumberStyles.AllowThousands, CultureInfo.InvariantCulture)));
         }
     }
     #endregion
@@ -29,7 +30,7 @@ namespace AppCfgDemo
 
     public class DateTimeLongTypeParser : ITypeParser<DateTimeLongType>
     {
-        public DateTimeLongType Parse(string rawValue)
+        public DateTimeLongType Parse(string rawValue, string inputFormat = null, string separator = null)
         {
             return new DateTimeLongType(DateTime.ParseExact(rawValue, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
         }

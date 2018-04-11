@@ -15,5 +15,7 @@ namespace AppCfg
         /// </summary>
         public object DefaultValue { get; set; }
 
+        public string InputFormat { get; set; }
+        public string Separator { get; set; }
     }
 }

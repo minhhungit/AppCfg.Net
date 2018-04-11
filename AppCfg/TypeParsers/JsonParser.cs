@@ -15,7 +15,7 @@ namespace AppCfg.TypeParsers
 
     public class JsonParser<T> : ITypeParser<T> where T: class, IJsonDataType, new()
     {
-        public T Parse(string rawValue)
+        public T Parse(string rawValue, string inputFormat = null, string separator = null)
         {
             var jsonSettings = new JsonSerializerSettings();
             if (MyAppCfg.JsonSerializerSettings != null)
