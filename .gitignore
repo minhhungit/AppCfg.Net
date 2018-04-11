@@ -10,3 +10,5 @@
 /packages
 /.vs/config
 /AppCfg/obj
+/AppCfg/bin/Release
+/AppCfgDemo/obj/Release

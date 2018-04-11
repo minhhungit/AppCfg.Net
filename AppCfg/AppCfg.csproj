@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
-    <Title>AppCfg</Title>
-    <Version>0.0.1</Version>
+    <Title>AppCfg.Net</Title>
+    <Version>0.1.0</Version>
     <Copyright>Copyright 2018 minhhungit</Copyright>
     <Description>A mini configuration framework for .NET developers</Description>
     <Authors>Hung Vo</Authors>
@@ -11,10 +11,13 @@
     <RepositoryUrl>https://github.com/minhhungit/AppCfg/</RepositoryUrl>
     <PackageTags>configuration appsetting json dotnet csharp</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
-    <AssemblyVersion>0.0.1</AssemblyVersion>
-    <FileVersion>0.0.1</FileVersion>
+    <AssemblyVersion>0.1.0</AssemblyVersion>
+    <FileVersion>0.1.0</FileVersion>
     <Company />
-    <PackageIconUrl></PackageIconUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/minhhungit/ConsoleTableExt/master/wiki/Images/icon.ico</PackageIconUrl>
+    <PackageId>AppCfg.Net</PackageId>
+    <Product>AppCfg.Net</Product>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
