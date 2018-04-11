@@ -4,7 +4,7 @@
     {
         public long Parse(string rawValue)
         {
-            return long.Parse(rawValue, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture);
+            return long.Parse(rawValue, System.Globalization.NumberStyles.Integer | System.Globalization.NumberStyles.AllowThousands, System.Globalization.CultureInfo.InvariantCulture);
         }
     }
 }
