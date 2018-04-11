@@ -2,7 +2,7 @@
 {
     internal class BooleanParser : ITypeParser<bool>
     {
-        public bool Parse(string rawValue, string inputFormat = null, string separator = null)
+        public bool Parse(string rawValue, ITypeParserOptions options = null)
         {
             rawValue = rawValue.Trim().ToLower();
 

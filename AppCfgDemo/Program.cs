@@ -16,7 +16,7 @@ namespace AppCfgDemo
         double DemoDouble { get; }
         Guid DemoGuid { get; }
 
-        [Option(DefaultValue = 99)]
+        [Option(DefaultValue = 77)]
         int DemoInt { get; }
 
         [Option(Alias = "long-key")]
@@ -28,57 +28,50 @@ namespace AppCfgDemo
 
         [Option(Separator = "^")]
         List<int> Numbers { get; }
-        
     }
 
     public interface IJsonSetting
     {
-        [Option(Alias = "cute_animal")] Animal CuteAnimal { get; }
-    }
+        [Option(Alias = "cute_animal")]
+        Animal CuteAnimal { get; }
 
-    public interface IJsonSettingWithCustomJsonSetting
-    {
-        [Option(Alias = "test_setting_with_js_config")] Machine Optimus { get; }
+        [Option(Alias = "test_setting_with_js_config")]
+        Machine Optimus { get; }
     }
 
     class Program
     {
         static void Main(string[] args)
         {
-            // register custom type parser
-            MyAppCfg.TypeParserFactory.AddParser(new ListIntParser());
+            // Use a wrapper class to initial settings, 
+            // It's also help us see errors if something wrong before it dives into hell
+            // Anyway, this is just a demo
+            MySettings.Init();
 
-            // setup json serializer settings
-            MyAppCfg.JsonSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings
-            {
-                DateFormatString = "dd+MM+yyyy" // ex: setup default format
-            };
-
-            Console.WriteLine($"DemoBoolean: {MyAppCfg.Get<ISetting>().DemoBoolean}");
-            Console.WriteLine($"DemoDateTime: {MyAppCfg.Get<ISetting>().DemoDateTime}");
-            Console.WriteLine($"DemoDateTimeWithFormat: {MyAppCfg.Get<ISetting>().DemoDateTimeWithFormat:MMM dd, yyyy}");
-            Console.WriteLine($"DemoDecimal: {MyAppCfg.Get<ISetting>().DemoDecimal}");
-            Console.WriteLine($"DemoDouble: {MyAppCfg.Get<ISetting>().DemoDouble}");
-            Console.WriteLine($"DemoGuid: {MyAppCfg.Get<ISetting>().DemoGuid}");
-            Console.WriteLine($"DemoInt: {MyAppCfg.Get<ISetting>().DemoInt}");
-            Console.WriteLine($"DemoLong: {MyAppCfg.Get<ISetting>().DemoLong}");
-            Console.WriteLine($"DemoString: {MyAppCfg.Get<ISetting>().DemoString}");
-            Console.WriteLine($"DemoTimeSpanFirst: {MyAppCfg.Get<ISetting>().DemoTimeSpanFirst}");
-            Console.WriteLine($"DemoTimeSpanSecond: {MyAppCfg.Get<ISetting>().DemoTimeSpanSecond}\n");
-
+            Console.WriteLine($"DemoBoolean: {MySettings.First.DemoBoolean}");
+            Console.WriteLine($"DemoDateTime: {MySettings.First.DemoDateTime}");
+            Console.WriteLine($"DemoDateTimeWithFormat: {MySettings.First.DemoDateTimeWithFormat:MMM dd, yyyy}");
+            Console.WriteLine($"DemoDecimal: {MySettings.First.DemoDecimal}");
+            Console.WriteLine($"DemoDouble: {MySettings.First.DemoDouble}");
+            Console.WriteLine($"DemoGuid: {MySettings.First.DemoGuid}");
+            Console.WriteLine($"DemoInt: {MySettings.First.DemoInt}");
+            Console.WriteLine($"DemoLong: {MySettings.First.DemoLong}");
+            Console.WriteLine($"DemoString: {MySettings.First.DemoString}");
+            Console.WriteLine($"DemoTimeSpanFirst: {MySettings.First.DemoTimeSpanFirst}");
+            Console.WriteLine($"DemoTimeSpanSecond: {MySettings.First.DemoTimeSpanSecond}\n");
 
             Console.WriteLine($"Numbers:");
-            foreach (var num in MyAppCfg.Get<ISetting>().Numbers)
+            foreach (var num in MySettings.First.Numbers)
             {
                 Console.WriteLine($"   + {num}");
             }
 
-            Console.WriteLine($"\nAnimal - Name: {MyAppCfg.Get<IJsonSetting>().CuteAnimal.Name}");
-            Console.WriteLine($"Animal - Legs: {MyAppCfg.Get<IJsonSetting>().CuteAnimal.Legs}");
-            Console.WriteLine($"Animal - CanSwim: {MyAppCfg.Get<IJsonSetting>().CuteAnimal.CanSwim}");
-            Console.WriteLine($"Animal - SampleDay: {MyAppCfg.Get<IJsonSetting>().CuteAnimal.SampleDay:MMM dd, yyyy}\n");
+            Console.WriteLine($"\nAnimal - Name: {MySettings.Second.CuteAnimal.Name}");
+            Console.WriteLine($"Animal - Legs: {MySettings.Second.CuteAnimal.Legs}");
+            Console.WriteLine($"Animal - CanSwim: {MySettings.Second.CuteAnimal.CanSwim}");
+            Console.WriteLine($"Animal - SampleDay: {MySettings.Second.CuteAnimal.SampleDay:MMM dd, yyyy}\n");
 
-            Console.WriteLine($"Machine - DayWithNewFormat: {MyAppCfg.Get<IJsonSettingWithCustomJsonSetting>().Optimus.DayWithNewFormat:MM-dd-yyyy}");
+            Console.WriteLine($"Machine - DayWithNewFormat: {MySettings.Second.Optimus.DayWithNewFormat:MM-dd-yyyy}");
 
             Console.ReadKey();
         }

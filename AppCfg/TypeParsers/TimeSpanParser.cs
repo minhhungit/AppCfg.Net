@@ -1,18 +1,19 @@
 ﻿using System;
+using System.Globalization;
 
 namespace AppCfg.TypeParsers
 {
     internal class TimeSpanParser : ITypeParser<TimeSpan>
     {
-        public TimeSpan Parse(string rawValue, string inputFormat = null, string separator = null)
+        public TimeSpan Parse(string rawValue, ITypeParserOptions options)
         {
-            if (inputFormat == null)
+            if (options.InputFormat == null)
             {
-                return TimeSpan.Parse(rawValue, System.Globalization.CultureInfo.InvariantCulture);
+                return TimeSpan.Parse(rawValue, TypeParserSettings.DefaultCulture);
             }
             else
             {
-                return TimeSpan.ParseExact(rawValue, inputFormat, System.Globalization.CultureInfo.InvariantCulture);
+                return TimeSpan.ParseExact(rawValue, options.InputFormat, TypeParserSettings.DefaultCulture);
             }
         }
     }

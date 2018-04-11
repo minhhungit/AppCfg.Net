@@ -2,7 +2,7 @@
 {
     internal class StringParser : ITypeParser<string>
     {
-        public string Parse(string rawValue, string inputFormat = null, string separator = null)
+        public string Parse(string rawValue, ITypeParserOptions options)
         {
             return rawValue;
         }

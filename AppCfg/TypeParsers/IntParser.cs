@@ -4,9 +4,9 @@ namespace AppCfg.TypeParsers
 {
     internal class IntParser : ITypeParser<int>
     {
-        public int Parse(string rawValue, string inputFormat = null, string separator = null)
+        public int Parse(string rawValue, ITypeParserOptions options)
         {
-            return int.Parse(rawValue, NumberStyles.Integer | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
+            return int.Parse(rawValue, NumberStyles.Any, TypeParserSettings.DefaultCulture);
         }
     }
 }

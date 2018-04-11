@@ -3,7 +3,7 @@
 namespace AppCfg
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class OptionAttribute : Attribute
+    public class OptionAttribute : Attribute, ITypeParserOptions
     {
         /// <summary>
         /// Alias is used to override option name if it's stored by a different name in external stores
@@ -16,6 +16,7 @@ namespace AppCfg
         public object DefaultValue { get; set; }
 
         public string InputFormat { get; set; }
+
         public string Separator { get; set; }
     }
 }

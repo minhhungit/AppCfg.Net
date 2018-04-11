@@ -3,33 +3,24 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
 namespace AppCfg
 {
-    internal class SettingTypeMixer<T>
+    internal class AppCfgTypeMixer<T>
     {
-        private Dictionary<string, OptionAttribute> attributeBank = new Dictionary<string, OptionAttribute>();
         internal K ExtendWith<K>()
         {
-            var assemblyName = new Guid().ToString();
+            AssemblyBuilder assembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(new Guid().ToString()), AssemblyBuilderAccess.Run);
+            ModuleBuilder module = assembly.DefineDynamicModule("Module");
 
-            var assembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(assemblyName), AssemblyBuilderAccess.Run);
-            var module = assembly.DefineDynamicModule("Module");
             var typeBuilder = module.DefineType(typeof(T).Name + "_" + typeof(K).Name, TypeAttributes.Public, typeof(T));
-            var fieldsList = new List<string>();
-
             typeBuilder.AddInterfaceImplementation(typeof(K));
 
             foreach (var v in typeof(K).GetProperties())
             {
-                attributeBank.Add(v.Name, v.GetCustomAttribute<OptionAttribute>());
-
-                fieldsList.Add(v.Name);
-
                 var field = typeBuilder.DefineField("_f_" + v.Name.ToLower(), v.PropertyType, FieldAttributes.Private);
                 var propertyBuilder = typeBuilder.DefineProperty(v.Name, PropertyAttributes.None, v.PropertyType, new Type[0]);
                 var getter = typeBuilder.DefineMethod("_get_" + v.Name, MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.Virtual, v.PropertyType, new Type[0]);
@@ -50,11 +41,9 @@ namespace AppCfg
                 propertyBuilder.SetGetMethod(getter);
                 propertyBuilder.SetSetMethod(setter);
 
-                var optAttr = v.GetCustomAttribute<OptionAttribute>();
-                if (optAttr != null)
+                foreach (var attr in v.GetCustomAttributes())
                 {
-                    var attrType = typeof(OptionAttribute);
-                    var attributeBuilder = CreateAttributeBuilderFor(attrType, v.GetCustomAttribute(attrType));
+                    var attributeBuilder = CreateAttributeBuilderFor(v.GetCustomAttribute(attr.GetType()));
                     if (attributeBuilder != null)
                     {
                         propertyBuilder.SetCustomAttribute(attributeBuilder);
@@ -68,32 +57,27 @@ namespace AppCfg
             return (K)Activator.CreateInstance(typeBuilder.CreateTypeInfo());
         }
 
-        private CustomAttributeBuilder CreateAttributeBuilderFor(Type attrType, Attribute origialAttr)
+        private CustomAttributeBuilder CreateAttributeBuilderFor(Attribute origialAttr)
         {
-            var attrCtor = attrType.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).FirstOrDefault();
+            Type type = origialAttr.GetType();
+            var constructor = type.GetConstructor(Type.EmptyTypes);
+            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
 
-            if (attrType == typeof(OptionAttribute))
-            {
-                var origialAttrData = (OptionAttribute)origialAttr;
-                var lstProperties = new PropertyInfo[4];
+            var propertyValues = from p in properties
+                                 where p.CanWrite && p.CanRead
+                                 select p.GetValue(origialAttr, null);
 
-                var properties = attrType.GetProperties();
+            var fieldValues = from f in fields
+                              select f.GetValue(origialAttr);
 
-                lstProperties[0] = properties.FirstOrDefault(x => x.Name == "Alias");
-                lstProperties[1] = properties.FirstOrDefault(x => x.Name == "DefaultValue");
-                lstProperties[2] = properties.FirstOrDefault(x => x.Name == "InputFormat");
-                lstProperties[3] = properties.FirstOrDefault(x => x.Name == "Separator");
 
-                return new CustomAttributeBuilder(attrCtor, new object[] { }, lstProperties.ToArray(),
-                    new object[] {
-                        origialAttrData?.Alias,
-                        origialAttrData?.DefaultValue,
-                        origialAttrData?.InputFormat,
-                        origialAttrData?.Separator
-                    });
-            }
-
-            return null;
+            return new CustomAttributeBuilder(constructor,
+                                             Type.EmptyTypes,
+                                             properties.Where(x=>x.CanRead && x.CanWrite).ToArray(),
+                                             propertyValues.ToArray(),
+                                             fields,
+                                             fieldValues.ToArray());
         }
     }
 }

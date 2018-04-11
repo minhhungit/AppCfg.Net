@@ -5,7 +5,7 @@ namespace AppCfg.TypeParsers
 {
     internal class DateTimeParser : ITypeParser<DateTime>
     {
-        public DateTime Parse(string rawValue, string inputFormat = null, string separator = null)
+        public DateTime Parse(string rawValue, ITypeParserOptions options)
         {
             // https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings
 
@@ -25,13 +25,13 @@ namespace AppCfg.TypeParsers
             // Universal Full ("U"): dddd, dd MMMM yyyy HH:mm:ss
             // Year Month ("Y", "y"): yyyy MMMM
 
-            if (inputFormat == null)
+            if (options.InputFormat == null)
             {
-                return DateTime.Parse(rawValue, CultureInfo.InvariantCulture, DateTimeStyles.None);
+                return DateTime.Parse(rawValue, TypeParserSettings.DefaultCulture, DateTimeStyles.None);
             }
             else
             {
-                return DateTime.ParseExact(rawValue, inputFormat, CultureInfo.InvariantCulture);
+                return DateTime.ParseExact(rawValue, options.InputFormat, TypeParserSettings.DefaultCulture);
             }
         }
     }

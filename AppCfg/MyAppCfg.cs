@@ -20,7 +20,7 @@ namespace AppCfg
                 return (TSetting)_settingItemStores[typeof(TSetting)];
             }
 
-            TSetting setting = new SettingTypeMixer<object>().ExtendWith<TSetting>();
+            TSetting setting = new AppCfgTypeMixer<object>().ExtendWith<TSetting>();
 
             var props = setting.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
@@ -40,15 +40,16 @@ namespace AppCfg
                 {
                     try
                     {
-                        var optAttr = prop.GetCustomAttribute<OptionAttribute>();
-                        var rawValue = GetRawValue(optAttr?.Alias ?? prop.Name);
+                        ITypeParserOptions iOptions = (ITypeParserOptions)prop.GetCustomAttribute<OptionAttribute>() ?? new DefaultTypeParserOption();
+
+                        var rawValue = GetRawValue(iOptions?.Alias ?? prop.Name);
                         if (rawValue != null)
                         {
-                            prop.SetValue(setting, typeof(ITypeParser<>).MakeGenericType(prop.PropertyType).GetMethod("Parse").Invoke(TypeParserFactory.Stores[prop.PropertyType], new[] { rawValue, optAttr?.InputFormat, optAttr?.Separator }), null);
+                            prop.SetValue(setting, typeof(ITypeParser<>).MakeGenericType(prop.PropertyType).GetMethod("Parse").Invoke(TypeParserFactory.Stores[prop.PropertyType], new[] { rawValue, (object)iOptions }), null);
                         }
                         else
                         {
-                            prop.SetValue(setting, optAttr?.DefaultValue);
+                            prop.SetValue(setting, iOptions?.DefaultValue);
                         }
                     }
                     catch (Exception ex)

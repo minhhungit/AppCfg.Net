@@ -1,10 +1,12 @@
-﻿namespace AppCfg.TypeParsers
+﻿using System.Globalization;
+
+namespace AppCfg.TypeParsers
 {
     internal class LongParser : ITypeParser<long>
     {
-        public long Parse(string rawValue, string inputFormat = null, string separator = null)
+        public long Parse(string rawValue, ITypeParserOptions options)
         {
-            return long.Parse(rawValue, System.Globalization.NumberStyles.Integer | System.Globalization.NumberStyles.AllowThousands, System.Globalization.CultureInfo.InvariantCulture);
+            return long.Parse(rawValue, NumberStyles.Any, TypeParserSettings.DefaultCulture);
         }
     }
 }

@@ -49,9 +49,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DemoJsonParserWithSetting.cs" />
-    <Compile Include="DemoJsonParser.cs" />
-    <Compile Include="CustomTypeParser.cs" />
+    <Compile Include="Models\JsonMachine.cs" />
+    <Compile Include="Models\JsonAnimal.cs" />
+    <Compile Include="CustomParsers\ListIntParser.cs" />
+    <Compile Include="MySettings.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -67,5 +68,6 @@
       <Name>AppCfg</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

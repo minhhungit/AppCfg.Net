@@ -1,10 +1,12 @@
-﻿namespace AppCfg.TypeParsers
+﻿using System.Globalization;
+
+namespace AppCfg.TypeParsers
 {
     internal class DoubleParser : ITypeParser<double>
     {
-        public double Parse(string rawValue, string inputFormat = null, string separator = null)
+        public double Parse(string rawValue, ITypeParserOptions options)
         {
-            return double.Parse(rawValue, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture);
+            return double.Parse(rawValue, NumberStyles.Any, TypeParserSettings.DefaultCulture);
         }
     }
 }
