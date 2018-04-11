@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <Title>AppCfg.Net</Title>
-    <Version>0.1.0</Version>
+    <Version>0.2.1</Version>
     <Copyright>Copyright 2018 minhhungit</Copyright>
     <Description>A mini configuration framework for .NET developers</Description>
     <Authors>Hung Vo</Authors>
@@ -10,9 +10,9 @@
     <PackageProjectUrl>https://github.com/minhhungit/AppCfg/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/minhhungit/AppCfg/</RepositoryUrl>
     <PackageTags>configuration appsetting json dotnet csharp</PackageTags>
-    <PackageReleaseNotes></PackageReleaseNotes>
-    <AssemblyVersion>0.1.0</AssemblyVersion>
-    <FileVersion>0.1.0</FileVersion>
+    <PackageReleaseNotes>add boolean, decimal, datetime parsers</PackageReleaseNotes>
+    <AssemblyVersion>0.2.1</AssemblyVersion>
+    <FileVersion>0.2.1</FileVersion>
     <Company />
     <PackageIconUrl>https://raw.githubusercontent.com/minhhungit/AppCfg/master/wiki/icon.ico</PackageIconUrl>
     <PackageId>AppCfg.Net</PackageId>
