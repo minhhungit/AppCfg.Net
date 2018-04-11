@@ -1,4 +1,4 @@
-# AppCfg
+# AppCfg [![Build status](https://ci.appveyor.com/api/projects/status/8ifb08lenlmbdf0p?svg=true)](https://ci.appveyor.com/project/minhhungit/appcfg)
 A mini configuration framework for .NET developers
 
 > Note: This project is still ongoing
