@@ -1,70 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{908F244B-9FE5-4230-98EE-8903128DDA48}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AppCfg</RootNamespace>
-    <AssemblyName>AppCfg</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+    <Title>AppCfg</Title>
+    <Version>0.0.1</Version>
+    <Copyright>Copyright 2018 minhhungit</Copyright>
+    <Description>A mini configuration framework for .NET developers</Description>
+    <Authors>Hung Vo</Authors>
+    <PackageLicenseUrl>https://github.com/minhhungit/AppCfg/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/minhhungit/AppCfg/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/minhhungit/AppCfg/</RepositoryUrl>
+    <PackageTags>configuration appsetting json dotnet csharp</PackageTags>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <AssemblyVersion>0.0.1</AssemblyVersion>
+    <FileVersion>0.0.1</FileVersion>
+    <Company />
+    <PackageIconUrl></PackageIconUrl>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json.Serialization.PrivateSetterContractResolver, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PrivateSetterContractResolver.2.1.0\lib\net35\Newtonsoft.Json.Serialization.PrivateSetterContractResolver.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="PrivateSetterContractResolver" Version="2.1.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.1" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="MyAppCfg.cs" />
-    <Compile Include="TypeParsers\GuidParser.cs" />
-    <Compile Include="TypeParsers\IntParser.cs" />
-    <Compile Include="Core\ITypeParser.cs" />
-    <Compile Include="TypeParsers\JsonParser.cs" />
-    <Compile Include="TypeParsers\DoubleParser.cs" />
-    <Compile Include="TypeParsers\TimeSpanParser.cs" />
-    <Compile Include="TypeParsers\StringParser.cs" />
-    <Compile Include="TypeParsers\LongParser.cs" />
-    <Compile Include="Attributes\OptionAttribute.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Core\SettingTypeMixer.cs" />
-    <Compile Include="Core\TypeParserFactory.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

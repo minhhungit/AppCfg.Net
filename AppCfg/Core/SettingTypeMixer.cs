@@ -19,7 +19,7 @@ namespace AppCfg
         {
             var assemblyName = new Guid().ToString();
 
-            var assembly = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName(assemblyName), AssemblyBuilderAccess.Run);
+            var assembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(assemblyName), AssemblyBuilderAccess.Run);
             var module = assembly.DefineDynamicModule("Module");
             var typeBuilder = module.DefineType(typeof(T).Name + "_" + typeof(K).Name, TypeAttributes.Public, typeof(T));
             var fieldsList = new List<string>();
@@ -67,7 +67,7 @@ namespace AppCfg
                 if (v.GetSetMethod() != null) typeBuilder.DefineMethodOverride(setter, v.GetSetMethod());
             }
 
-            var newObject = (K)Activator.CreateInstance(typeBuilder.CreateType());
+            var newObject = (K)Activator.CreateInstance(typeBuilder.CreateTypeInfo());
             foreach (PropertyInfo prop in newObject.GetType().GetProperties(visibilityFlags))
             {
                 if (prop != null && prop.CanWrite)
