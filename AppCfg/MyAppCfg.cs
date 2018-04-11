@@ -73,6 +73,7 @@ namespace AppCfg
             {
                 Stores = new Dictionary<Type, object>();
 
+                AddParser(new BooleanParser());
                 AddParser(new DoubleParser());
                 AddParser(new GuidParser());
                 AddParser(new IntParser());

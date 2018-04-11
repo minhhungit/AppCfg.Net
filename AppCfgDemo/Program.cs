@@ -6,6 +6,9 @@ namespace AppCfgDemo
 {
     public interface ISetting
     {
+        bool DemoBooleanFirst { get; }
+        bool DemoBooleanSecond { get; }
+        bool DemoBooleanThrid { get; }
         double DemoDouble { get; }
         Guid DemoGuid { get; }
 
@@ -45,6 +48,10 @@ namespace AppCfgDemo
             {
                 DateFormatString = "dd+MM+yyyy" // ex: setup default format
             };
+
+            Console.WriteLine($"DemoBooleanFirst: {MyAppCfg.Get<ISetting>().DemoBooleanFirst}");
+            Console.WriteLine($"DemoBooleanSecond: {MyAppCfg.Get<ISetting>().DemoBooleanSecond}");
+            Console.WriteLine($"DemoBooleanThrid: {MyAppCfg.Get<ISetting>().DemoBooleanThrid}");
 
             Console.WriteLine($"DemoDouble: {MyAppCfg.Get<ISetting>().DemoDouble}");
             Console.WriteLine($"DemoGuid: {MyAppCfg.Get<ISetting>().DemoGuid}");
