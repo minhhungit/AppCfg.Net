@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data.SqlClient;
 using System.Reflection;
 
 namespace AppCfg
@@ -42,7 +43,7 @@ namespace AppCfg
                     {
                         ITypeParserOptions iOptions = (ITypeParserOptions)prop.GetCustomAttribute<OptionAttribute>() ?? new DefaultTypeParserOption();
 
-                        var rawValue = GetRawValue(iOptions?.Alias ?? prop.Name);
+                        string rawValue = GetRawValue(prop.PropertyType, iOptions?.Alias ?? prop.Name);
                         if (rawValue != null)
                         {
                             prop.SetValue(setting, typeof(ITypeParser<>).MakeGenericType(prop.PropertyType).GetMethod("Parse").Invoke(TypeParserFactory.Stores[prop.PropertyType], new[] { rawValue, (object)iOptions }), null);
@@ -72,9 +73,16 @@ namespace AppCfg
             return setting;
         }
 
-        private static string GetRawValue(string key)
+        private static string GetRawValue(Type settingType, string key)
         {
-            return ConfigurationManager.AppSettings[key];
+            if (settingType == typeof(SqlConnectionStringBuilder))
+            {
+                return ConfigurationManager.ConnectionStrings[key]?.ConnectionString;
+            }
+            else
+            {
+                return ConfigurationManager.AppSettings[key];
+            }            
         }
 
         public class TypeParserFactory
@@ -85,7 +93,9 @@ namespace AppCfg
             {
                 Stores = new Dictionary<Type, object>();
 
+                // initial default parsers
                 AddParser(new BooleanParser());
+                AddParser(new ConnectionStringParser());
                 AddParser(new DateTimeParser());
                 AddParser(new DecimalParser());
                 AddParser(new DoubleParser());

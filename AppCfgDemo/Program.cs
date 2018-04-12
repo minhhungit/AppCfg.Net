@@ -1,6 +1,7 @@
 ﻿using AppCfg;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 
 namespace AppCfgDemo
 {
@@ -30,6 +31,14 @@ namespace AppCfgDemo
         List<int> Numbers { get; }
     }
 
+    public interface IConnectionStringSetting
+    {
+        [Option(Alias = "myConnFirst")]
+        SqlConnectionStringBuilder First { get; }
+        [Option(Alias = "myConnSecond")]
+        SqlConnectionStringBuilder Second { get; }
+    }
+
     public interface IJsonSetting
     {
         [Option(Alias = "cute_animal")]
@@ -48,30 +57,33 @@ namespace AppCfgDemo
             // Anyway, this is just a demo
             MySettings.Init();
 
-            Console.WriteLine($"DemoBoolean: {MySettings.First.DemoBoolean}");
-            Console.WriteLine($"DemoDateTime: {MySettings.First.DemoDateTime}");
-            Console.WriteLine($"DemoDateTimeWithFormat: {MySettings.First.DemoDateTimeWithFormat:MMM dd, yyyy}");
-            Console.WriteLine($"DemoDecimal: {MySettings.First.DemoDecimal}");
-            Console.WriteLine($"DemoDouble: {MySettings.First.DemoDouble}");
-            Console.WriteLine($"DemoGuid: {MySettings.First.DemoGuid}");
-            Console.WriteLine($"DemoInt: {MySettings.First.DemoInt}");
-            Console.WriteLine($"DemoLong: {MySettings.First.DemoLong}");
-            Console.WriteLine($"DemoString: {MySettings.First.DemoString}");
-            Console.WriteLine($"DemoTimeSpanFirst: {MySettings.First.DemoTimeSpanFirst}");
-            Console.WriteLine($"DemoTimeSpanSecond: {MySettings.First.DemoTimeSpanSecond}\n");
+            Console.WriteLine($"DemoBoolean: {MySettings.BaseSettings.DemoBoolean}");
+            Console.WriteLine($"DemoDateTime: {MySettings.BaseSettings.DemoDateTime}");
+            Console.WriteLine($"DemoDateTimeWithFormat: {MySettings.BaseSettings.DemoDateTimeWithFormat:MMM dd, yyyy}");
+            Console.WriteLine($"DemoDecimal: {MySettings.BaseSettings.DemoDecimal}");
+            Console.WriteLine($"DemoDouble: {MySettings.BaseSettings.DemoDouble}");
+            Console.WriteLine($"DemoGuid: {MySettings.BaseSettings.DemoGuid}");
+            Console.WriteLine($"DemoInt: {MySettings.BaseSettings.DemoInt}");
+            Console.WriteLine($"DemoLong: {MySettings.BaseSettings.DemoLong}");
+            Console.WriteLine($"DemoString: {MySettings.BaseSettings.DemoString}");
+            Console.WriteLine($"DemoTimeSpanFirst: {MySettings.BaseSettings.DemoTimeSpanFirst}");
+            Console.WriteLine($"DemoTimeSpanSecond: {MySettings.BaseSettings.DemoTimeSpanSecond}\n");
 
             Console.WriteLine($"Numbers:");
-            foreach (var num in MySettings.First.Numbers)
+            foreach (var num in MySettings.BaseSettings.Numbers)
             {
                 Console.WriteLine($"   + {num}");
             }
 
-            Console.WriteLine($"\nAnimal - Name: {MySettings.Second.CuteAnimal.Name}");
-            Console.WriteLine($"Animal - Legs: {MySettings.Second.CuteAnimal.Legs}");
-            Console.WriteLine($"Animal - CanSwim: {MySettings.Second.CuteAnimal.CanSwim}");
-            Console.WriteLine($"Animal - SampleDay: {MySettings.Second.CuteAnimal.SampleDay:MMM dd, yyyy}\n");
+            Console.WriteLine($"\nAnimal - Name: {MySettings.JsonSettings.CuteAnimal.Name}");
+            Console.WriteLine($"Animal - Legs: {MySettings.JsonSettings.CuteAnimal.Legs}");
+            Console.WriteLine($"Animal - CanSwim: {MySettings.JsonSettings.CuteAnimal.CanSwim}");
+            Console.WriteLine($"Animal - SampleDay: {MySettings.JsonSettings.CuteAnimal.SampleDay:MMM dd, yyyy}\n");
 
-            Console.WriteLine($"Machine - DayWithNewFormat: {MySettings.Second.Optimus.DayWithNewFormat:MM-dd-yyyy}");
+            Console.WriteLine($"Machine - DayWithNewFormat: {MySettings.JsonSettings.Optimus.DayWithNewFormat:MM-dd-yyyy}\n");
+
+            Console.WriteLine($"ConnnString - First: {MySettings.ConnSettings.First.ConnectionString}");
+            Console.WriteLine($"ConnnString - Second: InitialCatalog = {MySettings.ConnSettings.Second.InitialCatalog} | ConnectTimeout = {MySettings.ConnSettings.Second.ConnectTimeout}");
 
             Console.ReadKey();
         }

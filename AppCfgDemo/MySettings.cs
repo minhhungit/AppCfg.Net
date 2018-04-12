@@ -19,11 +19,14 @@ namespace AppCfgDemo
             };
 
             // inital settings
-            First = MyAppCfg.Get<ISetting>();
-            Second = MyAppCfg.Get<IJsonSetting>();
+            BaseSettings = MyAppCfg.Get<ISetting>();
+            JsonSettings = MyAppCfg.Get<IJsonSetting>();
+
+            ConnSettings = MyAppCfg.Get<IConnectionStringSetting>();
         }
 
-        public static ISetting First;
-        public static IJsonSetting Second;
+        public static IConnectionStringSetting ConnSettings;
+        public static ISetting BaseSettings;
+        public static IJsonSetting JsonSettings;
     }
 }
