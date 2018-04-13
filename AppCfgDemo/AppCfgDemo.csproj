@@ -49,6 +49,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomParsers\DemoParserWithRawBuilder.cs" />
+    <Compile Include="Models\JsonPerson.cs" />
     <Compile Include="Models\JsonMachine.cs" />
     <Compile Include="Models\JsonAnimal.cs" />
     <Compile Include="CustomParsers\ListIntParser.cs" />
@@ -59,6 +61,9 @@
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="json-settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
   </ItemGroup>

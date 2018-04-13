@@ -29,8 +29,8 @@ namespace AppCfg
             {
                 if (!TypeParserFactory.Stores.ContainsKey(prop.PropertyType) || TypeParserFactory.Stores[prop.PropertyType] == null)
                 {
-                    var jsObj = Activator.CreateInstance(prop.PropertyType);
-                    if (jsObj is IJsonDataType)
+                    var settingObj = Activator.CreateInstance(prop.PropertyType);
+                    if (settingObj is IJsonDataType) // auto register json parser for types which inherited from IJsonDataType
                     {
                         var jsParser = Activator.CreateInstance(typeof(JsonParser<>).MakeGenericType(prop.PropertyType));
                         TypeParserFactory.Stores.Add(prop.PropertyType, jsParser);
@@ -42,8 +42,18 @@ namespace AppCfg
                     try
                     {
                         ITypeParserOptions iOptions = (ITypeParserOptions)prop.GetCustomAttribute<OptionAttribute>() ?? new DefaultTypeParserOption();
-
-                        string rawValue = GetRawValue(prop.PropertyType, iOptions?.Alias ?? prop.Name);
+                        var settingKey = iOptions?.Alias ?? prop.Name;
+                        string rawValue = null;
+                        
+                        if (typeof(ITypeParserRawBuilder<>).MakeGenericType(prop.PropertyType).IsAssignableFrom(TypeParserFactory.Stores[prop.PropertyType].GetType()))
+                        {
+                            rawValue = (string)typeof(ITypeParserRawBuilder<>).MakeGenericType(prop.PropertyType).GetMethod("GetRawValue").Invoke(TypeParserFactory.Stores[prop.PropertyType], new[] { settingKey });
+                        }
+                        else
+                        {
+                            rawValue = GetRawValue(prop.PropertyType, settingKey);
+                        }
+                        
                         if (rawValue != null)
                         {
                             prop.SetValue(setting, typeof(ITypeParser<>).MakeGenericType(prop.PropertyType).GetMethod("Parse").Invoke(TypeParserFactory.Stores[prop.PropertyType], new[] { rawValue, (object)iOptions }), null);

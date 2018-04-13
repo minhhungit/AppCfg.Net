@@ -20,4 +20,9 @@
     {
         T Parse(string rawValue, ITypeParserOptions options);
     }
+
+    public interface ITypeParserRawBuilder<T> : ITypeParser<T>
+    {
+        string GetRawValue(string settingKey);
+    }
 }

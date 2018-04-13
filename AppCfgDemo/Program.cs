@@ -29,6 +29,7 @@ namespace AppCfgDemo
 
         [Option(Separator = "^")]
         List<int> Numbers { get; }
+        JsonPerson DemoRawBuilder { get; }
     }
 
     public interface IConnectionStringSetting
@@ -74,6 +75,9 @@ namespace AppCfgDemo
             {
                 Console.WriteLine($"   + {num}");
             }
+
+            Console.WriteLine($"\njson file - title: {MySettings.BaseSettings.DemoRawBuilder.Title}" );
+            Console.WriteLine($"json file - age.minimum: {MySettings.BaseSettings.DemoRawBuilder.Properties.Age.Minimum}");
 
             Console.WriteLine($"\nAnimal - Name: {MySettings.JsonSettings.CuteAnimal.Name}");
             Console.WriteLine($"Animal - Legs: {MySettings.JsonSettings.CuteAnimal.Legs}");
