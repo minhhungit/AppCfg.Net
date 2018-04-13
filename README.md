@@ -31,7 +31,7 @@ var username = MyAppCfg.Get<ISetting>().Username;
 <br />
 
 **Need demo?**
-> https://github.com/minhhungit/AppCfg/tree/master/AppCfgDemo
+> https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfgDemo/Program.cs
 
 <br />
 

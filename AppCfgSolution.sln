@@ -3,9 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2027
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppCfg", "AppCfg\AppCfg.csproj", "{908F244B-9FE5-4230-98EE-8903128DDA48}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppCfg", "AppCfg\AppCfg.csproj", "{908F244B-9FE5-4230-98EE-8903128DDA48}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppCfgDemo", "AppCfgDemo\AppCfgDemo.csproj", "{07047ECC-1D24-4064-A182-A1E1CDB3B171}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{461812CA-C7FD-4FDB-BB4C-E4D982887F2C}"
+	ProjectSection(SolutionItems) = preProject
+		wiki\icon.ico = wiki\icon.ico
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
