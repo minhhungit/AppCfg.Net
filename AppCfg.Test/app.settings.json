@@ -1,0 +1,11 @@
+﻿{
+  "title": "Person",
+  "properties": {
+    "age": {
+      "description": "Age in years",
+      "type": "a-integer-type",
+      "minimum": 18
+    }
+  },
+  "required": [ "name", "age" ]
+}

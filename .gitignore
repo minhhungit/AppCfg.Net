@@ -13,3 +13,5 @@
 /AppCfg/bin/Release
 /AppCfgDemo/obj/Release
 /AppCfgDemo/bin/Release
+/AppCfg.Test/bin
+/AppCfg.Test/obj
