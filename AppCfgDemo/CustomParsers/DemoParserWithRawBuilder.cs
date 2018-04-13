@@ -15,7 +15,7 @@ namespace AppCfgDemo
         /// <returns></returns>
         public string GetRawValue(string settingKey)
         {
-            // here you can help AppCfg get setting value from everywhere
+            // here you can help AppCfg get setting value from anywhere
             // for example, pretent we get raw value from a json file
 
             using (StreamReader r = new StreamReader("json-settings.json"))
