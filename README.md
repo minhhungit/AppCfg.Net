@@ -1,5 +1,5 @@
 # AppCfg.Net [![Build status](https://ci.appveyor.com/api/projects/status/8ifb08lenlmbdf0p?svg=true)](https://ci.appveyor.com/project/minhhungit/appcfg) <a href="https://www.nuget.org/packages/AppCfg.Net/"><img src="https://img.shields.io/nuget/v/AppCfg.Net.svg?style=flat" />
-A mini configuration framework for .NET developers
+A mini but powerful configuration framework for .NET developers
 
 ### Installation
 > Install-Package AppCfg.Net
@@ -29,6 +29,23 @@ var username = MyAppCfg.Get<ISetting>().Username;
 
 ```
 <br />
+
+### Supported Types
+- bool
+- decimal
+- double
+- guid
+- int
+- List<int>
+- List<string>
+- long
+- string
+- TimeSpan
+- DateTime
+- Json
+- ConnectionString
+
+> In case you need a type parser which was not supported or even you don't like existed parser, you can create one for yourself and **replace** existed one, or create a request!
 
 **Need demo?**
 > https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfgDemo/Program.cs
