@@ -6,7 +6,7 @@ namespace AppCfg.Test
 {
     public interface ITestOptionItem
     {
-        [Option(Alias = "test-options", DefaultValue = "2", InputFormat = "3", Separator = "4")]
+        [Option(Alias = "test-options", DefaultValue = "2", InputFormat = "3", Separator = "4", RawValue = "5")]
         string TestOptions { get; }
     }
 
@@ -30,6 +30,7 @@ namespace AppCfg.Test
                     Assert.True(opt.DefaultValue.ToString() == "2");
                     Assert.True(opt.InputFormat == "3");
                     Assert.True(opt.Separator == "4");
+                    Assert.True(opt.RawValue == "5");
 
                     break;
                 }                
@@ -37,7 +38,7 @@ namespace AppCfg.Test
 
             Assert.IsTrue(hasAttr);
 
-            Assert.AreEqual(settings.TestOptions, "100");
+            Assert.AreEqual(settings.TestOptions, "5");
         }
     }
 }

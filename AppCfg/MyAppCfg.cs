@@ -42,17 +42,24 @@ namespace AppCfg
                     try
                     {
                         ITypeParserOptions iOptions = (ITypeParserOptions)prop.GetCustomAttribute<OptionAttribute>() ?? new DefaultTypeParserOption();
-                        var settingKey = iOptions?.Alias ?? prop.Name;
                         string rawValue = null;
-                        
-                        if (typeof(ITypeParserRawBuilder<>).MakeGenericType(prop.PropertyType).IsAssignableFrom(TypeParserFactory.Stores[prop.PropertyType].GetType()))
+
+                        if (iOptions?.RawValue != null)
                         {
-                            rawValue = (string)typeof(ITypeParserRawBuilder<>).MakeGenericType(prop.PropertyType).GetMethod("GetRawValue").Invoke(TypeParserFactory.Stores[prop.PropertyType], new[] { settingKey });
+                            rawValue = iOptions.RawValue;
                         }
                         else
                         {
-                            rawValue = GetRawValue(prop.PropertyType, settingKey);
-                        }
+                            var settingKey = iOptions?.Alias ?? prop.Name;
+                            if (typeof(ITypeParserRawBuilder<>).MakeGenericType(prop.PropertyType).IsAssignableFrom(TypeParserFactory.Stores[prop.PropertyType].GetType()))
+                            {
+                                rawValue = (string)typeof(ITypeParserRawBuilder<>).MakeGenericType(prop.PropertyType).GetMethod("GetRawValue").Invoke(TypeParserFactory.Stores[prop.PropertyType], new[] { settingKey });
+                            }
+                            else
+                            {
+                                rawValue = GetRawValue(prop.PropertyType, settingKey);
+                            }
+                        }                        
                         
                         if (rawValue != null)
                         {

@@ -4,6 +4,7 @@
     {
         string Alias { get; }
         object DefaultValue { get; }
+        string RawValue { get; }
         string InputFormat { get; }
         string Separator { get; }
     }
@@ -12,6 +13,7 @@
     {
         public string Alias { get; }
         public object DefaultValue { get; }
+        public string RawValue { get; }
         public string InputFormat { get; }
         public string Separator { get; }
     }

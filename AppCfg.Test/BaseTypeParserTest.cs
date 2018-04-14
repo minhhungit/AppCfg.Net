@@ -28,6 +28,9 @@ namespace AppCfg.Test
         [Option(Separator = "^")]
         List<int> Numbers { get; }
 
+        [Option(RawValue = "1;2;3;4;5", Separator = ";")]
+        List<int> NumbersWithInitialRawValue { get; }
+
         [Option(Separator = "~")]
         List<string> Strings { get; }
     }
@@ -53,6 +56,7 @@ namespace AppCfg.Test
             Assert.AreEqual(settings.DemoTimeSpanSecond, new TimeSpan(01, 02, 03, 04));
 
             Assert.AreEqual(settings.Numbers, new List<int> { 1, 99, 123456789 });
+            Assert.AreEqual(settings.NumbersWithInitialRawValue, new List<int> { 1,2,3,4,5 });
             Assert.AreEqual(settings.Strings, new List<string> { "luong ", "son", " ba ", "chuc anh dai  " });
         }
     }

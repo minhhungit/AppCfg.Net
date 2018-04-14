@@ -14,6 +14,7 @@ namespace AppCfg
         /// Set to override the default value if option is not found in any stores
         /// </summary>
         public object DefaultValue { get; set; }
+        public string RawValue { get; set; }
 
         public string InputFormat { get; set; }
 
