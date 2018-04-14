@@ -1,10 +1,9 @@
-﻿using AppCfg;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace AppCfg.Test
+namespace AppCfg.TypeParsers
 {
     public class ListIntParser : ITypeParser<List<int>>
     {

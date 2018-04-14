@@ -56,7 +56,6 @@
     <Compile Include="ConnnectionStringTest.cs" />
     <Compile Include="CustomParserTest.cs" />
     <Compile Include="CustomParser\ParserWithRawBuilder.cs" />
-    <Compile Include="CustomParser\ListIntParser.cs" />
     <Compile Include="JsonParserTest.cs" />
     <Compile Include="Models\JsonAnimalTestModel.cs" />
     <Compile Include="Models\JsonMachineTestModel.cs" />

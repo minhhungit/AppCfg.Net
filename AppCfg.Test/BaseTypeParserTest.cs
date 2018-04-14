@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 
 namespace AppCfg.Test
 {
@@ -23,6 +24,12 @@ namespace AppCfg.Test
         string DemoString { get; }
         TimeSpan DemoTimeSpanFirst { get; }
         TimeSpan DemoTimeSpanSecond { get; }
+
+        [Option(Separator = "^")]
+        List<int> Numbers { get; }
+
+        [Option(Separator = "~")]
+        List<string> Strings { get; }
     }
 
     [TestFixture]
@@ -44,6 +51,9 @@ namespace AppCfg.Test
             Assert.AreEqual(settings.DemoString, "hello, I'm a string ");
             Assert.AreEqual(settings.DemoTimeSpanFirst, new TimeSpan(01, 02, 03));
             Assert.AreEqual(settings.DemoTimeSpanSecond, new TimeSpan(01, 02, 03, 04));
+
+            Assert.AreEqual(settings.Numbers, new List<int> { 1, 99, 123456789 });
+            Assert.AreEqual(settings.Strings, new List<string> { "luong ", "son", " ba ", "chuc anh dai  " });
         }
     }
 }

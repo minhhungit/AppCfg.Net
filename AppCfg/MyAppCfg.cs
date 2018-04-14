@@ -110,6 +110,8 @@ namespace AppCfg
                 AddParser(new DecimalParser());
                 AddParser(new DoubleParser());
                 AddParser(new GuidParser());
+                AddParser(new ListIntParser());
+                AddParser(new ListStringParser());
                 AddParser(new IntParser());
                 AddParser(new LongParser());
                 AddParser(new StringParser());
