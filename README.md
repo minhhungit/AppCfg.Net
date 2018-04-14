@@ -36,8 +36,8 @@ var username = MyAppCfg.Get<ISetting>().Username;
 - double
 - guid
 - int
-- List<int>
-- List<string>
+- List&#60;int&#62;
+- List&#60;string&#62;
 - long
 - string
 - TimeSpan
