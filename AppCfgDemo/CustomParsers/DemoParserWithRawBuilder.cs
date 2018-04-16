@@ -1,7 +1,6 @@
 ﻿using AppCfg;
 using AppCfg.TypeParsers;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System.IO;
 
 namespace AppCfgDemo

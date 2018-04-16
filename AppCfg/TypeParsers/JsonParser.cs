@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace AppCfg.TypeParsers
 {
@@ -33,9 +32,14 @@ namespace AppCfg.TypeParsers
                 }
             }
 
-            jsonSettings.ContractResolver = new PrivateSetterContractResolver();
+            if (jsonSettings.ContractResolver == null)
+            {
+                jsonSettings.ContractResolver = new PrivateSetterContractResolver();
+            }            
 
             return JsonConvert.DeserializeObject<T>(rawValue, jsonSettings);
         }
     }
+
+    
 }
