@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <Title>AppCfg.Net</Title>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Copyright>Copyright 2018 minhhungit</Copyright>
     <Description>A mini but powerful configuration framework for .NET developers</Description>
     <Authors>Hung Vo</Authors>
@@ -10,10 +10,9 @@
     <PackageProjectUrl>https://github.com/minhhungit/AppCfg/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/minhhungit/AppCfg/</RepositoryUrl>
     <PackageTags>configuration appsetting json dotnet csharp netstandard20 dotnetcore</PackageTags>
-    <PackageReleaseNotes>- add List&lt;int&gt;, List&lt;string&gt; parser
-- add RawValue option</PackageReleaseNotes>
-    <AssemblyVersion>1.0.1</AssemblyVersion>
-    <FileVersion>1.0.1</FileVersion>
+    <PackageReleaseNotes>allow custom Json ContractResolver</PackageReleaseNotes>
+    <AssemblyVersion>1.0.2</AssemblyVersion>
+    <FileVersion>1.0.2</FileVersion>
     <Company />
     <PackageIconUrl>https://raw.githubusercontent.com/minhhungit/AppCfg/master/wiki/icon.ico</PackageIconUrl>
     <PackageId>AppCfg.Net</PackageId>
