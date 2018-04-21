@@ -14,7 +14,7 @@ namespace AppCfg.Test
         [SetUp]
         public void Setup()
         {
-            MyAppCfg.TypeParserFactory.AddParser(new ParserWithRawBuilder<JsonPersonTestModel>());
+            MyAppCfg.TypeParsers.Register(new ParserWithRawBuilder<JsonPersonTestModel>());
 
             settings = MyAppCfg.Get<ICustomParserSettings>();
         }

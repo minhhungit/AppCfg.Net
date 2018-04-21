@@ -27,17 +27,17 @@ namespace AppCfg
 
             foreach (var prop in props)
             {
-                if (!TypeParserFactory.Stores.ContainsKey(prop.PropertyType) || TypeParserFactory.Stores[prop.PropertyType] == null)
+                if (TypeParsers.Get(prop.PropertyType) == null)
                 {
                     var settingObj = Activator.CreateInstance(prop.PropertyType);
                     if (settingObj is IJsonDataType) // auto register json parser for types which inherited from IJsonDataType
                     {
                         var jsParser = Activator.CreateInstance(typeof(JsonParser<>).MakeGenericType(prop.PropertyType));
-                        TypeParserFactory.Stores.Add(prop.PropertyType, jsParser);
+                        TypeParsers.Register(prop.PropertyType, jsParser);
                     }
                 }
 
-                if(TypeParserFactory.Stores.ContainsKey(prop.PropertyType) && TypeParserFactory.Stores[prop.PropertyType] != null)
+                if(TypeParsers.Get(prop.PropertyType) != null)
                 {
                     try
                     {
@@ -51,9 +51,9 @@ namespace AppCfg
                         else
                         {
                             var settingKey = iOptions?.Alias ?? prop.Name;
-                            if (typeof(ITypeParserRawBuilder<>).MakeGenericType(prop.PropertyType).IsAssignableFrom(TypeParserFactory.Stores[prop.PropertyType].GetType()))
+                            if (typeof(ITypeParserRawBuilder<>).MakeGenericType(prop.PropertyType).IsAssignableFrom(TypeParsers.Get(prop.PropertyType).GetType()))
                             {
-                                rawValue = (string)typeof(ITypeParserRawBuilder<>).MakeGenericType(prop.PropertyType).GetMethod("GetRawValue").Invoke(TypeParserFactory.Stores[prop.PropertyType], new[] { settingKey });
+                                rawValue = (string)typeof(ITypeParserRawBuilder<>).MakeGenericType(prop.PropertyType).GetMethod("GetRawValue").Invoke(TypeParsers.Get(prop.PropertyType), new[] { settingKey });
                             }
                             else
                             {
@@ -63,7 +63,7 @@ namespace AppCfg
                         
                         if (rawValue != null)
                         {
-                            prop.SetValue(setting, typeof(ITypeParser<>).MakeGenericType(prop.PropertyType).GetMethod("Parse").Invoke(TypeParserFactory.Stores[prop.PropertyType], new[] { rawValue, (object)iOptions }), null);
+                            prop.SetValue(setting, typeof(ITypeParser<>).MakeGenericType(prop.PropertyType).GetMethod("Parse").Invoke(TypeParsers.Get(prop.PropertyType), new[] { rawValue, (object)iOptions }), null);
                         }
                         else
                         {
@@ -72,7 +72,7 @@ namespace AppCfg
                     }
                     catch (Exception ex)
                     {
-                        var tParserType = TypeParserFactory.Stores.ContainsKey(prop.PropertyType) ? TypeParserFactory.Stores[prop.PropertyType].GetType().ToString() : "null";
+                        var tParserType = TypeParsers.Get(prop.PropertyType) != null ? TypeParsers.Get(prop.PropertyType).GetType().ToString() : "null";
                         throw new AppCfgException($"{ex.InnerException?.Message ?? ex.Message}\n - Setting: {typeof(TSetting)}\n - PropName: {prop.Name}\n - PropType: {prop.PropertyType}\n - Parser: {tParserType}", ex);
                     }
                 }
@@ -102,47 +102,63 @@ namespace AppCfg
             }            
         }
 
-        public class TypeParserFactory
+        public class TypeParsers
         {
-            internal static Dictionary<Type, object> Stores { get; private set; }
+            private static readonly IDictionary<Type, object> _parserStore;
 
-            static TypeParserFactory()
+            static TypeParsers()
             {
-                Stores = new Dictionary<Type, object>();
+                _parserStore = new Dictionary<Type, object>();
 
                 // initial default parsers
-                AddParser(new BooleanParser());
-                AddParser(new ConnectionStringParser());
-                AddParser(new DateTimeParser());
-                AddParser(new DecimalParser());
-                AddParser(new DoubleParser());
-                AddParser(new GuidParser());
-                AddParser(new ListIntParser());
-                AddParser(new ListStringParser());
-                AddParser(new IntParser());
-                AddParser(new LongParser());
-                AddParser(new StringParser());
-                AddParser(new TimeSpanParser());
+                Register(new BooleanParser());
+                Register(new ConnectionStringParser());
+                Register(new DateTimeParser());
+                Register(new DecimalParser());
+                Register(new DoubleParser());
+                Register(new GuidParser());
+                Register(new ListIntParser());
+                Register(new ListStringParser());
+                Register(new IntParser());
+                Register(new LongParser());
+                Register(new StringParser());
+                Register(new TimeSpanParser());
             }
 
-            public static void AddParser<T>(ITypeParser<T> item)
+            public static void Register<T>(ITypeParser<T> parser)
             {
-                if (!Stores.ContainsKey(typeof(T)))
+                var key = typeof(T);
+
+                if (!_parserStore.ContainsKey(key))
                 {
-                    Stores.Add(typeof(T), item);
+                    _parserStore.Add(key, parser);
                 }
                 else
                 {
-                    throw new AppCfgException("Duplicate type parser");
+                    _parserStore[key] = parser;
                 }
             }
 
-            public static void RemoveParser(Type type)
+            internal static void Register(Type key, object parser)
             {
-                if (Stores.ContainsKey(type))
+                if (!_parserStore.ContainsKey(key))
                 {
-                    Stores.Remove(type);
+                    _parserStore.Add(key, parser);
                 }
+                else
+                {
+                    _parserStore[key] = parser;
+                }
+            }
+
+            internal static object Get(Type propertyType)
+            {
+                if (!_parserStore.ContainsKey(propertyType))
+                {
+                    return null;
+                }
+
+                return _parserStore[propertyType];
             }
         }
     }
