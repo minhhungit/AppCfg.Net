@@ -45,11 +45,22 @@ var username = MyAppCfg.Get<ISetting>().Username;
 - <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/JsonParser.cs" target="_blank">Json</a>
 - <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ConnectionStringParser.cs" target="_blank">ConnectionString</a>
 
-> In case you need a type parser which was not supported or even you don't like existed parser, you can create one for yourself and **replace** existed one, or create a request!
+### Custom Type Parser
+> In case you need a type parser which was not supported, even if you don't like existed parser, you can create one for yourself and **register** it, or create a request for me, I will try to help!
 
-**Need demo?**
+- The simplest way to create a custom parser is implementing parser from interface **ITypeParser**, see <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/IntParser.cs" target="_blank">example</a>. 
+Default setting source is `appSetting`
+- If you want to change setting source, like you want to get setting from a json file, or even from table in database, you should implement your parser from interface ITypeParserRawBuilder, demo is <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfgDemo/CustomParsers/DemoParserWithRawBuilder.cs" target="_blank">here</a>
+
+After you created a parser, you must register it, for example:
+> MyAppCfg.TypeParsers.Register(new DemoParserWithRawBuilder<JsonPerson>());
+
+<br />
+
+**Do you still need demo?**
+
 > Link: https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfgDemo/Program.cs
 
-<br /><br />
+<br />
 
 <img src="https://raw.githubusercontent.com/minhhungit/AppCfg/master/wiki/images/demo.png" />
