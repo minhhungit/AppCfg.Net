@@ -31,25 +31,25 @@ var username = MyAppCfg.Get<ISetting>().Username;
 <br />
 
 ### Supported Types
-- bool
-- decimal
-- double
-- guid
-- int
-- List&#60;int&#62;
-- List&#60;string&#62;
-- long
-- string
-- TimeSpan
-- DateTime
-- Json
-- ConnectionString
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/BooleanParser.cs" target="_blank">bool</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/DecimalParser.cs" target="_blank">decimal</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/DoubleParser.cs" target="_blank">double</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/GuidParser.cs" target="_blank">guid</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/IntParser.cs" target="_blank">int</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListIntParser.cs" target="_blank">List&#60;int&#62;</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListStringParser.cs" target="_blank">List&#60;string&#62;</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/LongParser.cs" target="_blank">long</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/StringParser.cs" target="_blank">string</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/TimeSpanParser.cs" target="_blank">TimeSpan</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/DateTimeParser.cs" target="_blank">DateTime</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/JsonParser.cs" target="_blank">Json</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ConnectionStringParser.cs" target="_blank">ConnectionString</a>
 
 > In case you need a type parser which was not supported or even you don't like existed parser, you can create one for yourself and **replace** existed one, or create a request!
 
 **Need demo?**
-> https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfgDemo/Program.cs
+> Link: https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfgDemo/Program.cs
 
-<br />
+<br /><br />
 
 <img src="https://raw.githubusercontent.com/minhhungit/AppCfg/master/wiki/images/demo.png" />
