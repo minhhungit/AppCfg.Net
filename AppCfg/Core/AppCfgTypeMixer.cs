@@ -41,9 +41,10 @@ namespace AppCfg
                 propertyBuilder.SetGetMethod(getter);
                 propertyBuilder.SetSetMethod(setter);
 
+                var cusAttData =  v.GetCustomAttributesData();
                 foreach (var attr in v.GetCustomAttributes())
                 {
-                    var attributeBuilder = CreateAttributeBuilderFor(v.GetCustomAttribute(attr.GetType()));
+                    var attributeBuilder = CreateAttributeBuilderFor(v.GetCustomAttribute(attr.GetType()), cusAttData.FirstOrDefault(x=>x.AttributeType == attr.GetType()));
                     if (attributeBuilder != null)
                     {
                         propertyBuilder.SetCustomAttribute(attributeBuilder);
@@ -57,10 +58,11 @@ namespace AppCfg
             return (K)Activator.CreateInstance(typeBuilder.CreateTypeInfo());
         }
 
-        private CustomAttributeBuilder CreateAttributeBuilderFor(Attribute origialAttr)
+        private CustomAttributeBuilder CreateAttributeBuilderFor(Attribute origialAttr, CustomAttributeData customAttributeData)
         {
             Type type = origialAttr.GetType();
-            var constructor = type.GetConstructor(Type.EmptyTypes);
+
+            var constructor = type.GetConstructor(customAttributeData.ConstructorArguments.Select(x => x.ArgumentType).ToArray());
             var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
 
@@ -71,13 +73,9 @@ namespace AppCfg
             var fieldValues = from f in fields
                               select f.GetValue(origialAttr);
 
-
-            return new CustomAttributeBuilder(constructor,
-                                             Type.EmptyTypes,
-                                             properties.Where(x=>x.CanRead && x.CanWrite).ToArray(),
-                                             propertyValues.ToArray(),
-                                             fields,
-                                             fieldValues.ToArray());
+            return new CustomAttributeBuilder(constructor, customAttributeData.ConstructorArguments.Select(x => x.Value).ToArray(),
+                                             properties.Where(x => x.CanRead && x.CanWrite).ToArray(), propertyValues.ToArray(),
+                                             fields, fieldValues.ToArray());
         }
     }
 }

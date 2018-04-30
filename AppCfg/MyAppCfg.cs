@@ -1,4 +1,5 @@
-﻿using AppCfg.TypeParsers;
+﻿using AppCfg.SettingStore;
+using AppCfg.TypeParsers;
 using Newtonsoft.Json;
 using System;
 using System.Reflection;
@@ -36,33 +37,35 @@ namespace AppCfg
                 {
                     try
                     {
-                        ITypeParserOptions iOptions = (ITypeParserOptions)prop.GetCustomAttribute<OptionAttribute>() ?? new DefaultTypeParserOption();
+                        ITypeParserOptions parserOpt = (ITypeParserOptions)prop.GetCustomAttribute<OptionAttribute>() ?? new OptionAttribute();
+                        ISettingStoreOptions storeOpt = (ISettingStoreOptions)prop.GetCustomAttribute<StoreOptionAttribute>() ?? new StoreOptionAttribute();
+
                         string rawValue = null;
 
-                        if (iOptions?.RawValue != null)
+                        if (parserOpt?.RawValue != null)
                         {
-                            rawValue = iOptions.RawValue;
+                            rawValue = parserOpt.RawValue;
                         }
                         else
                         {
-                            var settingKey = iOptions?.Alias ?? prop.Name;
+                            var settingKey = parserOpt?.Alias ?? prop.Name;
                             if (typeof(ITypeParserRawBuilder<>).MakeGenericType(prop.PropertyType).IsAssignableFrom(TypeParsers.Get(prop.PropertyType).GetType()))
                             {
                                 rawValue = (string)typeof(ITypeParserRawBuilder<>).MakeGenericType(prop.PropertyType).GetMethod("GetRawValue").Invoke(TypeParsers.Get(prop.PropertyType), new[] { settingKey });
                             }
                             else
                             {
-                                rawValue = GetRawValue(prop.PropertyType, settingKey, iOptions);
+                                rawValue = GetRawValue(prop.PropertyType, settingKey, parserOpt, storeOpt);
                             }
                         }                        
                         
                         if (rawValue != null)
                         {
-                            prop.SetValue(setting, typeof(ITypeParser<>).MakeGenericType(prop.PropertyType).GetMethod("Parse").Invoke(TypeParsers.Get(prop.PropertyType), new[] { rawValue, (object)iOptions }), null);
+                            prop.SetValue(setting, typeof(ITypeParser<>).MakeGenericType(prop.PropertyType).GetMethod("Parse").Invoke(TypeParsers.Get(prop.PropertyType), new[] { rawValue, (object)parserOpt }), null);
                         }
                         else
                         {
-                            prop.SetValue(setting, iOptions?.DefaultValue);
+                            prop.SetValue(setting, parserOpt?.DefaultValue);
                         }
                     }
                     catch (Exception ex)

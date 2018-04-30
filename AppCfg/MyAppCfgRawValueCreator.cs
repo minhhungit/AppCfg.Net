@@ -7,17 +7,17 @@ namespace AppCfg
 {
     public partial class MyAppCfg
     {
-        private static string GetRawValue(Type settingType, string key, ITypeParserOptions options)
+        private static string GetRawValue(Type settingType, string key, ITypeParserOptions parserOpt, ISettingStoreOptions storeOpt)
         {
-            switch (options.SettingStoreType)
+            switch (storeOpt.SettingStoreType)
             {
-                case SettingStoreType.AppConfig:
+                case SettingStoreType.AppSetting:
                     return GetRawValueForAppSetting(settingType, key);
                 case SettingStoreType.MsSqlDatabase:
-                    return GetRawValueForMsSqlDatabase(settingType, key);
+                    return GetRawValueForMsSqlDatabase(settingType, key, storeOpt.SettingStoreType, storeOpt.StoreIdentity);
             }
 
-            throw new Exception($"Settting store {options.SettingStoreType} is not supported");
+            throw new Exception($"Settting store {storeOpt.SettingStoreType} is not supported");
         }
 
         private static string GetRawValueForAppSetting(Type settingType, string key)
@@ -32,9 +32,19 @@ namespace AppCfg
             }
         }
 
-        private static string GetRawValueForMsSqlDatabase(Type settingType, string key)
+        private static string GetRawValueForMsSqlDatabase(Type settingType, string key, SettingStoreType settingStoreType, string storeIdentity)
         {
-            var sourceConfig = SettingStores.Get(StoresSupportedType.MsSqlDatabase) as MsSqlSettingStoreConfig;
+            if (storeIdentity == null)
+            {
+                storeIdentity = SettingStores.GetFirstIdentity(settingStoreType);
+            }
+
+            if (storeIdentity == null)
+            {
+                throw new AppCfgException("Please registry config for setting source 'MsSqlDatabase'");
+            }
+
+            var sourceConfig = SettingStores.Get(SettingStoreType.MsSqlDatabase, storeIdentity) as MsSqlSettingStoreConfig;
             if (sourceConfig != null)
             {
                 if (string.IsNullOrWhiteSpace(sourceConfig.ConnectionString))

@@ -1,4 +1,5 @@
 ﻿using AppCfg.SettingStore;
+using System;
 using System.Collections.Generic;
 
 namespace AppCfg
@@ -7,33 +8,53 @@ namespace AppCfg
     {
         public class SettingStores
         {
-            private static readonly IDictionary<StoresSupportedType, object> _settingStore;
+            private static readonly IDictionary<KeyValuePair<SettingStoreType, string>, object> _settingStore;
 
             static SettingStores()
             {
-                _settingStore = new Dictionary<StoresSupportedType, object>();
+                _settingStore = new Dictionary<KeyValuePair<SettingStoreType, string>, object>();
             }
 
-            public static void Register(StoresSupportedType type, ISettingStore store)
+            public static void RegisterMsSqlDatabaseStore(string identity, MsSqlSettingStoreConfig store)
             {
-                if (!_settingStore.ContainsKey(type))
+                if (store == null)
                 {
-                    _settingStore.Add(type, store);
+                    throw new ArgumentException(nameof(store));
+                }
+
+                var key = new KeyValuePair<SettingStoreType, string>(SettingStoreType.MsSqlDatabase, identity);
+                if (!_settingStore.ContainsKey(key))
+                {
+                    _settingStore.Add(key, store);
                 }
                 else
                 {
-                    _settingStore[type] = store;
+                    _settingStore[key] = store;
                 }
             }
 
-            internal static object Get(StoresSupportedType type)
+            internal static object Get(SettingStoreType type, string identity)
             {
-                if (!_settingStore.ContainsKey(type))
+                var key = new KeyValuePair<SettingStoreType, string>(type, identity);
+                if (!_settingStore.ContainsKey(key))
                 {
                     return null;
                 }
 
-                return _settingStore[type];
+                return _settingStore[key];
+            }
+
+            internal static string GetFirstIdentity(SettingStoreType type)
+            {
+                foreach (var item in _settingStore)
+                {
+                    if (item.Key.Key == type)
+                    {
+                        return item.Key.Value;
+                    }
+                }
+
+                return null;
             }
         }
     }

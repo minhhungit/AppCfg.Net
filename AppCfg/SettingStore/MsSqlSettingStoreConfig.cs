@@ -6,7 +6,7 @@
         StoreProcedure
     }
 
-    public class MsSqlSettingStoreConfig : ISettingStore
+    public class MsSqlSettingStoreConfig
     {
         public string ConnectionString { get; set; }
 
