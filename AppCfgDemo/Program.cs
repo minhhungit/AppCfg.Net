@@ -30,6 +30,11 @@ namespace AppCfgDemo
         [Option(Separator = "^")]
         List<int> Numbers { get; }
         JsonPerson DemoRawBuilder { get; }
+
+
+        /* comment out bellow code if you want to run demo for MsSqlDatabase setting. Make sure you configured setting source for it*/
+        //[Option(Alias = "PartnerKey", SettingStoreType = SettingStoreType.MsSqlDatabase)]
+        //Guid ASettingFromDb { get; }
     }
 
     public interface IConnectionStringSetting
