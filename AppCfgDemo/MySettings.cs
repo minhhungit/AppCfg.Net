@@ -20,21 +20,21 @@ namespace AppCfgDemo
 
             // we can also get setting from database. 
             // use StoreOption attribute to direct it
-            MyAppCfg.SettingStores.RegisterMsSqlDatabaseStore(StoreKey_One,
-                new MsSqlSettingStoreConfig
-                {
-                    ConnectionString = ConfigurationManager.ConnectionStrings["myConnSecond"].ConnectionString,
-                    QueryCmd = "SELECT TOP 1 [Value] FROM [GlobalSettings] WHERE [Name] = '{0}' AND [SettingGroup] = 'product'",
-                    QueryCmdType = QueryCmdType.Text,
-                });
+            //MyAppCfg.SettingStores.RegisterMsSqlDatabaseStore(StoreKey_One,
+            //    new MsSqlSettingStoreConfig
+            //    {
+            //        ConnectionString = ConfigurationManager.ConnectionStrings["myConnSecond"].ConnectionString,
+            //        QueryCmd = "SELECT TOP 1 [Value] FROM [GlobalSettings] WHERE [Name] = '{0}' AND [SettingGroup] = 'product'",
+            //        QueryCmdType = QueryCmdType.Text,
+            //    });
 
-            MyAppCfg.SettingStores.RegisterMsSqlDatabaseStore(StoreKey_Two,
-                new MsSqlSettingStoreConfig
-                {
-                    ConnectionString = ConfigurationManager.ConnectionStrings["myConnSecond"].ConnectionString,
-                    QueryCmd = "AppCfgGetSetting",
-                    QueryCmdType = QueryCmdType.StoreProcedure,
-                });
+            //MyAppCfg.SettingStores.RegisterMsSqlDatabaseStore(StoreKey_Two,
+            //    new MsSqlSettingStoreConfig
+            //    {
+            //        ConnectionString = ConfigurationManager.ConnectionStrings["myConnSecond"].ConnectionString,
+            //        QueryCmd = "AppCfgGetSetting",
+            //        QueryCmdType = QueryCmdType.StoreProcedure,
+            //    });
 
             // setup json serializer settings
             MyAppCfg.JsonSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings
