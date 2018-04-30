@@ -12,7 +12,7 @@
     <PackageTags>configuration appsetting json dotnet csharp netstandard20 dotnetcore</PackageTags>
     <PackageReleaseNotes>support setting source: mssql database</PackageReleaseNotes>
     <AssemblyVersion>1.2.0</AssemblyVersion>
-    <FileVersion>1.1.0</FileVersion>
+    <FileVersion>1.2.0</FileVersion>
     <Company />
     <PackageIconUrl>https://raw.githubusercontent.com/minhhungit/AppCfg/master/wiki/icon.ico</PackageIconUrl>
     <PackageId>AppCfg.Net</PackageId>
