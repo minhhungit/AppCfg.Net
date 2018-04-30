@@ -1,9 +1,13 @@
-# AppCfg.Net [![Build status](https://ci.appveyor.com/api/projects/status/8ifb08lenlmbdf0p?svg=true)](https://ci.appveyor.com/project/minhhungit/appcfg) <a href="https://www.nuget.org/packages/AppCfg.Net/"><img src="https://img.shields.io/nuget/v/AppCfg.Net.svg?style=flat" />
+# AppCfg.Net [![Build status](https://ci.appveyor.com/api/projects/status/8ifb08lenlmbdf0p?svg=true)](https://ci.appveyor.com/project/minhhungit/appcfg) <a href="https://www.nuget.org/packages/AppCfg.Net/"><img src="https://img.shields.io/nuget/v/AppCfg.Net.svg?style=flat" /> </a>
+
 A mini but powerful configuration framework for .NET developers
 
 ### Installation
 > Install-Package AppCfg.Net
 
+### Demo 
+<a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfgDemo/Program.cs">https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfgDemo/Program.cs</a>
+<br />
 
 ### First look
 
@@ -45,6 +49,10 @@ var username = MyAppCfg.Get<ISetting>().Username;
 - <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/JsonParser.cs" target="_blank">Json</a>
 - <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ConnectionStringParser.cs" target="_blank">ConnectionString</a>
 
+### Supported Setting Store
+- AppSetting ^^
+- MsSqlDatabase
+
 ### Custom Type Parser
 > In case you need a type parser which was not supported, even if you don't like existed parser, you can create one for yourself and **register** it, or create a request for me, I will try to help!
 
@@ -54,12 +62,6 @@ Default setting source is `appSetting`
 
 After you created a parser, you must register it, for example:
 > MyAppCfg.TypeParsers.Register(new DemoParserWithRawBuilder<JsonPerson>());
-
-<br />
-
-**Do you still need demo?**
-
-> Link: https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfgDemo/Program.cs
 
 <br />
 
