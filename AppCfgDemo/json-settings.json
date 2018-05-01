@@ -7,5 +7,6 @@
       "minimum": 18
     }
   },
-  "required": [ "name", "age" ]
+  "required": [ "name", "age" ],
+  "test-title": "test"
 }

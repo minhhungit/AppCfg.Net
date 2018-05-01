@@ -1,4 +1,5 @@
 ﻿using AppCfg.TypeParsers;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace AppCfgDemo
@@ -8,6 +9,9 @@ namespace AppCfgDemo
         public string Title { get; }
         public PersonProperty Properties { get; }
         public List<string> Required { get; }
+
+        [JsonProperty(PropertyName = "test-title")]
+        public string TestTitle { get; }
     }
 
     public class PersonProperty
