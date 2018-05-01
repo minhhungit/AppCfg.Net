@@ -28,8 +28,9 @@ public interface ISetting
     long Username { get; }
 }
 
-var age = MyAppCfg.Get<ISetting>().Age;
-var username = MyAppCfg.Get<ISetting>().Username;
+var settings = MyAppCfg.Get<ISetting>()
+var age = settings.Age;
+var username = settings.Username;
 
 ```
 <br />
