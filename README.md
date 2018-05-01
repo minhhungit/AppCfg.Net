@@ -29,6 +29,7 @@ public interface ISetting
 }
 
 var settings = MyAppCfg.Get<ISetting>()
+
 var age = settings.Age;
 var username = settings.Username;
 
