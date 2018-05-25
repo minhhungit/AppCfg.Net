@@ -10,7 +10,23 @@ namespace AppCfg
     {
         public static JsonSerializerSettings JsonSerializerSettings { get; set; }
 
+        /// <summary>
+        /// Load settings
+        /// </summary>
+        /// <typeparam name="TSetting"></typeparam>
+        /// <returns></returns>
         public static TSetting Get<TSetting>()
+        {
+            return Get<TSetting>(null);
+        }
+
+        /// <summary>
+        /// Load settings for a specific tenant
+        /// </summary>
+        /// <typeparam name="TSetting"></typeparam>
+        /// <param name="tenantKey"></param>
+        /// <returns></returns>
+        public static TSetting Get<TSetting>(string tenantKey)
         {
             if (TypeParsers.Get(typeof(TSetting)) != null)
             {
@@ -55,7 +71,7 @@ namespace AppCfg
                             }
                             else
                             {
-                                rawValue = GetRawValue(prop.PropertyType, settingKey, parserOpt, storeOpt);
+                                rawValue = GetRawValue(prop.PropertyType, tenantKey, settingKey, parserOpt, storeOpt);
                             }
                         }                        
                         
@@ -71,7 +87,7 @@ namespace AppCfg
                     catch (Exception ex)
                     {
                         var tParserType = TypeParsers.Get(prop.PropertyType) != null ? TypeParsers.Get(prop.PropertyType).GetType().ToString() : "null";
-                        throw new AppCfgException($"{ex.InnerException?.Message ?? ex.Message}\n - Setting: {typeof(TSetting)}\n - PropName: {prop.Name}\n - PropType: {prop.PropertyType}\n - Parser: {tParserType}", ex);
+                        throw new AppCfgException($"{ex.InnerException?.Message ?? ex.Message}\n - Setting: {typeof(TSetting)}\n - Property Name: {prop.Name}\n - Property Type: {prop.PropertyType}\n - Parser: {tParserType}", ex);
                     }
                 }
                 else

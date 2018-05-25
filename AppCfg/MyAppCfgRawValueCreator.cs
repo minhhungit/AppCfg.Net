@@ -7,14 +7,14 @@ namespace AppCfg
 {
     public partial class MyAppCfg
     {
-        private static string GetRawValue(Type settingType, string key, ITypeParserOptions parserOpt, ISettingStoreOptions storeOpt)
+        private static string GetRawValue(Type settingType, string tenantKey, string key, ITypeParserOptions parserOpt, ISettingStoreOptions storeOpt)
         {
             switch (storeOpt.SettingStoreType)
             {
                 case SettingStoreType.AppSetting:
                     return GetRawValueForAppSetting(settingType, key);
                 case SettingStoreType.MsSqlDatabase:
-                    return GetRawValueForMsSqlDatabase(settingType, key, storeOpt.SettingStoreType, storeOpt.StoreIdentity);
+                    return GetRawValueForMsSqlDatabase(settingType, tenantKey, key, storeOpt.SettingStoreType, storeOpt.StoreIdentity);
             }
 
             throw new Exception($"Settting store {storeOpt.SettingStoreType} is not supported");
@@ -32,7 +32,7 @@ namespace AppCfg
             }
         }
 
-        private static string GetRawValueForMsSqlDatabase(Type settingType, string key, SettingStoreType settingStoreType, string storeIdentity)
+        private static string GetRawValueForMsSqlDatabase(Type settingType, string tenantKey, string settingKey, SettingStoreType settingStoreType, string storeIdentity)
         {
             if (storeIdentity == null)
             {
@@ -44,8 +44,7 @@ namespace AppCfg
                 throw new AppCfgException("Please registry config for setting source 'MsSqlDatabase'");
             }
 
-            var sourceConfig = SettingStores.Get(SettingStoreType.MsSqlDatabase, storeIdentity) as MsSqlSettingStoreConfig;
-            if (sourceConfig != null)
+            if (SettingStores.Get(SettingStoreType.MsSqlDatabase, storeIdentity) is MsSqlSettingStoreConfig sourceConfig)
             {
                 if (string.IsNullOrWhiteSpace(sourceConfig.ConnectionString))
                 {
@@ -67,9 +66,24 @@ namespace AppCfg
                         switch (sourceConfig.QueryCmdType)
                         {
                             case QueryCmdType.Text:
-                                sql = string.Format(sourceConfig.QueryCmd, key);
                                 cmdType = System.Data.CommandType.Text;
+                                try
+                                {
+                                    if (string.IsNullOrWhiteSpace(tenantKey))
+                                    {
+                                        sql = string.Format(sourceConfig.QueryCmd, settingKey);
+                                    }
+                                    else
+                                    {
+                                        sql = string.Format(sourceConfig.QueryCmd, settingKey, tenantKey);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw new AppCfgException("Problem while building sql command text, please check your format", ex);
+                                }                                
                                 break;
+
                             case QueryCmdType.StoreProcedure:
                                 sql = sourceConfig.QueryCmd;
                                 cmdType = System.Data.CommandType.StoredProcedure;
@@ -81,7 +95,12 @@ namespace AppCfg
                             command.CommandType = cmdType;
                             if (sourceConfig.QueryCmdType == QueryCmdType.StoreProcedure)
                             {
-                                command.Parameters.Add(new SqlParameter("@appcfg_setting_name", key));
+                                command.Parameters.Add(new SqlParameter("@appcfg_setting_name", settingKey));
+
+                                if (!string.IsNullOrWhiteSpace(tenantKey))
+                                {
+                                    command.Parameters.Add(new SqlParameter("@appcfg_tenant_name", string.IsNullOrWhiteSpace(tenantKey) ? (object)DBNull.Value : tenantKey));
+                                }                                
                             }
                             var reader = command.ExecuteReader();
 
@@ -92,9 +111,26 @@ namespace AppCfg
                                 hasValue = true;
                                 tmpVal = reader.GetString(0);
                             }
+
                             if (!hasValue)
                             {
-                                throw new Exception($"Can not get value for setting '{key}' from database. Make sure setting alias is correct and existed. You also should check your QueryCmd");
+                                var settingKeyMsg = string.Empty;
+                                var tenantMsg = string.Empty;
+
+                                if (!string.IsNullOrWhiteSpace(settingKey))
+                                {
+                                    settingKeyMsg = $"\n- SettingKey: '{settingKey}'";
+                                }
+
+                                if (!string.IsNullOrWhiteSpace(tenantKey))
+                                {
+                                    tenantMsg = $"\n- TenantKey: '{tenantKey}'";
+                                }
+
+                                throw new Exception($"Can not get value from database for:" +
+                                    $"{settingKeyMsg}" +
+                                    $"{tenantMsg}" +
+                                    $"\nMake sure setting alias is correct and existed. You also should check your QueryCmd");
                             }
 
                             return tmpVal;

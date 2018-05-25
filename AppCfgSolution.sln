@@ -15,6 +15,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppCfg.Test", "AppCfg.Test\AppCfg.Test.csproj", "{F07BBCB0-860A-4D17-A577-8BF95515A26C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{BB307915-B3E2-41A8-A831-F1C0B3678BE2}"
+	ProjectSection(SolutionItems) = preProject
+		Scripts\sample_get_setting_multi_tenant_store.sql = Scripts\sample_get_setting_multi_tenant_store.sql
+		Scripts\sample_get_setting_store.sql = Scripts\sample_get_setting_store.sql
+		Scripts\test_database.sql = Scripts\test_database.sql
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +43,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BB307915-B3E2-41A8-A831-F1C0B3678BE2} = {461812CA-C7FD-4FDB-BB4C-E4D982887F2C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D7FFDE27-A0E8-4B9E-9F5B-4B6BA01ACED5}
