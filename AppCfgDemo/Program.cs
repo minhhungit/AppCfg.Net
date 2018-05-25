@@ -42,6 +42,9 @@ namespace AppCfgDemo
         //[Option(Alias = "PartnerKey")]
         //[StoreOption(SettingStoreType.MsSqlDatabase, MySettings.StoreKey_Two)]
         //Guid ASettingFromDb_Stored { get; }
+
+        // Nested settings
+        IConnectionStringSetting I_Am_A_NestedSetting { get; }
     }
 
     public interface IConnectionStringSetting
@@ -98,7 +101,10 @@ namespace AppCfgDemo
 
             Console.WriteLine($"Machine - DayWithNewFormat: {MySettings.JsonSettings.Optimus.DayWithNewFormat:MM-dd-yyyy}\n");
 
-            Console.WriteLine($"ConnnString - First: {MySettings.ConnSettings.First.ConnectionString}");
+            Console.WriteLine($"Nested setting: { MySettings.BaseSettings.I_Am_A_NestedSetting.First.InitialCatalog}");
+            Console.WriteLine($"Nested setting: { MySettings.BaseSettings.I_Am_A_NestedSetting.Second.InitialCatalog}");
+
+            Console.WriteLine($"\nConnnString - First: {MySettings.ConnSettings.First.ConnectionString}");
             Console.WriteLine($"ConnnString - Second: InitialCatalog = {MySettings.ConnSettings.Second.InitialCatalog} | ConnectTimeout = {MySettings.ConnSettings.Second.ConnectTimeout}");
 
             Console.ReadKey();

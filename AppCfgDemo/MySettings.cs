@@ -5,7 +5,9 @@ using System.Configuration;
 namespace AppCfgDemo
 {
     /// <summary>
-    /// Setting wrapper class
+    /// Setting wrapper class, this also help us cache setting
+    /// In case you want to refresh setting value every time you get setting (for example if you get setting from database)
+    /// then you have to call MyAppCfg.Get<Your_Setting_Here>() directly
     /// </summary>
     public class MySettings
     {
@@ -20,13 +22,13 @@ namespace AppCfgDemo
 
             // we can also get setting from database. 
             // use StoreOption attribute to direct it
-            //MyAppCfg.SettingStores.RegisterMsSqlDatabaseStore(StoreKey_One,
-            //    new MsSqlSettingStoreConfig
-            //    {
-            //        ConnectionString = ConfigurationManager.ConnectionStrings["myConnSecond"].ConnectionString,
-            //        QueryCmd = "SELECT TOP 1 [Value] FROM [GlobalSettings] WHERE [Name] = '{0}' AND [SettingGroup] = 'product'",
-            //        QueryCmdType = QueryCmdType.Text,
-            //    });
+            MyAppCfg.SettingStores.RegisterMsSqlDatabaseStore(StoreKey_One,
+                new MsSqlSettingStoreConfig
+                {
+                    ConnectionString = ConfigurationManager.ConnectionStrings["myConnSecond"].ConnectionString,
+                    QueryCmd = "SELECT TOP 1 [Value] FROM [GlobalSettings] WHERE [Name] = '{0}' AND [SettingGroup] = 'product'",
+                    QueryCmdType = QueryCmdType.Text,
+                });
 
             //MyAppCfg.SettingStores.RegisterMsSqlDatabaseStore(StoreKey_Two,
             //    new MsSqlSettingStoreConfig

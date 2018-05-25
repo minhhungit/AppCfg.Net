@@ -2,6 +2,7 @@
 using AppCfg.TypeParsers;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Reflection;
 
 namespace AppCfg
@@ -14,6 +15,7 @@ namespace AppCfg
         /// Load settings
         /// </summary>
         /// <typeparam name="TSetting"></typeparam>
+        /// <param name="forceRefresh"></param>
         /// <returns></returns>
         public static TSetting Get<TSetting>()
         {
@@ -28,11 +30,6 @@ namespace AppCfg
         /// <returns></returns>
         public static TSetting Get<TSetting>(string tenantKey)
         {
-            if (TypeParsers.Get(typeof(TSetting)) != null)
-            {
-                return (TSetting)TypeParsers.Get(typeof(TSetting));
-            }
-
             TSetting setting = new AppCfgTypeMixer<object>().ExtendWith<TSetting>();
 
             var props = setting.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -41,11 +38,37 @@ namespace AppCfg
             {
                 if (TypeParsers.Get(prop.PropertyType) == null)
                 {
-                    var settingObj = Activator.CreateInstance(prop.PropertyType);
-                    if (settingObj is IJsonDataType) // auto register json parser for types which inherited from IJsonDataType
+                    object settingObj = null;                   
+
+                    if (prop.PropertyType.IsInterface)
                     {
-                        var jsParser = Activator.CreateInstance(typeof(JsonParser<>).MakeGenericType(prop.PropertyType));
-                        TypeParsers.Register(prop.PropertyType, jsParser);
+                        var myMethod = typeof(MyAppCfg)
+                             .GetMethods()
+                             .Where(m => m.Name == "Get")
+                             .Select(m => new
+                             {
+                                 Method = m,
+                                 Params = m.GetParameters(),
+                                 Args = m.GetGenericArguments()
+                             })
+                             .Where(x => x.Params.Length == 1 && x.Params[0].Name == "tenantKey")
+                             .Select(x => x.Method)
+                             .First();
+
+                        MethodInfo genericMethod = myMethod.MakeGenericMethod(prop.PropertyType);
+                        settingObj = genericMethod.Invoke(null, new[] { tenantKey });
+                        prop.SetValue(setting, settingObj);
+                        continue;
+                    }
+                    else
+                    {
+                        settingObj = Activator.CreateInstance(prop.PropertyType);
+
+                        if (settingObj is IJsonDataType) // auto register json parser for types which inherited from IJsonDataType
+                        {
+                            var jsParser = Activator.CreateInstance(typeof(JsonParser<>).MakeGenericType(prop.PropertyType));
+                            TypeParsers.Register(prop.PropertyType, jsParser);
+                        }
                     }
                 }
 
@@ -94,11 +117,6 @@ namespace AppCfg
                 {
                     throw new AppCfgException($"There is no type parser for type [{prop.PropertyType}]. You maybe need to create a custom type parser for it");
                 }                
-            }
-
-            if (TypeParsers.Get(typeof(TSetting)) == null)
-            {
-                TypeParsers.Register(typeof(TSetting), setting);
             }
 
             return setting;
