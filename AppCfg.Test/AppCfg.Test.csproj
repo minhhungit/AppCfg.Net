@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NestedTest.cs" />
     <Compile Include="ConnnectionStringTest.cs" />
     <Compile Include="CustomParserTest.cs" />
     <Compile Include="CustomParser\ParserWithRawBuilder.cs" />
