@@ -37,23 +37,23 @@ var username = settings.Username;
 <br />
 
 ### Supported Types
-- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/BooleanParser.cs" target="_blank">bool</a>
-- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/DecimalParser.cs" target="_blank">decimal</a>
-- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/DoubleParser.cs" target="_blank">double</a>
-- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/GuidParser.cs" target="_blank">guid</a>
-- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/IntParser.cs" target="_blank">int</a>
-- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListIntParser.cs" target="_blank">List&#60;int&#62;</a>
-- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListStringParser.cs" target="_blank">List&#60;string&#62;</a>
-- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/LongParser.cs" target="_blank">long</a>
-- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/StringParser.cs" target="_blank">string</a>
-- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/TimeSpanParser.cs" target="_blank">TimeSpan</a>
-- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/DateTimeParser.cs" target="_blank">DateTime</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/BooleanParser.cs" target="_blank">bool</a> and <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListBooleanParser.cs" target="_blank">List&#60;bool&#62;</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/DecimalParser.cs" target="_blank">decimal</a> and <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListDecimalParser.cs" target="_blank">List&#60;decimal&#62;</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/DoubleParser.cs" target="_blank">double</a> and <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListDoubleParser.cs" target="_blank">List&#60;double&#62;</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/GuidParser.cs" target="_blank">guid</a> and <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListGuidParser.cs" target="_blank">List&#60;guid&#62;</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/IntParser.cs" target="_blank">int</a> and <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListIntParser.cs" target="_blank">List&#60;int&#62;</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/LongParser.cs" target="_blank">long</a> and <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListLongParser.cs" target="_blank">List&#60;long&#62;</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/StringParser.cs" target="_blank">string</a> and <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListStringParser.cs" target="_blank">List&#60;string&#62;</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/TimeSpanParser.cs" target="_blank">TimeSpan</a> and <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListTimespanParser.cs" target="_blank">List&#60;TimeSpan&#62;</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/DateTimeParser.cs" target="_blank">DateTime</a> and <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListDateTimeParser.cs" target="_blank">List&#60;DateTime&#62;</a>
 - <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/JsonParser.cs" target="_blank">Json</a>
 - <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ConnectionStringParser.cs" target="_blank">ConnectionString</a>
 
+> AppCfg.Net is also support nested setting
+
 ### Supported Setting Store
 - AppSetting
-- MsSqlDatabase (support multi-tenant)
+- MsSqlDatabase (support multi-tenancy)
 
 ### Custom Type Parser
 > In case you need a type parser which was not supported, even if you don't like existed parser, you can create one for yourself and **register** it, or create a request for me, I will try to help!
