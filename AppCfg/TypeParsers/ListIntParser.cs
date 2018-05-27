@@ -10,7 +10,9 @@ namespace AppCfg.TypeParsers
         public List<int> Parse(string rawValue, ITypeParserOptions options)
         {
             var separator = options.Separator ?? ";";
-            return new List<int>(rawValue.Split(new string[] { separator }, StringSplitOptions.None).Select(s => int.Parse(s, NumberStyles.Integer | NumberStyles.AllowThousands, CultureInfo.InvariantCulture)));
+
+            var parser = new IntParser();
+            return new List<int>(rawValue.Split(new string[] { separator }, StringSplitOptions.None).Select(s => parser.Parse(s, options)));
         }
     }
 }

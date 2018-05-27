@@ -11,10 +11,12 @@
                 case "1":
                 case "true":
                 case "yes":
+                case "y":
                     return true;
                 case "0":
                 case "false":
                 case "no":
+                case "n":
                     return false;
                 default:
                     return bool.Parse(rawValue);
