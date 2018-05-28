@@ -14,4 +14,12 @@ namespace AppCfg.TypeParsers
             return new List<decimal>(rawValue.Split(new string[] { separator }, StringSplitOptions.None).Select(s => parser.Parse(s, options)));
         }
     }
+
+    public class IReadOnlyListDecimalParser : ITypeParser<IReadOnlyList<decimal>>
+    {
+        public IReadOnlyList<decimal> Parse(string rawValue, ITypeParserOptions options)
+        {
+            return new ListDecimalParser().Parse(rawValue, options);
+        }
+    }
 }

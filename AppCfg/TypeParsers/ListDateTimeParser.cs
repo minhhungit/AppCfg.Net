@@ -14,4 +14,12 @@ namespace AppCfg.TypeParsers
             return new List<DateTime>(rawValue.Split(new string[] { separator }, StringSplitOptions.None).Select(s => parser.Parse(s, options)));
         }
     }
+
+    public class IReadOnlyListDateTimeParser : ITypeParser<IReadOnlyList<DateTime>>
+    {
+        public IReadOnlyList<DateTime> Parse(string rawValue, ITypeParserOptions options)
+        {
+            return new ListDateTimeParser().Parse(rawValue, options);
+        }
+    }
 }

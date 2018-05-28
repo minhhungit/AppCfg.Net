@@ -16,12 +16,15 @@ namespace AppCfg
 
                 // initial default parsers
                 Register(new BooleanParser());
-                Register(new ConnectionStringParser());
                 Register(new DateTimeParser());
                 Register(new DecimalParser());
                 Register(new DoubleParser());
                 Register(new GuidParser());                
                 Register(new IntParser());
+                Register(new LongParser());
+                Register(new StringParser());
+                Register(new TimeSpanParser());
+
                 Register(new ListBooleanParser());
                 Register(new ListDateTimeParser());
                 Register(new ListDecimalParser());
@@ -31,9 +34,18 @@ namespace AppCfg
                 Register(new ListLongParser());
                 Register(new ListStringParser());
                 Register(new ListTimespanParser());
-                Register(new LongParser());
-                Register(new StringParser());
-                Register(new TimeSpanParser());
+
+                Register(new IReadOnlyListBooleanParser());
+                Register(new IReadOnlyListDateTimeParser());
+                Register(new IReadOnlyListDecimalParser());
+                Register(new IReadOnlyListDoubleParser());
+                Register(new IReadOnlyListGuidParser());
+                Register(new IReadOnlyListIntParser());
+                Register(new IReadOnlyListLongParser());
+                Register(new IReadOnlyListStringParser());
+                Register(new IReadOnlyListTimespanParser());
+
+                Register(new ConnectionStringParser());
             }
 
             public static void Register<T>(ITypeParser<T> parser)

@@ -12,4 +12,12 @@ namespace AppCfg.TypeParsers
             return rawValue.Split(new string[] { separator }, StringSplitOptions.None).ToList();
         }
     }
+
+    public class IReadOnlyListStringParser : ITypeParser<IReadOnlyList<string>>
+    {
+        public IReadOnlyList<string> Parse(string rawValue, ITypeParserOptions options)
+        {
+            return new ListStringParser().Parse(rawValue, options);
+        }
+    }
 }

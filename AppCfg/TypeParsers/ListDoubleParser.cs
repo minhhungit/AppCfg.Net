@@ -14,4 +14,12 @@ namespace AppCfg.TypeParsers
             return new List<double>(rawValue.Split(new string[] { separator }, StringSplitOptions.None).Select(s => parser.Parse(s, options)));
         }
     }
+
+    public class IReadOnlyListDoubleParser : ITypeParser<IReadOnlyList<double>>
+    {
+        public IReadOnlyList<double> Parse(string rawValue, ITypeParserOptions options)
+        {
+            return new ListDoubleParser().Parse(rawValue, options);
+        }
+    }
 }

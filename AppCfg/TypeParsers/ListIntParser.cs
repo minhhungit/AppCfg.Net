@@ -15,4 +15,12 @@ namespace AppCfg.TypeParsers
             return new List<int>(rawValue.Split(new string[] { separator }, StringSplitOptions.None).Select(s => parser.Parse(s, options)));
         }
     }
+
+    public class IReadOnlyListIntParser : ITypeParser<IReadOnlyList<int>>
+    {
+        public IReadOnlyList<int> Parse(string rawValue, ITypeParserOptions options)
+        {
+            return new ListIntParser().Parse(rawValue, options);
+        }
+    }
 }

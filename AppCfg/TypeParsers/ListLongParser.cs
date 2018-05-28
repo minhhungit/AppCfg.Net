@@ -14,4 +14,12 @@ namespace AppCfg.TypeParsers
             return new List<long>(rawValue.Split(new string[] { separator }, StringSplitOptions.None).Select(s => parser.Parse(s, options)));
         }
     }
+
+    public class IReadOnlyListLongParser : ITypeParser<IReadOnlyList<long>>
+    {
+        public IReadOnlyList<long> Parse(string rawValue, ITypeParserOptions options)
+        {
+            return new ListLongParser().Parse(rawValue, options);
+        }
+    }
 }

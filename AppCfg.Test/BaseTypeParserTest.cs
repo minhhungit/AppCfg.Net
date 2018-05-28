@@ -11,9 +11,13 @@ namespace AppCfg.Test
         [Option(Separator = ",")]
         List<bool> DemoBooleans { get; }
 
+        [Option(Separator = ",")]
+        IReadOnlyList<bool> DemoReadonlyBooleans { get; }
+
         DateTime DemoDateTime { get; }
 
         List<DateTime> DemoDateTimes { get; }
+        IReadOnlyList<DateTime> DemoReadonlyDateTimes { get; }
 
         [Option(InputFormat = "dd+MM/yyyy")]
         DateTime DemoDateTimeWithFormat { get; }
@@ -21,12 +25,15 @@ namespace AppCfg.Test
         decimal DemoDecimal { get; }
 
         List<decimal> DemoDecimals { get; }
+        IReadOnlyList<decimal> DemoReadonlyDecimals { get; }
 
         double DemoDouble { get; }
         List<double> DemoDoubles { get; }
+        IReadOnlyList<double> DemoReadonlyDoubles { get; }
 
         Guid DemoGuid { get; }
         List<Guid> DemoGuids { get; }
+        IReadOnlyList<Guid> DemoReadonlyGuids { get; }
 
 
         [Option(DefaultValue = 77)]
@@ -35,13 +42,20 @@ namespace AppCfg.Test
         [Option(Separator = "^")]
         List<int> Numbers { get; }
 
+        [Option(Separator = "^")]
+        IReadOnlyList<int> ReadonlyNumbers { get; }
+
         long DemoLong { get; }
         List<long> DemoLongs { get; }
+        IReadOnlyList<long> DemoReadonlyLongs { get; }
 
         string DemoString { get; }
 
         [Option(Separator = "~")]
         List<string> Strings { get; }
+
+        [Option(Separator = "~")]
+        IReadOnlyList<string> ReadonlyStrings { get; }
 
         TimeSpan DemoTimeSpanFirst { get; }
         TimeSpan DemoTimeSpanSecond { get; }
@@ -50,6 +64,7 @@ namespace AppCfg.Test
         List<int> NumbersWithInitialRawValue { get; }
 
         List<TimeSpan> DemoTimespans { get; }
+        IReadOnlyList<TimeSpan> DemoReadonlyTimespans { get; }
     }
 
     [TestFixture]
@@ -83,6 +98,16 @@ namespace AppCfg.Test
             Assert.AreEqual(settings.DemoLongs, new List<long> { 9223372036854775807, 12345678 });
             Assert.AreEqual(settings.Strings, new List<string> { "luong ", "son", " ba ", "chuc anh dai  " });
             Assert.AreEqual(settings.DemoTimespans, new List<TimeSpan> { new TimeSpan(01, 02, 03), new TimeSpan(01, 02, 03, 04) });
+
+            Assert.AreEqual(settings.DemoReadonlyBooleans, new List<bool> { true, false, true, false, true, true, false });
+            Assert.AreEqual(settings.DemoReadonlyDateTimes, new List<DateTime> { new DateTime(2017, 11, 29, 23, 39, 03), new DateTime(2018, 11, 29, 15, 20, 03) });
+            Assert.AreEqual(settings.DemoReadonlyDecimals, new List<decimal> { -12336.89M, 1234.5M });
+            Assert.AreEqual(settings.DemoReadonlyDoubles, new List<double> { 1.7E+3, 1.5E+3 });
+            Assert.AreEqual(settings.DemoReadonlyGuids, new List<Guid> { new Guid("8ff3a01d-1884-4ebd-b787-d5980aa94899"), new Guid("4b865f54-6df4-4d0c-8a79-c07f33dddec4") });
+            Assert.AreEqual(settings.ReadonlyNumbers, new List<int> { 1, 99, 123456789 });
+            Assert.AreEqual(settings.DemoReadonlyLongs, new List<long> { 9223372036854775807, 12345678 });
+            Assert.AreEqual(settings.ReadonlyStrings, new List<string> { "luong ", "son", " ba ", "chuc anh dai  " });
+            Assert.AreEqual(settings.DemoReadonlyTimespans, new List<TimeSpan> { new TimeSpan(01, 02, 03), new TimeSpan(01, 02, 03, 04) });
         }
     }
 }

@@ -14,4 +14,12 @@ namespace AppCfg.TypeParsers
             return new List<TimeSpan>(rawValue.Split(new string[] { separator }, StringSplitOptions.None).Select(s => parser.Parse(s, options)));
         }
     }
+
+    public class IReadOnlyListTimespanParser : ITypeParser<IReadOnlyList<TimeSpan>>
+    {
+        public IReadOnlyList<TimeSpan> Parse(string rawValue, ITypeParserOptions options)
+        {
+            return new ListTimespanParser().Parse(rawValue, options);
+        }
+    }
 }
