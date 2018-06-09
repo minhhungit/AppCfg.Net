@@ -25,7 +25,7 @@ public interface ISetting
     int Age { get; }
 	
     [Option(Alias = "user-name")] 
-    long Username { get; }
+    string Username { get; }
 }
 
 var settings = MyAppCfg.Get<ISetting>()
