@@ -18,3 +18,5 @@
 /.vs/AppCfgSolution/DesignTimeBuild
 /AppCfgDemoMssql/bin/Debug
 /AppCfgDemoMssql/obj/Debug
+/AppCfgDemoMssql/bin/Release
+/AppCfgDemoMssql/obj/Release
