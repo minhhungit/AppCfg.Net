@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <Title>AppCfg.Net</Title>
-    <Version>1.6.0</Version>
+    <Version>1.7.0</Version>
     <Copyright>Copyright 2018 minhhungit</Copyright>
     <Description>Type-safe, easy and power configuration framework for .NET developers</Description>
     <Authors>Hung Vo</Authors>
@@ -10,9 +10,9 @@
     <PackageProjectUrl>https://github.com/minhhungit/AppCfg/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/minhhungit/AppCfg/</RepositoryUrl>
     <PackageTags>configuration appsetting json dotnet csharp netstandard20 dotnetcore</PackageTags>
-    <PackageReleaseNotes>more type parsers</PackageReleaseNotes>
-    <AssemblyVersion>1.6.0</AssemblyVersion>
-    <FileVersion>1.6.0</FileVersion>
+    <PackageReleaseNotes>fix parameters of mssql database store</PackageReleaseNotes>
+    <AssemblyVersion>1.7.0</AssemblyVersion>
+    <FileVersion>1.7.0</FileVersion>
     <Company />
     <PackageIconUrl>https://raw.githubusercontent.com/minhhungit/AppCfg/master/wiki/icon.ico</PackageIconUrl>
     <PackageId>AppCfg.Net</PackageId>
