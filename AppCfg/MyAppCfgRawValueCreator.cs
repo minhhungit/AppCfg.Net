@@ -69,14 +69,7 @@ namespace AppCfg
                                 cmdType = System.Data.CommandType.Text;
                                 try
                                 {
-                                    if (string.IsNullOrWhiteSpace(tenantKey))
-                                    {
-                                        sql = string.Format(sourceConfig.QueryCmd, settingKey);
-                                    }
-                                    else
-                                    {
-                                        sql = string.Format(sourceConfig.QueryCmd, settingKey, tenantKey);
-                                    }
+                                    sql = string.Format(sourceConfig.QueryCmd, tenantKey, settingKey);
                                 }
                                 catch (Exception ex)
                                 {
@@ -95,12 +88,8 @@ namespace AppCfg
                             command.CommandType = cmdType;
                             if (sourceConfig.QueryCmdType == QueryCmdType.StoreProcedure)
                             {
-                                command.Parameters.Add(new SqlParameter("@appcfg_setting_name", settingKey));
-
-                                if (!string.IsNullOrWhiteSpace(tenantKey))
-                                {
-                                    command.Parameters.Add(new SqlParameter("@appcfg_tenant_name", string.IsNullOrWhiteSpace(tenantKey) ? (object)DBNull.Value : tenantKey));
-                                }                                
+                                command.Parameters.Add(new SqlParameter("@appcfg_tenant_name", string.IsNullOrWhiteSpace(tenantKey) ? (object)DBNull.Value : tenantKey));                                
+                                command.Parameters.Add(new SqlParameter("@appcfg_setting_name", settingKey));                                
                             }
                             var reader = command.ExecuteReader();
 

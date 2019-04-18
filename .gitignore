@@ -16,3 +16,5 @@
 /AppCfg.Test/bin
 /AppCfg.Test/obj
 /.vs/AppCfgSolution/DesignTimeBuild
+/AppCfgDemoMssql/bin/Debug
+/AppCfgDemoMssql/obj/Debug

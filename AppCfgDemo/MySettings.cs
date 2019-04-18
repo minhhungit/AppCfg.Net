@@ -20,24 +20,6 @@ namespace AppCfgDemo
             // so, if you want to overwrite it by your parser [DemoParserWithRawBuilder] then you have to register it
             MyAppCfg.TypeParsers.Register(new DemoParserWithRawBuilder<JsonPerson>());
 
-            // we can also get setting from database. 
-            // use StoreOption attribute to direct it
-            //MyAppCfg.SettingStores.RegisterMsSqlDatabaseStore(StoreKey_One,
-            //    new MsSqlSettingStoreConfig
-            //    {
-            //        ConnectionString = ConfigurationManager.ConnectionStrings["myConnSecond"].ConnectionString,
-            //        QueryCmd = "SELECT TOP 1 [Value] FROM [GlobalSettings] WHERE [Name] = '{0}' AND [SettingGroup] = 'product'",
-            //        QueryCmdType = QueryCmdType.Text,
-            //    });
-
-            //MyAppCfg.SettingStores.RegisterMsSqlDatabaseStore(StoreKey_Two,
-            //    new MsSqlSettingStoreConfig
-            //    {
-            //        ConnectionString = ConfigurationManager.ConnectionStrings["myConnSecond"].ConnectionString,
-            //        QueryCmd = "AppCfgGetSetting",
-            //        QueryCmdType = QueryCmdType.StoreProcedure,
-            //    });
-
             // setup json serializer settings
             MyAppCfg.JsonSerializerSettings = new Newtonsoft.Json.JsonSerializerSettings
             {

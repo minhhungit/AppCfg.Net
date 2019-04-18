@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[GlobalSettings]    Script Date: 5/1/2018 6:02:47 AM ******/
+/****** Object:  Table [dbo].[GlobalSettings]    Script Date: 4/18/2019 5:42:05 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -7,9 +7,10 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Gl
 BEGIN
 CREATE TABLE [dbo].[GlobalSettings](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[TenantID] [nvarchar](50) NULL,
 	[Name] [nvarchar](200) NULL,
 	[Value] [ntext] NULL,
-	[SettingGroup] [nvarchar](200) NULL,
+	[Description] [nvarchar](max) NULL,
  CONSTRAINT [PK_GlobalSettings] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -17,8 +18,7 @@ CREATE TABLE [dbo].[GlobalSettings](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 END
 GO
-
-/****** Object:  Table [dbo].[Settings]    Script Date: 5/1/2018 6:02:47 AM ******/
+/****** Object:  Table [dbo].[Settings]    Script Date: 4/18/2019 5:42:05 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -27,6 +27,7 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Se
 BEGIN
 CREATE TABLE [dbo].[Settings](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[TenantId] [nvarchar](50) NULL,
 	[Name] [nvarchar](100) NULL,
 	[Value] [nvarchar](max) NULL,
 	[Description] [nvarchar](max) NULL,
@@ -37,8 +38,25 @@ CREATE TABLE [dbo].[Settings](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 END
 GO
-
-/****** Object:  StoredProcedure [dbo].[AppCfgGetSetting]    Script Date: 5/1/2018 6:02:47 AM ******/
+SET IDENTITY_INSERT [dbo].[GlobalSettings] ON 
+GO
+INSERT [dbo].[GlobalSettings] ([Id], [TenantID], [Name], [Value], [Description]) VALUES (1, N'', N'Author', N'Jin', NULL)
+GO
+INSERT [dbo].[GlobalSettings] ([Id], [TenantID], [Name], [Value], [Description]) VALUES (3, N'I am a tenant', N'Author', N'Hung Vo <it.minhhung@gmail.com>', NULL)
+GO
+SET IDENTITY_INSERT [dbo].[GlobalSettings] OFF
+GO
+SET IDENTITY_INSERT [dbo].[Settings] ON 
+GO
+INSERT [dbo].[Settings] ([Id], [TenantId], [Name], [Value], [Description]) VALUES (1, NULL, N'PartnerKey', N'a3755435-0827-4e87-8d2a-c9126ca1064c
+', NULL)
+GO
+INSERT [dbo].[Settings] ([Id], [TenantId], [Name], [Value], [Description]) VALUES (2, N'I am a tenant', N'PartnerKey', N'd323a1df-612d-42c8-a83f-e0ea333d7a22
+', NULL)
+GO
+SET IDENTITY_INSERT [dbo].[Settings] OFF
+GO
+/****** Object:  StoredProcedure [dbo].[AppCfgGetSetting]    Script Date: 4/18/2019 5:42:05 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -48,16 +66,22 @@ BEGIN
 EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[AppCfgGetSetting] AS' 
 END
 GO
-
 ALTER PROCEDURE [dbo].[AppCfgGetSetting]
-	@appcfg_setting_name NVARCHAR(100)
+	@appcfg_tenant_name NVARCHAR(200),
+	@appcfg_setting_name NVARCHAR(200)	
 AS
 BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from
 	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
     
-	SELECT s.[Value] FROM dbo.Settings AS s WHERE s.Name = @appcfg_setting_name
+	IF(@appcfg_tenant_name IS NOT NULL)
+	BEGIN 
+		SELECT TOP (1) s.[Value] FROM dbo.Settings AS s WHERE s.TenantId = @appcfg_tenant_name	AND s.Name = @appcfg_setting_name ORDER BY s.Id
+	END
+	ELSE
+	BEGIN
+		SELECT TOP (1) s.[Value] FROM dbo.Settings AS s WHERE s.TenantId IS NULL				AND s.Name = @appcfg_setting_name ORDER BY s.Id
+	END
 END
-
 GO

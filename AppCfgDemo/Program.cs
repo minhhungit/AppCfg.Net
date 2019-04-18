@@ -31,18 +31,6 @@ namespace AppCfgDemo
         List<int> Numbers { get; }
         JsonPerson DemoRawBuilder { get; }
 
-        /******************************************************************************
-         * Comment out bellow code if you want to run demo for MsSqlDatabase setting. * 
-         * Make sure you configured setting source for it                             *
-         *****************************************************************************/
-        //[Option(Alias = "Author")]
-        //[StoreOption(SettingStoreType.MsSqlDatabase, MySettings.StoreKey_One)]
-        //string ASettingFromDb_Text { get; }
-
-        //[Option(Alias = "PartnerKey")]
-        //[StoreOption(SettingStoreType.MsSqlDatabase, MySettings.StoreKey_Two)]
-        //Guid ASettingFromDb_Stored { get; }
-
         // Nested settings
         IConnectionStringSetting I_Am_A_NestedSetting { get; }
     }
