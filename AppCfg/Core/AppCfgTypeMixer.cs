@@ -1,5 +1,5 @@
 ﻿/**
- * Idea is from https://gist.github.com/IamNguele/bdc79d0d83a7895e693bc3b5cae543d7#file-typemixer-cs
+ * Inspired by https://gist.github.com/IamNguele/bdc79d0d83a7895e693bc3b5cae543d7#file-typemixer-cs
  */
 
 using System;
