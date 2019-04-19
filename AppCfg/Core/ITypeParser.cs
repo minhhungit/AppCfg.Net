@@ -3,7 +3,8 @@
     public enum SettingStoreType
     {
         AppSetting,
-        MsSqlDatabase
+        MsSqlDatabase,
+        Redis
     }
 
     public interface ITypeParserOptions

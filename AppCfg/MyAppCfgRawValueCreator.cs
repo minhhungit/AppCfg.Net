@@ -15,6 +15,8 @@ namespace AppCfg
                     return GetRawValueForAppSetting(settingType, key);
                 case SettingStoreType.MsSqlDatabase:
                     return GetRawValueForMsSqlDatabase(settingType, tenantKey, key, storeOpt.SettingStoreType, storeOpt.StoreIdentity);
+                case SettingStoreType.Redis:
+                    return GetRawValueForRedis(settingType, tenantKey, key, storeOpt.SettingStoreType, storeOpt.StoreIdentity);
             }
 
             throw new Exception($"Settting store {storeOpt.SettingStoreType} is not supported");
@@ -41,7 +43,7 @@ namespace AppCfg
 
             if (storeIdentity == null)
             {
-                throw new AppCfgException("Please registry config for setting source 'MsSqlDatabase'");
+                throw new AppCfgException("Please config for 'MSSQL Database' source: storeIdentity should not null");
             }
 
             if (SettingStores.Get(SettingStoreType.MsSqlDatabase, storeIdentity) is MsSqlSettingStoreConfig sourceConfig)
@@ -133,7 +135,38 @@ namespace AppCfg
             }
             else
             {
-                throw new AppCfgException($"Please registry config for setting source 'MsSqlDatabase'");
+                throw new AppCfgException($"Please config for 'MSSQL Database' source: Can not load sourceConfig for storeIdentity {storeIdentity}");
+            }
+        }
+
+        private static string GetRawValueForRedis(Type settingType, string tenantKey, string settingKey, SettingStoreType settingStoreType, string storeIdentity)
+        {
+            if (storeIdentity == null)
+            {
+                storeIdentity = SettingStores.GetFirstIdentity(settingStoreType) ?? string.Empty;
+            }
+
+            if (storeIdentity == null)
+            {
+                throw new AppCfgException("Please config for 'Redis' source: storeIdentity should not null");
+            }
+
+            
+
+            if (SettingStores.Get(SettingStoreType.Redis, storeIdentity) is RedisSettingStoreConfig sourceConfig)
+            {
+                if (sourceConfig.GetRawValueFunc != null)
+                {
+                    return sourceConfig.GetRawValueFunc.Invoke(storeIdentity, tenantKey, settingKey);
+                }
+                else
+                {
+                    throw new Exception("Please setup method 'GetRawValueFunc(storeIdentity, tenantKey, settingKey)' for 'Redis' setting source");
+                }                
+            }
+            else
+            {
+                throw new AppCfgException($"Please config for 'Redis' source: Can not load sourceConfig for storeIdentity {storeIdentity}");
             }
         }
     }

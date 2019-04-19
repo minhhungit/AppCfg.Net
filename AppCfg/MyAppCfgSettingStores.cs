@@ -15,21 +15,39 @@ namespace AppCfg
                 _settingStore = new Dictionary<KeyValuePair<SettingStoreType, string>, object>();
             }
 
-            public static void RegisterMsSqlDatabaseStore(string identity, MsSqlSettingStoreConfig store)
+            public static void RegisterMsSqlDatabaseStore(string identity, MsSqlSettingStoreConfig config)
             {
-                if (store == null)
+                if (config == null)
                 {
-                    throw new ArgumentException(nameof(store));
+                    throw new ArgumentException(nameof(config));
                 }
 
                 var key = new KeyValuePair<SettingStoreType, string>(SettingStoreType.MsSqlDatabase, identity);
                 if (!_settingStore.ContainsKey(key))
                 {
-                    _settingStore.Add(key, store);
+                    _settingStore.Add(key, config);
                 }
                 else
                 {
-                    _settingStore[key] = store;
+                    _settingStore[key] = config;
+                }
+            }
+
+            public static void RegisterRedisDatabaseStore(string identity, RedisSettingStoreConfig config)
+            {
+                if (config == null)
+                {
+                    throw new ArgumentException(nameof(config));
+                }
+
+                var key = new KeyValuePair<SettingStoreType, string>(SettingStoreType.Redis, identity);
+                if (!_settingStore.ContainsKey(key))
+                {
+                    _settingStore.Add(key, config);
+                }
+                else
+                {
+                    _settingStore[key] = config;
                 }
             }
 

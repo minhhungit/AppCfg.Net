@@ -20,3 +20,6 @@
 /AppCfgDemoMssql/obj/Debug
 /AppCfgDemoMssql/bin/Release
 /AppCfgDemoMssql/obj/Release
+/AppCfg.Redis/obj
+/AppCfgDemoRedis/bin/Debug
+/AppCfgDemoRedis/obj/Debug

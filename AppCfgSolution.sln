@@ -22,6 +22,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{BB30
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppCfgDemoMssql", "AppCfgDemoMssql\AppCfgDemoMssql.csproj", "{6452D8F5-2099-460D-BE04-6E652DA6E7FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppCfgDemoRedis", "AppCfgDemoRedis\AppCfgDemoRedis.csproj", "{7E5F6145-F0C3-479B-BFB9-26AEE46EB2A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{6452D8F5-2099-460D-BE04-6E652DA6E7FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6452D8F5-2099-460D-BE04-6E652DA6E7FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6452D8F5-2099-460D-BE04-6E652DA6E7FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E5F6145-F0C3-479B-BFB9-26AEE46EB2A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E5F6145-F0C3-479B-BFB9-26AEE46EB2A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E5F6145-F0C3-479B-BFB9-26AEE46EB2A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E5F6145-F0C3-479B-BFB9-26AEE46EB2A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
