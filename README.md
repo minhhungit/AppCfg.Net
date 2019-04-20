@@ -53,7 +53,9 @@ var username = settings.Username;
 
 ### Supported Setting Store
 - AppSetting [ <a href="https://github.com/minhhungit/AppCfg.Net/tree/master/AppCfgDemo" target="_blank">Demo</a> ]
-- MsSqlDatabase (support multi-tenancy) [ <a href="https://github.com/minhhungit/AppCfg.Net/tree/master/AppCfgDemoMssql" target="_blank">Demo</a> ]
+- Custom stores like MSSQL database, Redis, Text file... it's up to you. [ <a href="https://github.com/minhhungit/AppCfg.Net/tree/master/AppCfgDemoMssql" target="_blank">Demo</a> ]
+
+> With Custom stores, it also support multi-tenancy!
 
 ### Custom Type Parser
 > In case you need a type parser which was not supported, even if you don't like existed parser, you can create one for yourself and **register** it, or create a request for me, I will try to help!
