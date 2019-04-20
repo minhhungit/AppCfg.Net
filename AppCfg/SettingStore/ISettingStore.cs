@@ -1,6 +1,6 @@
 ﻿namespace AppCfg.SettingStore
 {
-    public interface ISettingStoreOptions
+    public interface ISettingStore
     {
         SettingStoreType SettingStoreType { get; }
         string StoreIdentity { get; }

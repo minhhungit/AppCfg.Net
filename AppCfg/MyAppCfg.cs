@@ -77,7 +77,7 @@ namespace AppCfg
                     try
                     {
                         ITypeParserOptions parserOpt = (ITypeParserOptions)prop.GetCustomAttribute<OptionAttribute>() ?? new OptionAttribute();
-                        ISettingStoreOptions storeOpt = (ISettingStoreOptions)prop.GetCustomAttribute<StoreOptionAttribute>() ?? new StoreOptionAttribute();
+                        ISettingStore storeOpt = (ISettingStore)prop.GetCustomAttribute<StoreOptionAttribute>() ?? new StoreOptionAttribute();
 
                         string rawValue = null;
 

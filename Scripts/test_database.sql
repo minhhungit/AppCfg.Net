@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[GlobalSettings]    Script Date: 4/18/2019 5:42:05 PM ******/
+/****** Object:  Table [dbo].[GlobalSettings]    Script Date: 4/20/2019 10:46:31 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -18,7 +18,7 @@ CREATE TABLE [dbo].[GlobalSettings](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 END
 GO
-/****** Object:  Table [dbo].[Settings]    Script Date: 4/18/2019 5:42:05 PM ******/
+/****** Object:  Table [dbo].[Settings]    Script Date: 4/20/2019 10:46:31 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -40,7 +40,7 @@ END
 GO
 SET IDENTITY_INSERT [dbo].[GlobalSettings] ON 
 GO
-INSERT [dbo].[GlobalSettings] ([Id], [TenantID], [Name], [Value], [Description]) VALUES (1, N'', N'Author', N'Jin', NULL)
+INSERT [dbo].[GlobalSettings] ([Id], [TenantID], [Name], [Value], [Description]) VALUES (1, NULL, N'Author', N'Jin', NULL)
 GO
 INSERT [dbo].[GlobalSettings] ([Id], [TenantID], [Name], [Value], [Description]) VALUES (3, N'I am a tenant', N'Author', N'Hung Vo <it.minhhung@gmail.com>', NULL)
 GO
@@ -56,7 +56,7 @@ INSERT [dbo].[Settings] ([Id], [TenantId], [Name], [Value], [Description]) VALUE
 GO
 SET IDENTITY_INSERT [dbo].[Settings] OFF
 GO
-/****** Object:  StoredProcedure [dbo].[AppCfgGetSetting]    Script Date: 4/18/2019 5:42:05 PM ******/
+/****** Object:  StoredProcedure [dbo].[AppCfgGetSetting]    Script Date: 4/20/2019 10:46:31 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -77,11 +77,11 @@ BEGIN
     
 	IF(@appcfg_tenant_name IS NOT NULL)
 	BEGIN 
-		SELECT TOP (1) s.[Value] FROM dbo.Settings AS s WHERE s.TenantId = @appcfg_tenant_name	AND s.Name = @appcfg_setting_name ORDER BY s.Id
+		SELECT TOP (1) s.[Value] FROM dbo.Settings AS s WHERE s.TenantId = @appcfg_tenant_name AND s.Name = @appcfg_setting_name ORDER BY s.Id
 	END
 	ELSE
 	BEGIN
-		SELECT TOP (1) s.[Value] FROM dbo.Settings AS s WHERE s.TenantId IS NULL				AND s.Name = @appcfg_setting_name ORDER BY s.Id
+		SELECT TOP (1) s.[Value] FROM dbo.Settings AS s WHERE s.TenantId IS NULL AND s.Name = @appcfg_setting_name ORDER BY s.Id
 	END
 END
 GO

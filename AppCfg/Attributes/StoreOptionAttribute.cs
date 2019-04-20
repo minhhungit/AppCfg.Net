@@ -4,17 +4,11 @@ using System;
 namespace AppCfg
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class StoreOptionAttribute : Attribute, ISettingStoreOptions
+    public class StoreOptionAttribute : Attribute, ISettingStore
     {
         public StoreOptionAttribute()
         {
             SettingStoreType = SettingStoreType.AppSetting;
-        }
-
-        public StoreOptionAttribute(string storeIdentity)
-        {
-            SettingStoreType = SettingStoreType.AppSetting;
-            StoreIdentity = storeIdentity;
         }
 
         public StoreOptionAttribute(SettingStoreType storeType)

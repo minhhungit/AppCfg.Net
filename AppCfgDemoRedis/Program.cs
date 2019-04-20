@@ -3,25 +3,14 @@ using System;
 
 namespace AppCfgDemoRedis
 {
-    public interface ISetting
-    {
-        [Option(Alias = "Author")]
-        [StoreOption(SettingStoreType.Redis, "my_test")]
-        string ASettingFromDb_Text { get; }
-
-        [Option(Alias = "PartnerKey")]
-        [StoreOption(SettingStoreType.Redis, "my_test")]
-        string ASettingFromDb_Stored { get; }
-    }
-
     class Program
     {
         static void Main(string[] args)
         {
             MySettings.Init();
 
-            var settingsWithoutTenant = MyAppCfg.Get<ISetting>();
-            var settingsWithTenant = MyAppCfg.Get<ISetting>("demo-tenant");
+            var settingsWithoutTenant = MyAppCfg.Get<IRedisSetting>();
+            var settingsWithTenant = MyAppCfg.Get<IRedisSetting>("demo-tenant");
 
             Console.WriteLine($"Without Tenant: {settingsWithoutTenant.ASettingFromDb_Text}");
             Console.WriteLine($"Without Tenant: {settingsWithoutTenant.ASettingFromDb_Stored}");

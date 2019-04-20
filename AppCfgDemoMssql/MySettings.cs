@@ -1,9 +1,21 @@
 ﻿using AppCfg;
-using AppCfg.SettingStore;
+using System;
 using System.Configuration;
+using System.Data.SqlClient;
 
 namespace AppCfgDemoMssql
 {
+    public interface IMssqlSetting
+    {
+        [Option(Alias = "Author")]
+        [StoreOption(SettingStoreType.Custom, MySettings.StoreKey_MSSQL_With_CommandText)]
+        string ASettingFromDb_Text { get; }
+
+        [Option(Alias = "PartnerKey")]
+        [StoreOption(SettingStoreType.Custom, MySettings.StoreKey_MSSQL_With_StoredProc)]
+        Guid ASettingFromDb_Stored { get; }
+    }
+
     /// <summary>
     /// Setting wrapper class, this also help us cache setting
     /// In case you want to refresh setting value every time you get setting (for example if you get setting from database)
@@ -11,44 +23,98 @@ namespace AppCfgDemoMssql
     /// </summary>
     public class MySettings
     {
-        public const string StoreKey_One = "first-key-demo > dbo.global table";
-        public const string StoreKey_Two = "second-key-demo > dbo.setting table";
+        public const string StoreKey_MSSQL_With_CommandText = "MSSQL > first-key-demo > dbo.global table";
+        public const string StoreKey_MSSQL_With_StoredProc = "MSSQL > second-key-demo > dbo.setting table";
 
         public static void Init()
         {
-            // 1. Make sure that your database has at least 4 columns: TenantId/SettingGroup/Name/Value
-
-            // 2.if you use MSSQL, AppCfg.Net need to know how to get your value
-            // Either using command text or using stored procedure, it's up to you
-
-            // 3. If you use CommandText then define a query text to access setting's value
-            // NOTE: If you use command text, be careful with TenantId NULL and EMPTY (you can not define query like: [TenantId] = NULL)
-            // I would recommend using Stored Procedure instead of CommandText
-            MyAppCfg.SettingStores.RegisterMsSqlDatabaseStore(StoreKey_One,
-                new MsSqlSettingStoreConfig
+            MyAppCfg.SettingStores.RegisterCustomStore(StoreKey_MSSQL_With_CommandText, opt =>
                 {
-                    ConnectionString = ConfigurationManager.ConnectionStrings["myConn"].ConnectionString,
-                    QueryCmd = "SELECT TOP 1 [Value] FROM [GlobalSettings] WHERE [TenantId] = '{0}' AND [Name] = '{1}'", // {0} must be tenantId, {1} must be setting-name
-                    QueryCmdType = QueryCmdType.Text,
+                    var connectionString = ConfigurationManager.ConnectionStrings["myConn"].ConnectionString;
+                    using (SqlConnection connection = new SqlConnection(connectionString))
+                    {
+                        connection.Open();
+
+                        var sqlText = string.Empty;
+                        if (string.IsNullOrWhiteSpace(opt.TenantKey))
+                        {
+                            sqlText = $"SELECT TOP 1 [Value] FROM [GlobalSettings] WHERE [TenantId] IS NULL AND [Name] = '{opt.SettingKey}'";
+                        }
+                        else
+                        {
+                            sqlText = $"SELECT TOP 1 [Value] FROM [GlobalSettings] WHERE [TenantId] = '{opt.TenantKey}' AND [Name] = '{opt.SettingKey}'";
+                        }                        
+
+                        using (SqlCommand command = new SqlCommand(sqlText, connection))
+                        {
+                            command.CommandType = System.Data.CommandType.Text;
+
+                            string tmpVal = null;
+                            var hasValue = false;
+
+                            using (var reader = command.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    hasValue = true;
+                                    tmpVal = reader.GetString(0);
+                                }
+                            }
+
+                            if (!hasValue)
+                            {
+                                throw new Exception($"Can not get value from database for tenantId '{opt.TenantKey}' and settingKey '{opt.SettingKey}'");
+                            }
+
+                            return tmpVal;
+                        }
+                    }
                 });
 
-            // 4. If you use Stored Proc, make sure that your stored proc supports 2 parameters: 
-            // - @appcfg_tenant_name,  
-            // - @appcfg_setting_name
-            // check stored 'dbo.AppCfgGetSetting' in 'test_database.sql' script for more information
-            MyAppCfg.SettingStores.RegisterMsSqlDatabaseStore(StoreKey_Two,
-                new MsSqlSettingStoreConfig
-                {
-                    ConnectionString = ConfigurationManager.ConnectionStrings["myConn"].ConnectionString,
-                    QueryCmd = "dbo.AppCfgGetSetting",
-                    QueryCmdType = QueryCmdType.StoreProcedure,
-                });
 
+            MyAppCfg.SettingStores.RegisterCustomStore(StoreKey_MSSQL_With_StoredProc, opt =>
+                {
+                    var connectionString = ConfigurationManager.ConnectionStrings["myConn"].ConnectionString;
+                    using (SqlConnection connection = new SqlConnection(connectionString))
+                    {
+                        connection.Open();
+
+                        using (SqlCommand command = new SqlCommand("dbo.AppCfgGetSetting", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+
+                            command.Parameters.Add(new SqlParameter("@appcfg_tenant_name", opt.TenantKey ?? (object)DBNull.Value));
+                            command.Parameters.Add(new SqlParameter("@appcfg_setting_name", opt.SettingKey));
+
+                            string tmpVal = null;
+                            var hasValue = false;
+
+                            using (var reader = command.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    hasValue = true;
+                                    tmpVal = reader.GetString(0);
+                                }
+                            }
+
+                            if (!hasValue)
+                            {
+                                throw new Exception($"Can not get value from database for tenantId '{opt.TenantKey}' and settingKey '{opt.SettingKey}'");
+                            }
+
+                            return tmpVal;
+                        }
+                    }
+                });
+            
             // inital settings
-            BaseSettings = MyAppCfg.Get<ISetting>();
+            BaseSettings = MyAppCfg.Get<IMssqlSetting>();
+            BaseSettingsWithTenant = MyAppCfg.Get<IMssqlSetting>("I am a tenant");
         }
 
-        public static ISetting BaseSettings;
+        public static IMssqlSetting BaseSettings;
+        public static IMssqlSetting BaseSettingsWithTenant;
     }
 }
 

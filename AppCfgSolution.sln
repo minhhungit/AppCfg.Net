@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppCfgDemoMssql", "AppCfgDe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppCfgDemoRedis", "AppCfgDemoRedis\AppCfgDemoRedis.csproj", "{7E5F6145-F0C3-479B-BFB9-26AEE46EB2A3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{964329C8-7F8D-4D27-B5F5-EFBB36C2FEB5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,7 +57,10 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{07047ECC-1D24-4064-A182-A1E1CDB3B171} = {964329C8-7F8D-4D27-B5F5-EFBB36C2FEB5}
 		{BB307915-B3E2-41A8-A831-F1C0B3678BE2} = {461812CA-C7FD-4FDB-BB4C-E4D982887F2C}
+		{6452D8F5-2099-460D-BE04-6E652DA6E7FC} = {964329C8-7F8D-4D27-B5F5-EFBB36C2FEB5}
+		{7E5F6145-F0C3-479B-BFB9-26AEE46EB2A3} = {964329C8-7F8D-4D27-B5F5-EFBB36C2FEB5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D7FFDE27-A0E8-4B9E-9F5B-4B6BA01ACED5}
