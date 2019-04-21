@@ -11,6 +11,10 @@ namespace AppCfgDemoMssql
         [StoreOption(SettingStoreType.Custom, MySettings.StoreKey_MSSQL_With_CommandText)]
         string ASettingFromDb_Text { get; }
 
+        [Option(Alias = "NO-SETTING", DefaultValue = "I am default value")]
+        [StoreOption(SettingStoreType.Custom, MySettings.StoreKey_MSSQL_With_CommandText)]
+        string DemoDefault_Text { get; }
+
         [Option(Alias = "PartnerKey")]
         [StoreOption(SettingStoreType.Custom, MySettings.StoreKey_MSSQL_With_StoredProc)]
         Guid ASettingFromDb_Stored { get; }
@@ -49,24 +53,15 @@ namespace AppCfgDemoMssql
                         {
                             command.CommandType = System.Data.CommandType.Text;
 
-                            string tmpVal = null;
-                            var hasValue = false;
-
                             using (var reader = command.ExecuteReader())
                             {
                                 while (reader.Read())
                                 {
-                                    hasValue = true;
-                                    tmpVal = reader.GetString(0);
+                                    return reader.GetString(0);
                                 }
                             }
 
-                            if (!hasValue)
-                            {
-                                throw new Exception($"Can not get value from database for tenantId '{opt.TenantKey}' and settingKey '{opt.SettingKey}'");
-                            }
-
-                            return tmpVal;
+                            return null;
                         }
                     }
                 });
@@ -86,24 +81,15 @@ namespace AppCfgDemoMssql
                             command.Parameters.Add(new SqlParameter("@appcfg_tenant_name", opt.TenantKey ?? (object)DBNull.Value));
                             command.Parameters.Add(new SqlParameter("@appcfg_setting_name", opt.SettingKey));
 
-                            string tmpVal = null;
-                            var hasValue = false;
-
                             using (var reader = command.ExecuteReader())
                             {
                                 while (reader.Read())
                                 {
-                                    hasValue = true;
-                                    tmpVal = reader.GetString(0);
+                                    return reader.GetString(0);
                                 }
                             }
 
-                            if (!hasValue)
-                            {
-                                throw new Exception($"Can not get value from database for tenantId '{opt.TenantKey}' and settingKey '{opt.SettingKey}'");
-                            }
-
-                            return tmpVal;
+                            return null;
                         }
                     }
                 });

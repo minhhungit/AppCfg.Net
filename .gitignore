@@ -23,3 +23,5 @@
 /AppCfg.Redis/obj
 /AppCfgDemoRedis/bin/Debug
 /AppCfgDemoRedis/obj/Debug
+/AppCfgDemoRedis/bin/Release
+/AppCfgDemoRedis/obj/Release
