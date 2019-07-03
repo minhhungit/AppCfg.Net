@@ -4,12 +4,10 @@ namespace AppCfgDemoRedis
 {
     public interface IRedisSetting
     {
-        [Option(Alias = "Author")]
-        [StoreOption(SettingStoreType.Custom)]
+        [Option(Alias = "Author", StoreType = SettingStoreType.Custom)]
         string ASettingFromDb_Text { get; }
 
-        [Option(Alias = "PartnerKey")]
-        [StoreOption(SettingStoreType.Custom, MySettings.StoreKey_Redis)]
+        [Option(Alias = "PartnerKey", StoreType = SettingStoreType.Custom, StoreIdentity = MySettings.StoreKey_Redis)]
         string ASettingFromDb_Stored { get; }
     }
 

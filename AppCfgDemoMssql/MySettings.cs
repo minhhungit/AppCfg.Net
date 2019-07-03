@@ -7,16 +7,13 @@ namespace AppCfgDemoMssql
 {
     public interface IMssqlSetting
     {
-        [Option(Alias = "Author")]
-        [StoreOption(SettingStoreType.Custom, MySettings.StoreKey_MSSQL_With_CommandText)]
+        [Option(Alias = "Author", StoreType = SettingStoreType.Custom, StoreIdentity = MySettings.StoreKey_MSSQL_With_CommandText)]
         string ASettingFromDb_Text { get; }
 
-        [Option(Alias = "NO-SETTING", DefaultValue = "I am default value")]
-        [StoreOption(SettingStoreType.Custom, MySettings.StoreKey_MSSQL_With_CommandText)]
+        [Option(Alias = "NO-SETTING", DefaultValue = "I am default value", StoreType = SettingStoreType.Custom, StoreIdentity = MySettings.StoreKey_MSSQL_With_CommandText)]
         string DemoDefault_Text { get; }
 
-        [Option(Alias = "PartnerKey")]
-        [StoreOption(SettingStoreType.Custom, MySettings.StoreKey_MSSQL_With_StoredProc)]
+        [Option(Alias = "PartnerKey", StoreType = SettingStoreType.Custom, StoreIdentity = MySettings.StoreKey_MSSQL_With_StoredProc)]
         Guid ASettingFromDb_Stored { get; }
     }
 

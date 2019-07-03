@@ -13,6 +13,9 @@
         string RawValue { get; }
         string InputFormat { get; }
         string Separator { get; }
+
+        SettingStoreType StoreType { get; }
+        string StoreIdentity { get; }
     }
 
     public interface ITypeParser<T>

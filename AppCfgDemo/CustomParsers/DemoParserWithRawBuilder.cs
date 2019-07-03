@@ -17,7 +17,7 @@ namespace AppCfgDemo
             // here you can help AppCfg get setting value from anywhere
             // for example, pretend we get raw value from a json file
 
-            using (StreamReader r = new StreamReader("json-settings.json"))
+            using (StreamReader r = new StreamReader($"json-settings-{settingKey}.json"))
             {
                 return r.ReadToEnd();
             }

@@ -29,7 +29,12 @@ namespace AppCfgDemo
 
         [Option(Separator = "^")]
         List<int> Numbers { get; }
+
+        [Option(Alias = "test-json-file")]
         JsonPerson DemoRawBuilder { get; }
+
+        [Option(Alias = "hello-world")]
+        JsonHelloWorld I_am_Jin { get; }
 
         // Nested settings
         IConnectionStringSetting I_Am_A_NestedSetting { get; }

@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomParsers\DemoParserWithRawBuilder.cs" />
+    <Compile Include="Models\JsonHelloWorld.cs" />
     <Compile Include="Models\JsonPerson.cs" />
     <Compile Include="Models\JsonMachine.cs" />
     <Compile Include="Models\JsonAnimal.cs" />
@@ -58,7 +59,10 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="json-settings.json">
+    <None Include="json-settings-hello-world.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="json-settings-test-json-file.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

@@ -1,5 +1,4 @@
-﻿using AppCfg.SettingStore;
-using System;
+﻿using System;
 using System.Configuration;
 using System.Data.SqlClient;
 
@@ -7,17 +6,17 @@ namespace AppCfg
 {
     public partial class MyAppCfg
     {
-        private static string GetRawValue(Type typeOfSetting, string tenantKey, string settingNameKey, ITypeParserOptions parserOpt, ISettingStore storeOpt)
+        private static string GetRawValue(Type typeOfSetting, string tenantKey, string settingNameKey, ITypeParserOptions parserOpt)
         {
-            switch (storeOpt.SettingStoreType)
+            switch (parserOpt.StoreType)
             {
                 case SettingStoreType.AppSetting:
                     return GetRawValueForAppSettingStore(typeOfSetting, settingNameKey);
                 case SettingStoreType.Custom:
-                    return GetRawValueForCustomStore(storeOpt.SettingStoreType, storeOpt.StoreIdentity, tenantKey, typeOfSetting, settingNameKey);;
+                    return GetRawValueForCustomStore(parserOpt.StoreType, parserOpt.StoreIdentity, tenantKey, typeOfSetting, settingNameKey);;
             }
 
-            throw new Exception($"Settting store {storeOpt.SettingStoreType} is not supported");
+            throw new Exception($"Settting store {parserOpt.StoreType} is not supported");
         }
 
         private static string GetRawValueForAppSettingStore(Type typeOfSetting, string settingNameKey)

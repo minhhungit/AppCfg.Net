@@ -77,7 +77,6 @@ namespace AppCfg
                     try
                     {
                         ITypeParserOptions parserOpt = (ITypeParserOptions)prop.GetCustomAttribute<OptionAttribute>() ?? new OptionAttribute();
-                        ISettingStore storeOpt = (ISettingStore)prop.GetCustomAttribute<StoreOptionAttribute>() ?? new StoreOptionAttribute();
 
                         string rawValue = null;
 
@@ -94,7 +93,7 @@ namespace AppCfg
                             }
                             else
                             {
-                                rawValue = GetRawValue(prop.PropertyType, tenantKey, settingKey, parserOpt, storeOpt);
+                                rawValue = GetRawValue(prop.PropertyType, tenantKey, settingKey, parserOpt);
                             }
                         }                        
                         
