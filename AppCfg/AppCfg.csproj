@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <Title>AppCfg.Net</Title>
-    <Version>2.0.0</Version>
+    <Version>2.1.0</Version>
     <Copyright>Copyright 2018 HungVo &lt;it.minhhung@gmail.com&gt;</Copyright>
     <Description>Type-safe, easy and power configuration framework for .NET developers</Description>
     <Authors>Hung Vo</Authors>
@@ -10,7 +10,7 @@
     <PackageProjectUrl>https://github.com/minhhungit/AppCfg/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/minhhungit/AppCfg/</RepositoryUrl>
     <PackageTags>configuration appsetting json dotnet csharp netstandard20 dotnetcore</PackageTags>
-    <PackageReleaseNotes>Refactored custom setting stores (mssql, redis, text file...)</PackageReleaseNotes>
+    <PackageReleaseNotes>merge Option attribute &amp; StoreOption attribute</PackageReleaseNotes>
     <AssemblyVersion>2.0.0</AssemblyVersion>
     <FileVersion>2.0.0</FileVersion>
     <Company />
