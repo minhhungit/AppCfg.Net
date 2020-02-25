@@ -11,9 +11,6 @@ namespace AppCfgDemo
     /// </summary>
     public class MySettings
     {
-        public const string StoreKey_One = "first-key";
-        public const string StoreKey_Two = "second-key";
-
         public static void Init()
         {
             // by default, AppCfg will auto create [JsonParser] for json type (IJsonDataType) at runtime

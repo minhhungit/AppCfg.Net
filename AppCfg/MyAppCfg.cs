@@ -69,6 +69,14 @@ namespace AppCfg
                             var jsParser = Activator.CreateInstance(typeof(JsonParser<>).MakeGenericType(prop.PropertyType));
                             TypeParsers.Register(prop.PropertyType, jsParser);
                         }
+
+                        if (settingObj is Enum) // auto register json parser for types which inherited from IJsonDataType
+                        {
+                            var t = typeof(EnumParser<>).MakeGenericType(prop.PropertyType);
+                            object eumParser = Activator.CreateInstance(t);
+
+                            TypeParsers.Register(prop.PropertyType, eumParser);
+                        }
                     }
                 }
 

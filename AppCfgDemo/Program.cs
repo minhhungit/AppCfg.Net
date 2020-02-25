@@ -36,6 +36,15 @@ namespace AppCfgDemo
         [Option(Alias = "hello-world")]
         JsonHelloWorld I_am_Jin { get; }
 
+        [Option(Alias = "enum_by_int")]
+        MyEnum EnumByInt { get; }
+
+        [Option(Alias = "enum_by_string")]
+        MyEnum EnumByString { get; }
+
+        [Option(Alias = "hello_enum")]
+        MySecondEnum HelloEnum {get;}
+
         // Nested settings
         IConnectionStringSetting I_Am_A_NestedSetting { get; }
     }
@@ -55,6 +64,19 @@ namespace AppCfgDemo
 
         [Option(Alias = "test_setting_with_js_config")]
         Machine Optimus { get; }
+    }
+
+    public enum MyEnum
+    {
+        FirstValue = 0,
+        SecondValue = 1,
+        ThirdValue = 2
+    }
+
+    public enum MySecondEnum
+    {
+        Hello = 0,
+        World = 1
     }
 
     class Program
@@ -83,6 +105,12 @@ namespace AppCfgDemo
             {
                 Console.WriteLine($"   + {num}");
             }
+
+
+            Console.WriteLine(Environment.NewLine);
+            Console.WriteLine($"Demo Enum By Int: {MySettings.BaseSettings.EnumByInt}");
+            Console.WriteLine($"Demo Enum By String: {MySettings.BaseSettings.EnumByString}");
+            Console.WriteLine($"Demo Enum Again: {MySettings.BaseSettings.HelloEnum}\n");
 
             Console.WriteLine($"\njson file - title: {MySettings.BaseSettings.DemoRawBuilder.Title}" );
             Console.WriteLine($"json file - age.minimum: {MySettings.BaseSettings.DemoRawBuilder.Properties.Age.Minimum}");
