@@ -47,6 +47,7 @@ var username = settings.Username;
 - <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/TimeSpanParser.cs" target="_blank">TimeSpan</a> and <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListTimespanParser.cs" target="_blank">List&#60;TimeSpan&#62;</a>
 - <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/DateTimeParser.cs" target="_blank">DateTime</a> and <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListDateTimeParser.cs" target="_blank">List&#60;DateTime&#62;</a>
 - <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/JsonParser.cs" target="_blank">Json</a>
+- <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/EnumParser.cs" target="_blank">Enum</a>
 - <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ConnectionStringParser.cs" target="_blank">ConnectionString</a>
 
 > AppCfg.Net is also support nested setting
