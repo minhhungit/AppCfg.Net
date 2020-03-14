@@ -36,6 +36,8 @@ var username = settings.Username;
 ```
 <br />
 
+>Did you notice? Settings are read-only!
+
 ### Supported Types
 - <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/BooleanParser.cs" target="_blank">bool</a> and <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListBooleanParser.cs" target="_blank">List&#60;bool&#62;</a>
 - <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/DecimalParser.cs" target="_blank">decimal</a> and <a href="https://github.com/minhhungit/AppCfg.Net/blob/master/AppCfg/TypeParsers/ListDecimalParser.cs" target="_blank">List&#60;decimal&#62;</a>
