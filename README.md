@@ -73,3 +73,11 @@ After you created a parser, you must register it, for example:
 <br />
 
 <img src="https://raw.githubusercontent.com/minhhungit/AppCfg/master/wiki/images/demo.png" />
+
+
+### Donate ^^
+**If you like my works and would like to support then you can buy me a coffee ☕️ anytime**
+
+<a href='https://ko-fi.com/I2I13GAGL' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi4.png?v=2' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a> 
+
+**I would appreciate it!!!**
