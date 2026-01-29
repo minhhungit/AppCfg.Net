@@ -60,6 +60,10 @@
     <Compile Include="Models\JsonPersonTestModel.cs" />
     <Compile Include="BaseTypeParserTest.cs" />
     <Compile Include="OptionsTest.cs" />
+    <Compile Include="UserSecretsStoreTest.cs" />
+    <Compile Include="EnvironmentVariableStoreTest.cs" />
+    <Compile Include="DefaultOptionAttributeTest.cs" />
+    <Compile Include="ChainedStoreTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -8,6 +8,7 @@
 /AppCfgDemo/bin/Debug
 /AppCfgDemo/obj/Debug
 /packages
+/.vs
 /.vs/config
 /AppCfg/obj
 /AppCfg/bin/Release
@@ -26,3 +27,9 @@
 /AppCfgDemoRedis/bin/Release
 /AppCfgDemoRedis/obj/Release
 /.vs/AppCfgSolution/v16
+/.vs/AppCfgSolution
+/AppCfgDemoEnvironmentVariables/bin/Debug
+/AppCfgDemoEnvironmentVariables/obj/Debug
+/AppCfgDemoUserSecrets/bin/Debug
+/AppCfgDemoUserSecrets/obj/Debug
+.vs
