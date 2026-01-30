@@ -9,7 +9,7 @@ namespace AppCfg.Test
     public class EnvironmentVariableStoreTest
     {
         private const string TestPrefix = "APPCFGTEST__";
-        private const string TestStoreIdentity = "EnvironmentVariables:" + TestPrefix;
+        private const string TestProfileKey = "EnvironmentVariables:" + TestPrefix;
 
         [TearDown]
         public void TearDown()
@@ -29,7 +29,7 @@ namespace AppCfg.Test
         {
             // Arrange
             Environment.SetEnvironmentVariable($"{TestPrefix}TestKey", "test-value");
-            EnvironmentVariableStore.Register(TestPrefix, TestStoreIdentity);
+            EnvironmentVariableStore.Register(TestPrefix, TestProfileKey);
 
             // Act
             var settings = MyAppCfg.Get<ITestEnvSettings>();
@@ -44,7 +44,7 @@ namespace AppCfg.Test
             // Arrange
             Environment.SetEnvironmentVariable($"{TestPrefix}Database__Host", "localhost");
             Environment.SetEnvironmentVariable($"{TestPrefix}Database__Port", "5432");
-            EnvironmentVariableStore.Register(TestPrefix, TestStoreIdentity);
+            EnvironmentVariableStore.Register(TestPrefix, TestProfileKey);
 
             // Act
             var settings = MyAppCfg.Get<ITestHierarchicalEnvSettings>();
@@ -58,7 +58,7 @@ namespace AppCfg.Test
         public void LoadFromEnvironmentVariable_MissingVariable_UsesDefaultValue()
         {
             // Arrange - Don't set environment variable
-            EnvironmentVariableStore.Register(TestPrefix, TestStoreIdentity);
+            EnvironmentVariableStore.Register(TestPrefix, TestProfileKey);
 
             // Act
             var settings = MyAppCfg.Get<ITestEnvSettings>();
@@ -74,7 +74,7 @@ namespace AppCfg.Test
             // Note: Setting env var to empty string ("") actually DELETES it in .NET
             // So this tests that deleted/missing variables use default values
             Environment.SetEnvironmentVariable($"{TestPrefix}TestKey", "");
-            EnvironmentVariableStore.Register(TestPrefix, TestStoreIdentity);
+            EnvironmentVariableStore.Register(TestPrefix, TestProfileKey);
 
             // Act
             var settings = MyAppCfg.Get<ITestEnvSettings>();
@@ -90,7 +90,7 @@ namespace AppCfg.Test
             Environment.SetEnvironmentVariable($"{TestPrefix}IntValue", "42");
             Environment.SetEnvironmentVariable($"{TestPrefix}BoolValue", "true");
             Environment.SetEnvironmentVariable($"{TestPrefix}GuidValue", "12345678-1234-1234-1234-123456789abc");
-            EnvironmentVariableStore.Register(TestPrefix, TestStoreIdentity);
+            EnvironmentVariableStore.Register(TestPrefix, TestProfileKey);
 
             // Act
             var settings = MyAppCfg.Get<ITestTypedEnvSettings>();
@@ -120,7 +120,7 @@ namespace AppCfg.Test
         {
             // Arrange
             Environment.SetEnvironmentVariable($"{TestPrefix}ApiKey", "my-api-key");
-            EnvironmentVariableStore.Register(TestPrefix, TestStoreIdentity);
+            EnvironmentVariableStore.Register(TestPrefix, TestProfileKey);
 
             // Act
             var settings = MyAppCfg.Get<ITestDefaultOptionEnvSettings>();
@@ -133,8 +133,7 @@ namespace AppCfg.Test
         public interface ITestEnvSettings
         {
             [Option(Alias = "TestKey",
-                    StoreType = SettingStoreType.Custom,
-                    StoreIdentity = TestStoreIdentity,
+                    ProfileKey = TestProfileKey,
                     DefaultValue = "default-value")]
             string TestKey { get; }
         }
@@ -142,43 +141,33 @@ namespace AppCfg.Test
         public interface ITestHierarchicalEnvSettings
         {
             [Option(Alias = "Database:Host",
-                    StoreType = SettingStoreType.Custom,
-                    StoreIdentity = TestStoreIdentity,
-                    DefaultValue = "")]
+                    ProfileKey = TestProfileKey)]
             string DatabaseHost { get; }
 
             [Option(Alias = "Database:Port",
-                    StoreType = SettingStoreType.Custom,
-                    StoreIdentity = TestStoreIdentity,
-                    DefaultValue = 0)]
+                    ProfileKey = TestProfileKey)]
             int DatabasePort { get; }
         }
 
         public interface ITestTypedEnvSettings
         {
             [Option(Alias = "IntValue",
-                    StoreType = SettingStoreType.Custom,
-                    StoreIdentity = TestStoreIdentity,
-                    DefaultValue = 0)]
+                    ProfileKey = TestProfileKey)]
             int IntValue { get; }
 
             [Option(Alias = "BoolValue",
-                    StoreType = SettingStoreType.Custom,
-                    StoreIdentity = TestStoreIdentity,
-                    DefaultValue = false)]
+                    ProfileKey = TestProfileKey)]
             bool BoolValue { get; }
 
             [Option(Alias = "GuidValue",
-                    StoreType = SettingStoreType.Custom,
-                    StoreIdentity = TestStoreIdentity)]
+                    ProfileKey = TestProfileKey)]
             Guid GuidValue { get; }
         }
 
-        [DefaultOption(StoreType = SettingStoreType.Custom,
-                       StoreIdentity = TestStoreIdentity)]
+        [DefaultOption(ProfileKey = TestProfileKey)]
         public interface ITestDefaultOptionEnvSettings
         {
-            [Option(Alias = "ApiKey", DefaultValue = "")]
+            [Option(Alias = "ApiKey")]
             string ApiKey { get; }
         }
     }

@@ -3,25 +3,17 @@ using System;
 namespace AppCfg
 {
     /// <summary>
-    /// Specifies default StoreType and StoreIdentity for all properties in an interface.
-    /// Individual properties can override these defaults using [Option] attribute.
+    /// Specifies default ProfileKey for all properties in an interface.
+    /// Individual properties can override this default using [Option] attribute.
     /// </summary>
     [AttributeUsage(AttributeTargets.Interface, AllowMultiple = false)]
     public class DefaultOptionAttribute : Attribute
     {
         /// <summary>
-        /// Default store type for all properties in this interface
+        /// Default profile key for all properties in this interface.
+        /// If null or empty, settings will be loaded from App.config/Web.config (AppSettings/ConnectionStrings)
+        /// Individual properties can override this using [Option(ProfileKey = "...")]
         /// </summary>
-        public SettingStoreType StoreType { get; set; }
-
-        /// <summary>
-        /// Default store identity for all properties in this interface
-        /// </summary>
-        public string StoreIdentity { get; set; }
-
-        public DefaultOptionAttribute()
-        {
-            StoreType = SettingStoreType.AppSetting;
-        }
+        public string ProfileKey { get; set; }
     }
 }

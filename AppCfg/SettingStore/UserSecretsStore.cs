@@ -18,8 +18,8 @@ namespace AppCfg.SettingStore
             = new ConcurrentDictionary<string, Dictionary<string, string>>();
 
         /// <summary>
-        /// Register a User Secrets store with default store identity pattern.
-        /// Store identity will be: "UserSecrets:{userSecretsId}"
+        /// Register a User Secrets store with default profile key pattern.
+        /// Profile key will be: "UserSecrets:{userSecretsId}"
         /// </summary>
         /// <param name="userSecretsId">The user secrets ID (directory name under UserSecrets folder)</param>
         public static void Register(string userSecretsId)
@@ -29,28 +29,28 @@ namespace AppCfg.SettingStore
                 throw new ArgumentException("User secrets ID cannot be null or empty", nameof(userSecretsId));
             }
 
-            var storeIdentity = $"UserSecrets:{userSecretsId}";
-            Register(userSecretsId, storeIdentity);
+            var profileKey = $"UserSecrets:{userSecretsId}";
+            Register(userSecretsId, profileKey);
         }
 
         /// <summary>
-        /// Register a User Secrets store with custom store identity.
+        /// Register a User Secrets store with custom profile key.
         /// </summary>
         /// <param name="userSecretsId">The user secrets ID (directory name under UserSecrets folder)</param>
-        /// <param name="storeIdentity">The custom store identity to use in [Option] attributes</param>
-        public static void Register(string userSecretsId, string storeIdentity)
+        /// <param name="profileKey">The custom profile key to use in [Option] attributes</param>
+        public static void Register(string userSecretsId, string profileKey)
         {
             if (string.IsNullOrWhiteSpace(userSecretsId))
             {
                 throw new ArgumentException("User secrets ID cannot be null or empty", nameof(userSecretsId));
             }
 
-            if (string.IsNullOrWhiteSpace(storeIdentity))
+            if (string.IsNullOrWhiteSpace(profileKey))
             {
-                throw new ArgumentException("Store identity cannot be null or empty", nameof(storeIdentity));
+                throw new ArgumentException("Profile key cannot be null or empty", nameof(profileKey));
             }
 
-            MyAppCfg.SettingStores.RegisterCustomStore(storeIdentity, metadata =>
+            MyAppCfg.SettingStores.RegisterStore(profileKey, metadata =>
             {
                 try
                 {

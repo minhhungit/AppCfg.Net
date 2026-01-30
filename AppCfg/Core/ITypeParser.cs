@@ -1,11 +1,5 @@
 ﻿namespace AppCfg
 {
-    public enum SettingStoreType
-    {
-        AppSetting,
-        Custom
-    }
-
     public interface ITypeParserOptions
     {
         string Alias { get; }
@@ -14,8 +8,7 @@
         string InputFormat { get; }
         string Separator { get; }
 
-        SettingStoreType StoreType { get; }
-        string StoreIdentity { get; }
+        string ProfileKey { get; }
     }
 
     public interface ITypeParser<T>

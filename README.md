@@ -1,18 +1,57 @@
 # AppCfg.Net [![Build status](https://ci.appveyor.com/api/projects/status/8ifb08lenlmbdf0p?svg=true)](https://ci.appveyor.com/project/minhhungit/appcfg) <a href="https://www.nuget.org/packages/AppCfg.Net/"><img src="https://img.shields.io/nuget/v/AppCfg.Net.svg?style=flat" /> </a>
 
-**Type-safe, easy and powerful configuration framework for .NET developers**
+**Type-safe, extensible, and powerful configuration framework for .NET**
+
+AppCfg.Net provides a clean, strongly-typed approach to application configuration with support for multiple sources, custom parsers, and priority-based loading. Perfect for .NET Framework, .NET Core, and modern .NET applications.
 
 ## Table of Contents
 
+- [Why AppCfg.Net?](#why-appcfgnet)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
-- [Why AppCfg.Net?](#why-appcfgnet)
-- [Configuration](#configuration)
-- [Supported Types](#supported-types)
+- [Key Features](#key-features)
+- [Configuration Sources](#configuration-sources)
+  - [Priority-Based Configuration (Recommended)](#priority-based-configuration-recommended)
+  - [Environment Variables](#environment-variables)
+  - [User Secrets](#user-secrets)
+  - [App.config / Web.config](#appconfig--webconfig)
+  - [Custom Stores (Database, Redis, etc.)](#custom-stores)
+- [Type Parsers](#type-parsers)
 - [Advanced Features](#advanced-features)
-- [Best Practices](#best-practices)
-- [Examples](#examples)
-- [Troubleshooting](#troubleshooting)
+- [Demo Project](#demo-project)
+- [Multi-Tenancy](#multi-tenancy)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
+
+## Why AppCfg.Net?
+
+### Type Safety First
+No more string keys and manual type conversion. Define your configuration as interfaces and get compile-time checking, IntelliSense support, and automatic type conversion.
+
+```csharp
+// ❌ Traditional approach - error-prone
+var timeout = int.Parse(ConfigurationManager.AppSettings["RequestTimeout"] ?? "30");
+
+// ✅ AppCfg.Net - type-safe
+var settings = MyAppCfg.Get<IAppSettings>();
+var timeout = settings.RequestTimeout; // Already an int!
+```
+
+### Multiple Sources, One API
+Load configuration from multiple sources with automatic priority handling:
+- Environment Variables (perfect for containers/cloud)
+- User Secrets (keep secrets out of source control)
+- App.config/Web.config (traditional .NET configuration)
+- Custom sources (Database, Redis, Azure Key Vault, etc.)
+
+### Extensible & Powerful
+- **22+ built-in type parsers** for primitives, collections, enums, DateTime, Guid, and more
+- **Custom type parsers** for complex types (JSON, custom formats)
+- **Custom stores** for any configuration source
+- **Multi-tenancy support** built-in
+- **Default values** and **fallback mechanisms**
 
 ---
 
@@ -31,269 +70,379 @@ dotnet add package AppCfg.Net
 ```
 
 **Supported Frameworks:**
-- .NET Standard 2.0
+- .NET Standard 2.0+
 - .NET Framework 4.6.2+
 - .NET Core 2.0+
-- .NET 5+
+- .NET 5, 6, 7, 8+
 
 ---
 
 ## Quick Start
 
-### Step 1: Configure AppCfg (One Line)
+### Step 1: Initialize AppCfg (One Line!)
 
 ```csharp
 using AppCfg;
 
-public class Startup
-{
-    public static void Init()
-    {
-        // One line - handles everything automatically!
-        MyAppCfg.Configure(
-            envVarPrefix: "APPCFG__",
-            userSecretsId: "my-app-secrets"
-        );
-    }
-}
+// Recommended: Use ChainedStore for priority-based configuration
+MyAppCfg.Configure(
+    envVarPrefix: "MYAPP__",
+    userSecretsId: "my-application-id"
+);
 ```
+
+This automatically sets up:
+1. **Environment Variables** (highest priority) with `MYAPP__` prefix
+2. **User Secrets** (medium priority) from `secrets.json`
+3. **App.config/Web.config** (fallback)
 
 ### Step 2: Define Your Settings Interface
 
 ```csharp
-[DefaultOption(StoreType = SettingStoreType.Custom,
-               StoreIdentity = MyAppCfg.DefaultStoreIdentity)]
-public interface IAppSettings
-{
-    [Option(Alias = "ApiKey", DefaultValue = "")]
-    string ApiKey { get; }
-
-    [Option(Alias = "Database:Host", DefaultValue = "localhost")]
-    string DatabaseHost { get; }
-
-    [Option(Alias = "Database:Port", DefaultValue = 5432)]
-    int DatabasePort { get; }
-}
-```
-
-### Step 3: Load and Use Settings
-
-```csharp
-Startup.Init();
-var settings = MyAppCfg.Get<IAppSettings>();
-
-Console.WriteLine($"API Key: {settings.ApiKey}");
-Console.WriteLine($"Database: {settings.DatabaseHost}:{settings.DatabasePort}");
-```
-
-**That's it!** AppCfg.Net automatically checks:
-1. Environment Variables (APPCFG__ prefix) - **Highest Priority**
-2. User Secrets (secrets.json) - **Medium Priority**
-3. AppSettings (app.config) - **Fallback**
-
----
-
-## Why AppCfg.Net?
-
-### Type Safety
-No more string keys and manual type conversion. Get compile-time checking and IntelliSense support.
-
-```csharp
-// Type-safe, compile-time checked
-var port = settings.DatabasePort;  // Already an int!
-var host = settings.DatabaseHost;  // Already a string!
-```
-
-### Read-Only Configuration
-Settings cannot be modified at runtime, preventing accidental configuration changes.
-
-### Automatic Priority-Based Loading
-Environment variables override secrets, secrets override app settings. Perfect for Docker/Kubernetes deployments.
-
-### One Line Setup
-`MyAppCfg.Configure()` handles everything - environment variables, user secrets, and app settings.
-
-### No Repetition
-Use `DefaultOption` attribute to configure once at the interface level.
-
-### Multi-Tenancy Support
-Different tenants can have different configuration values using custom stores.
-
----
-
-## Configuration
-
-### Priority Order
-
-AppCfg.Net checks configuration sources in this order:
-
-```
-1. Environment Variables (Highest Priority) ← Docker/Kubernetes overrides
-   ↓ (if not found, check next)
-2. User Secrets                             ← Local development secrets
-   ↓ (if not found, check next)
-3. AppSettings (Fallback)                   ← Default values
-```
-
-### Setup
-
-```csharp
 using AppCfg;
 
-MyAppCfg.Configure(
-    envVarPrefix: "APPCFG__",        // Optional, defaults to "APPCFG__"
-    userSecretsId: "my-app-secrets"  // Optional, null = skip user secrets
-);
-```
-
-**Parameters:**
-- `envVarPrefix`: Prefix for environment variables (default: `"APPCFG__"`)
-- `userSecretsId`: User secrets directory name (optional)
-
-### Configure Your Values
-
-#### Option A: Environment Variables (Production)
-
-```bash
-# Linux/macOS
-export APPCFG__ApiKey="prod-api-key"
-export APPCFG__Database__Host="prod-db.example.com"
-export APPCFG__Database__Port="5432"
-
-# Windows PowerShell
-$env:APPCFG__ApiKey="prod-api-key"
-$env:APPCFG__Database__Host="prod-db.example.com"
-$env:APPCFG__Database__Port="5432"
-
-# Docker/Kubernetes
-env:
-  - name: APPCFG__ApiKey
-    value: "prod-api-key"
-  - name: APPCFG__Database__Host
-    value: "prod-db.example.com"
-```
-
-**Note:** Use double underscore `__` for hierarchy (e.g., `Database:Port` → `APPCFG__Database__Port`)
-
-#### Option B: User Secrets (Development)
-
-**Create secrets file:**
-
-**Linux/macOS:** `~/.microsoft/usersecrets/my-app-secrets/secrets.json`
-**Windows:** `%APPDATA%\Microsoft\UserSecrets\my-app-secrets\secrets.json`
-
-```json
+public interface IAppSettings
 {
-  "ApiKey": "dev-api-key",
-  "Database": {
-    "Host": "localhost",
-    "Port": 5432,
-    "Password": "dev-password"
-  }
+    [Option(Alias = "Database:ConnectionString")]
+    string ConnectionString { get; }
+
+    [Option(Alias = "Api:Timeout", DefaultValue = 30)]
+    int ApiTimeout { get; }
+
+    [Option(Alias = "Features:EnableCache")]
+    bool EnableCache { get; }
 }
 ```
 
-**Create directory and file:**
-```bash
-# Linux/macOS
-mkdir -p ~/.microsoft/usersecrets/my-app-secrets
-nano ~/.microsoft/usersecrets/my-app-secrets/secrets.json
+### Step 3: Use Your Settings
 
-# Windows PowerShell
-$path = "$env:APPDATA\Microsoft\UserSecrets\my-app-secrets"
-New-Item -ItemType Directory -Force -Path $path
-notepad "$path\secrets.json"
+```csharp
+var settings = MyAppCfg.Get<IAppSettings>();
+
+Console.WriteLine($"Connection: {settings.ConnectionString}");
+Console.WriteLine($"Timeout: {settings.ApiTimeout} seconds");
+Console.WriteLine($"Cache: {settings.EnableCache}");
 ```
 
-#### Option C: AppSettings (Defaults)
+**That's it!** After calling `Configure()`, all settings automatically use priority-based loading without any special attributes needed.
+
+---
+
+## Key Features
+
+### ✅ Built-in Type Support (22+ Types)
+
+**Primitive Types:**
+- `bool`, `int`, `long`, `decimal`, `double`
+- `string`, `DateTime`, `TimeSpan`, `Guid`
+- Enums (by name or value)
+
+**Collections:**
+- `List<T>` with custom separators
+- `IReadOnlyList<T>` for immutable collections
+- Supports: int, string, bool, DateTime, Guid, decimal, double, long, TimeSpan, Enum
+
+**Special Types:**
+- `SqlConnectionStringBuilder` for connection strings
+- Custom JSON types via `IJsonDataType`
+- Nested interfaces for hierarchical configuration
+
+### ✅ Multiple Configuration Sources
+
+- **App.config / Web.config** - Traditional .NET configuration
+- **Environment Variables** - Perfect for containers and cloud deployments
+- **User Secrets** - Keep sensitive data out of source control
+- **Priority-Based Loading** - Automatically combines all sources with `Configure()`
+- **Custom Stores** - Database, Redis, Azure Key Vault, or any custom source
+
+### ✅ Extensibility
+
+- **Custom Type Parsers** - Handle any custom format or complex type
+- **Custom Stores** - Load configuration from anywhere
+- **Registration API** - Clean, fluent API for registering custom components
+
+### ✅ Developer-Friendly
+
+- **DefaultOption attribute** - Apply default ProfileKey to all properties
+- **DefaultValue attribute** - Fallback values when configuration is missing
+- **RawValue attribute** - Inline default values in attributes
+- **Multi-tenancy** - Built-in support for tenant-specific configuration
+- **Nested settings** - Organize complex configuration hierarchies
+
+---
+
+## Configuration Sources
+
+### Priority-Based Configuration (Recommended)
+
+Call `Configure()` once at startup, and **all your settings** automatically use priority-based loading. This is the **recommended approach** for production applications.
+
+**Priority Order:**
+1. Environment Variables (highest)
+2. User Secrets
+3. App.config (fallback)
+
+**Setup:**
+
+```csharp
+// One line initialization - makes priority-based loading the default!
+MyAppCfg.Configure(
+    envVarPrefix: "MYAPP__",
+    userSecretsId: "my-app-secrets"
+);
+
+// Define settings - no special attributes needed!
+public interface ISettings
+{
+    [Option(Alias = "Database:Host")]
+    string DatabaseHost { get; }
+}
+
+// Use settings - automatically checks all sources in priority order
+var settings = MyAppCfg.Get<ISettings>();
+```
+
+**Configuration Files:**
 
 ```xml
+<!-- App.config -->
 <appSettings>
-  <add key="ApiKey" value="default-key"/>
-  <add key="Database:Host" value="localhost"/>
-  <add key="Database:Port" value="5432"/>
+  <add key="Database:Host" value="localhost" />
 </appSettings>
 ```
 
-### Real-World Scenarios
+```json
+// secrets.json (overrides App.config)
+{
+  "Database:Host": "dev-server"
+}
+```
 
-#### Scenario 1: Local Development
-- Secrets in `secrets.json`
-- No environment variables
-- Defaults in `app.config`
+```bash
+# Environment variable (overrides everything)
+export MYAPP__Database__Host=prod-server
+```
 
-**Result:** All values come from `secrets.json`, missing values fall back to `app.config`
-
-#### Scenario 2: Docker/Kubernetes Production
-- All values as environment variables (from ConfigMap/Secrets)
-- No `secrets.json` in container
-
-**Result:** All values from environment variables, overrides everything
-
-#### Scenario 3: Mixed Override
-- `Database:Password` in environment variable (for security)
-- Other values in `secrets.json`
-
-**Result:**
-- `Database:Password` → from env var (highest priority)
-- `ApiKey`, `Database:Host` → from `secrets.json`
+**Benefits:**
+- ✅ Keep secrets out of source control
+- ✅ Easy environment-specific configuration
+- ✅ Clear priority order
+- ✅ No code changes between environments
+- ✅ **Automatic** - no special attributes needed on interfaces!
 
 ---
 
-## Supported Types
+### Environment Variables
 
-AppCfg.Net supports automatic type parsing for:
+Perfect for containerized applications and cloud deployments.
 
-| Type | List Support | Example |
-|------|--------------|---------|
-| `string` | `List<string>` | `"Hello World"` |
-| `int` | `List<int>` | `42` |
-| `long` | `List<long>` | `9223372036854775807` |
-| `bool` | `List<bool>` | `true` |
-| `decimal` | `List<decimal>` | `123.45` |
-| `double` | `List<double>` | `3.14159` |
-| `Guid` | `List<Guid>` | `550e8400-e29b-41d4-a716-446655440000` |
-| `DateTime` | `List<DateTime>` | `2024-01-29` |
-| `TimeSpan` | `List<TimeSpan>` | `01:30:00` |
-| `Enum` | `List<Enum>` | `MyEnum.Value1` |
-| JSON Objects | - | Complex nested objects |
-| ConnectionString | - | Database connection strings |
+**Setup:**
 
-### Example:
+```csharp
+using AppCfg.SettingStore;
+
+MyAppCfg.Configure(envVarPrefix: "MYAPP__");
+
+public interface ISettings
+{
+    [Option(Alias = "Api:Key")]
+    string ApiKey { get; }
+}
+```
+
+**Usage:**
+
+```bash
+# Set environment variable
+export MYAPP__Api__Key=my-secret-key
+
+# Or in Docker
+docker run -e MYAPP__Api__Key=my-secret-key myapp
+```
+
+**Variable Format:** `PREFIX__Section__Key` (double underscore separators)
+
+---
+
+### User Secrets
+
+Keep sensitive configuration out of source control, similar to .NET Core's Secret Manager.
+
+**Setup:**
+
+```csharp
+MyAppCfg.Configure(userSecretsId: "my-app-secrets");
+```
+
+**Secrets File Location:**
+- **Windows:** `%APPDATA%\Microsoft\UserSecrets\my-app-secrets\secrets.json`
+- **Linux/Mac:** `~/.microsoft/usersecrets/my-app-secrets/secrets.json`
+
+**secrets.json Example:**
+
+```json
+{
+  "Database:Password": "super-secure-password",
+  "Api:SecretKey": "my-secret-api-key",
+  "Encryption:Key": "encryption-key-here"
+}
+```
+
+---
+
+### App.config / Web.config
+
+Traditional .NET configuration files.
+
+```xml
+<configuration>
+  <appSettings>
+    <add key="Database:Host" value="localhost" />
+    <add key="Api:Timeout" value="30" />
+    <add key="Features:EnableCache" value="true" />
+  </appSettings>
+
+  <connectionStrings>
+    <add name="MainDb"
+         connectionString="Server=localhost;Database=MyDb;..."
+         providerName="System.Data.SqlClient" />
+  </connectionStrings>
+</configuration>
+```
 
 ```csharp
 public interface ISettings
 {
-    [Option(Alias = "AppName")]
-    string AppName { get; }
+    [Option(Alias = "Database:Host")]
+    string DatabaseHost { get; }
 
-    [Option(Alias = "MaxRetries")]
-    int MaxRetries { get; }
-
-    [Option(Alias = "Timeout")]
-    TimeSpan Timeout { get; }
-
-    [Option(Alias = "IsEnabled")]
-    bool IsEnabled { get; }
-
-    [Option(Alias = "ClientId")]
-    Guid ClientId { get; }
-
-    [Option(Alias = "AllowedHosts")]
-    List<string> AllowedHosts { get; }
+    [Option(Alias = "MainDb")]
+    SqlConnectionStringBuilder MainDb { get; }
 }
 ```
 
-**Configuration:**
-```xml
-<appSettings>
-  <add key="AppName" value="MyApp"/>
-  <add key="MaxRetries" value="3"/>
-  <add key="Timeout" value="00:05:00"/>
-  <add key="IsEnabled" value="true"/>
-  <add key="ClientId" value="550e8400-e29b-41d4-a716-446655440000"/>
-  <add key="AllowedHosts" value="localhost,example.com,test.com"/>
-</appSettings>
+---
+
+### Custom Stores
+
+Load configuration from any source: databases, Redis, Azure Key Vault, etc.
+
+**Example: SQL Server Store**
+
+```csharp
+using AppCfg;
+using System.Data.SqlClient;
+
+public static class DatabaseStore
+{
+    public const string StoreKey = "DatabaseStore";
+
+    public static void Register()
+    {
+        MyAppCfg.SettingStores.RegisterStore(StoreKey, opt =>
+        {
+            using (var conn = new SqlConnection("your-connection-string"))
+            {
+                conn.Open();
+                var cmd = new SqlCommand(
+                    "SELECT Value FROM Settings WHERE Key = @key AND Tenant = @tenant",
+                    conn
+                );
+                cmd.Parameters.AddWithValue("@key", opt.SettingKey);
+                cmd.Parameters.AddWithValue("@tenant", opt.TenantKey ?? "default");
+
+                return cmd.ExecuteScalar() as string;
+            }
+        });
+    }
+}
+
+// Usage
+DatabaseStore.Register();
+
+public interface ISettings
+{
+    [Option(Alias = "FeatureFlag", ProfileKey = DatabaseStore.StoreKey)]
+    bool IsFeatureEnabled { get; }
+}
+```
+
+**Example: Redis Store**
+
+```csharp
+public static class RedisStore
+{
+    public const string StoreKey = "RedisStore";
+
+    public static void Register()
+    {
+        MyAppCfg.SettingStores.RegisterStore(StoreKey, opt =>
+        {
+            // Use StackExchange.Redis or similar
+            var redis = ConnectionMultiplexer.Connect("localhost:6379");
+            var db = redis.GetDatabase();
+
+            var key = $"config:{opt.TenantKey}:{opt.SettingKey}";
+            var value = db.StringGet(key);
+
+            return value.HasValue ? (string)value : null;
+        });
+    }
+}
+```
+
+---
+
+## Type Parsers
+
+### Built-in Type Parsers
+
+AppCfg.Net includes 22+ built-in type parsers:
+
+| Type | Example | Notes |
+|------|---------|-------|
+| `bool` | `true`, `false`, `1`, `0` | Case-insensitive |
+| `int` | `42`, `1,234` | Supports thousand separators |
+| `long` | `9223372036854775807` | Large integers |
+| `decimal` | `123.45`, `1,234.56` | Precise decimals |
+| `double` | `1.7E+3` | Scientific notation |
+| `string` | Any text | Trimmed by default |
+| `DateTime` | `2024-01-30`, `01/30/2024` | Customizable format |
+| `TimeSpan` | `01:30:00`, `1.12:00:00` | Multiple formats |
+| `Guid` | `{guid}`, `guid` | With or without braces |
+| `Enum` | By name or value | Case-insensitive |
+| `List<T>` | Separated values | Custom separator |
+| `IReadOnlyList<T>` | Immutable collections | |
+| `SqlConnectionStringBuilder` | Connection strings | Strongly-typed |
+
+### Custom Type Parsers
+
+Create custom parsers for complex types:
+
+```csharp
+using AppCfg.Core;
+
+public class JsonPersonParser : ITypeParserRawBuilder
+{
+    public Type Type => typeof(JsonPerson);
+
+    public object Parse(string rawValue, TypeParserSettings settings)
+    {
+        // Load from file
+        var jsonContent = File.ReadAllText(rawValue);
+        return JsonConvert.DeserializeObject<JsonPerson>(jsonContent);
+    }
+}
+
+// Register the parser
+MyAppCfg.TypeParsers.Register(new JsonPersonParser());
+
+// Use in settings
+public interface ISettings
+{
+    [Option(Alias = "person-config")]
+    JsonPerson Person { get; }
+}
 ```
 
 ---
@@ -302,534 +451,204 @@ public interface ISettings
 
 ### DefaultOption Attribute
 
-Set configuration once at the interface level instead of on every property:
+Apply a default ProfileKey to all properties in an interface (useful with custom stores):
 
 ```csharp
-[DefaultOption(StoreType = SettingStoreType.Custom,
-               StoreIdentity = MyAppCfg.DefaultStoreIdentity)]
-public interface ISettings
-{
-    // All properties automatically use the configured stores
-    [Option(Alias = "ApiKey")]
-    string ApiKey { get; }
-
-    [Option(Alias = "Password")]
-    string Password { get; }
-
-    [Option(Alias = "ClientId")]
-    Guid ClientId { get; }
-}
-```
-
-**Override when needed:**
-```csharp
-[DefaultOption(StoreType = SettingStoreType.Custom,
-               StoreIdentity = MyAppCfg.DefaultStoreIdentity)]
-public interface ISettings
-{
-    // Uses configured stores
-    [Option(Alias = "ApiKey")]
-    string ApiKey { get; }
-
-    // Override: Use AppSettings instead
-    [Option(Alias = "LegacyValue", StoreIdentity = "")]
-    string LegacyValue { get; }
-}
-```
-
-### Nested Configuration
-
-Organize related settings using nested interfaces:
-
-```csharp
+[DefaultOption(ProfileKey = "MyDatabaseStore")]
 public interface IDatabaseSettings
 {
-    [Option(Alias = "Database:Host")]
+    // All properties will use "MyDatabaseStore" by default
     string Host { get; }
-
-    [Option(Alias = "Database:Port")]
     int Port { get; }
-
-    [Option(Alias = "Database:Username")]
     string Username { get; }
 
-    [Option(Alias = "Database:Password")]
+    // Individual properties can override the default
+    [Option(ProfileKey = "DifferentStore")]
     string Password { get; }
 }
+```
 
-[DefaultOption(StoreType = SettingStoreType.Custom,
-               StoreIdentity = MyAppCfg.DefaultStoreIdentity)]
+### RawValue Attribute
+
+Provide inline default values directly in the attribute:
+
+```csharp
+public interface ISettings
+{
+    // If "Numbers" key doesn't exist in config, use inline default
+    [Option(Alias = "Numbers", RawValue = "1;2;3", Separator = ";")]
+    List<int> Numbers { get; }
+}
+```
+
+### Nested Settings
+
+Organize complex configuration with nested interfaces:
+
+```csharp
 public interface IAppSettings
 {
-    [Option(Alias = "AppName")]
+    [Option(Alias = "App:Name")]
     string AppName { get; }
 
     // Nested settings
     IDatabaseSettings Database { get; }
+    IApiSettings Api { get; }
+}
+
+public interface IDatabaseSettings
+{
+    [Option(Alias = "Database:Host")]
+    string Host { get; }
 }
 ```
 
-### Default Values
+### IReadOnlyList Collections
 
-Provide fallback values when configuration is missing:
+Use immutable collections for thread-safe configuration:
 
 ```csharp
 public interface ISettings
 {
-    [Option(Alias = "MaxRetries", DefaultValue = 3)]
-    int MaxRetries { get; }
-
-    [Option(Alias = "Timeout", DefaultValue = "00:05:00")]
-    TimeSpan Timeout { get; }
-
-    [Option(Alias = "IsEnabled", DefaultValue = true)]
-    bool IsEnabled { get; }
-
-    [Option(Alias = "ApiKey", DefaultValue = "")]
-    string ApiKey { get; }
+    [Option(Alias = "AllowedHosts", Separator = ";")]
+    IReadOnlyList<string> AllowedHosts { get; }
 }
 ```
 
-### JSON Configuration
+---
 
-Store complex objects as JSON:
+## Demo Project
+
+The **AppCfgDemoComplete** project demonstrates all features in an interactive menu-driven application.
+
+### Running the Demo
+
+1. Open `AppCfgSolution.sln` in Visual Studio
+2. Set `AppCfgDemoComplete` as startup project
+3. Run the application
+
+### Demo Features (14 Interactive Demos)
+
+1. **Basic Types Demo** - All primitive types and collections
+2. **JSON Configuration Demo** - Complex objects from JSON
+3. **Connection String Demo** - SqlConnectionStringBuilder
+4. **Custom Parser Demo** - Custom type parsers with file loading
+5. **⭐ Priority-Based Configuration Demo** - Automatic priority loading (RECOMMENDED)
+6. **Environment Variables Demo** - Environment variable store
+7. **User Secrets Demo** - User secrets store
+8. **Database Store Demo** - SQL Server custom store
+9. **Redis Store Demo** - Redis custom store
+10. **DefaultOption Demo** - DefaultOption attribute for ProfileKey
+11. **Multi-Tenancy Demo** - Tenant-specific settings
+12. **Nested Settings Demo** - Hierarchical configuration
+13. **Advanced Features Demo** - IReadOnlyList, RawValue inline defaults
+14. **Error Handling Demo** - Missing values, type errors
+
+### Optional Features
+
+To enable Database and Redis demos:
+1. Set `Demo:EnableDatabase` and `Demo:EnableRedis` to `true` in `App.config`
+2. Setup SQL Server / Redis according to instructions in the demo
+3. Run the SQL scripts from `CustomStores/MssqlStore.cs`
+
+---
+
+## Multi-Tenancy
+
+AppCfg.Net has built-in support for multi-tenant applications:
 
 ```csharp
-public class Person
+// Define settings
+public interface ITenantSettings
 {
-    public string Name { get; set; }
-    public int Age { get; set; }
-    public string Email { get; set; }
+    [Option(Alias = "MaxUsers")]
+    int MaxUsers { get; }
 }
 
-[DefaultOption(StoreType = SettingStoreType.Custom,
-               StoreIdentity = MyAppCfg.DefaultStoreIdentity)]
-public interface ISettings
-{
-    [Option(Alias = "PersonData")]
-    Person PersonData { get; }
-}
+// Get settings for default tenant
+var defaultSettings = MyAppCfg.Get<ITenantSettings>();
+
+// Get settings for specific tenant
+var tenant1Settings = MyAppCfg.Get<ITenantSettings>("tenant-1");
+var tenant2Settings = MyAppCfg.Get<ITenantSettings>("tenant-2");
 ```
 
-**Configuration:**
-```json
-{
-  "PersonData": {
-    "Name": "John Doe",
-    "Age": 30,
-    "Email": "john@example.com"
-  }
-}
-```
+**Custom Store Support:**
 
-### List Configuration
-
-Parse comma-separated values as lists:
-
-```csharp
-public interface ISettings
-{
-    [Option(Alias = "AllowedHosts")]
-    List<string> AllowedHosts { get; }
-
-    [Option(Alias = "AllowedPorts")]
-    List<int> AllowedPorts { get; }
-}
-```
-
-**Configuration:**
-```xml
-<appSettings>
-  <add key="AllowedHosts" value="localhost,example.com,test.com"/>
-  <add key="AllowedPorts" value="80,443,8080"/>
-</appSettings>
-```
-
-### Connection Strings
-
-Type-safe access to connection strings:
-
-```csharp
-public interface ISettings
-{
-    [Option(Alias = "MyDatabase", StoreType = SettingStoreType.ConnectionString)]
-    string DatabaseConnection { get; }
-}
-```
-
-**Configuration:**
-```xml
-<connectionStrings>
-  <add name="MyDatabase"
-       connectionString="Server=localhost;Database=MyDb;User Id=sa;Password=pass;"
-       providerName="System.Data.SqlClient"/>
-</connectionStrings>
-```
+Multi-tenancy works seamlessly with custom stores. The tenant key is passed to your store implementation via `opt.TenantKey`.
 
 ---
 
 ## Best Practices
 
-### 1. Always Call MyAppCfg.Configure() at Startup
+### ✅ DO: Use ChainedStore for Production
 
 ```csharp
-public class Startup
-{
-    public static void Init()
-    {
-        MyAppCfg.Configure(
-            envVarPrefix: "APPCFG__",
-            userSecretsId: "my-app-secrets"
-        );
-    }
-}
-```
-
-### 2. Always Provide Default Values
-
-```csharp
-// Good - has fallback
-[Option(Alias = "MaxRetries", DefaultValue = 3)]
-int MaxRetries { get; }
-
-// Bad - throws if not configured
-[Option(Alias = "MaxRetries")]
-int MaxRetries { get; }
-```
-
-### 3. Use User Secrets for Local Development
-
-Never commit secrets to source control!
-
-```bash
-# Good: Secrets outside repository
-~/.microsoft/usersecrets/my-app/secrets.json
-
-# Bad: Secrets in repository
-/MyProject/appsettings.secrets.json  # Never commit this!
-```
-
-### 4. Use Environment Variables in Production
-
-```yaml
-# Kubernetes example
-env:
-  - name: APPCFG__ApiKey
-    valueFrom:
-      secretKeyRef:
-        name: app-secrets
-        key: api-key
-```
-
-### 5. Validate Critical Settings
-
-```csharp
-var settings = MyAppCfg.Get<IAppSettings>();
-
-if (string.IsNullOrEmpty(settings.ApiKey))
-{
-    throw new InvalidOperationException(
-        "ApiKey is required! Set APPCFG__ApiKey environment variable.");
-}
-```
-
-### 6. Use Hierarchical Keys
-
-```csharp
-// Good - organized
-[Option(Alias = "Database:Host")]
-[Option(Alias = "Database:Port")]
-[Option(Alias = "Database:Password")]
-
-// Better - with nested interface
-public interface IAppSettings
-{
-    IDatabaseSettings Database { get; }
-}
-```
-
-### 7. Document Your Configuration
-
-```csharp
-public interface IAppSettings
-{
-    /// <summary>
-    /// API key for external service authentication.
-    /// Required. Set via APPCFG__ApiKey environment variable.
-    /// </summary>
-    [Option(Alias = "ApiKey", DefaultValue = "")]
-    string ApiKey { get; }
-
-    /// <summary>
-    /// Maximum number of retry attempts.
-    /// Default: 3. Range: 1-10.
-    /// </summary>
-    [Option(Alias = "MaxRetries", DefaultValue = 3)]
-    int MaxRetries { get; }
-}
-```
-
----
-
-## Examples
-
-### Example 1: Console Application
-
-```csharp
-using System;
-using AppCfg;
-
-class Program
-{
-    static void Main()
-    {
-        // Setup
-        MyAppCfg.Configure(
-            envVarPrefix: "APPCFG__",
-            userSecretsId: "myapp"
-        );
-
-        // Load
-        var settings = MyAppCfg.Get<IAppSettings>();
-
-        // Use
-        Console.WriteLine($"App: {settings.AppName} v{settings.Version}");
-        Console.WriteLine($"Database: {settings.DatabaseHost}:{settings.DatabasePort}");
-    }
-}
-
-[DefaultOption(StoreType = SettingStoreType.Custom,
-               StoreIdentity = MyAppCfg.DefaultStoreIdentity)]
-public interface IAppSettings
-{
-    [Option(Alias = "AppName", DefaultValue = "MyApp")]
-    string AppName { get; }
-
-    [Option(Alias = "Version", DefaultValue = "1.0.0")]
-    string Version { get; }
-
-    [Option(Alias = "Database:Host", DefaultValue = "localhost")]
-    string DatabaseHost { get; }
-
-    [Option(Alias = "Database:Port", DefaultValue = 5432)]
-    int DatabasePort { get; }
-}
-```
-
-### Example 2: ASP.NET Core
-
-```csharp
-using AppCfg;
-
-public class Startup
-{
-    public void ConfigureServices(IServiceCollection services)
-    {
-        // Configure AppCfg
-        MyAppCfg.Configure(
-            envVarPrefix: "MYAPP__",
-            userSecretsId: "myapp-secrets"
-        );
-
-        // Load settings
-        var settings = MyAppCfg.Get<IAppSettings>();
-
-        // Register as singleton for DI
-        services.AddSingleton(settings);
-    }
-}
-
-[DefaultOption(StoreType = SettingStoreType.Custom,
-               StoreIdentity = MyAppCfg.DefaultStoreIdentity)]
-public interface IAppSettings
-{
-    [Option(Alias = "ConnectionString", DefaultValue = "")]
-    string ConnectionString { get; }
-
-    [Option(Alias = "JwtSecret", DefaultValue = "")]
-    string JwtSecret { get; }
-
-    [Option(Alias = "CorsOrigins")]
-    List<string> CorsOrigins { get; }
-}
-```
-
-### Example 3: Background Service
-
-```csharp
-using AppCfg;
-using System.Threading.Tasks;
-
-public class Worker : BackgroundService
-{
-    private readonly IAppSettings _settings;
-
-    public Worker()
-    {
-        MyAppCfg.Configure(
-            envVarPrefix: "WORKER__",
-            userSecretsId: "worker-secrets"
-        );
-
-        _settings = MyAppCfg.Get<IAppSettings>();
-    }
-
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            Console.WriteLine($"Polling interval: {_settings.PollingInterval}");
-            await Task.Delay(_settings.PollingInterval, stoppingToken);
-        }
-    }
-}
-
-[DefaultOption(StoreType = SettingStoreType.Custom,
-               StoreIdentity = MyAppCfg.DefaultStoreIdentity)]
-public interface IAppSettings
-{
-    [Option(Alias = "PollingInterval", DefaultValue = "00:01:00")]
-    TimeSpan PollingInterval { get; }
-}
-```
-
----
-
-## Troubleshooting
-
-### Problem: "Cannot find configuration value"
-
-**Cause:** The key doesn't exist in any configured source.
-
-**Solution:**
-1. Verify the key name matches `[Option(Alias = "...")]`
-2. Check spelling and casing
-3. Add a `DefaultValue` as fallback
-
-```csharp
-[Option(Alias = "MyKey", DefaultValue = "fallback-value")]
-string MyKey { get; }
-```
-
-### Problem: "Type parsing error"
-
-**Cause:** The string value cannot be converted to the target type.
-
-**Solution:**
-1. Verify the value format matches the type
-2. Check for extra whitespace
-3. Use correct format (e.g., `true`/`false` for bool, not `yes`/`no`)
-
-### Problem: "User secrets file not found"
-
-**Cause:** The secrets.json file doesn't exist or is in the wrong location.
-
-**Solution:**
-```bash
-# Check the path
-# Linux/Mac: ~/.microsoft/usersecrets/{userSecretsId}/secrets.json
-# Windows: %APPDATA%\Microsoft\UserSecrets\{userSecretsId}\secrets.json
-
-# Create directory
-mkdir -p ~/.microsoft/usersecrets/my-app-secrets
-
-# Create file
-echo '{"ApiKey":"test"}' > ~/.microsoft/usersecrets/my-app-secrets/secrets.json
-```
-
-### Problem: "Environment variables not loading"
-
-**Cause:** Incorrect environment variable name or not using double underscore.
-
-**Solution:**
-```bash
-# For [Option(Alias = "Database:Host")]
-
-# Correct:
-export APPCFG__Database__Host="localhost"
-
-# Wrong:
-export APPCFG_Database_Host="localhost"      # Single underscore
-export APPCFG:Database:Host="localhost"      # Colon not supported
-export APPCFG__DatabaseHost="localhost"      # Missing hierarchy
-```
-
-### Problem: "System environment variables not visible"
-
-**Cause:** Set in System Properties but application already running.
-
-**Solution:**
-1. Close ALL PowerShell/CMD windows
-2. Close Visual Studio / IDE
-3. Open FRESH PowerShell window
-4. Verify: `$env:APPCFG__ApiKey`
-5. Run application
-
-Or set in current session:
-```powershell
-$env:APPCFG__ApiKey = "test-key"
-```
-
-### Problem: "Configuration not checking all sources"
-
-**Cause:** `MyAppCfg.Configure()` was not called at startup.
-
-**Solution:**
-```csharp
-// Make sure you call Configure() at application startup
 MyAppCfg.Configure(
-    envVarPrefix: "APPCFG__",
+    envVarPrefix: "MYAPP__",
     userSecretsId: "my-app-secrets"
 );
-
-// And use the default store identity in your interface
-[DefaultOption(StoreType = SettingStoreType.Custom,
-               StoreIdentity = MyAppCfg.DefaultStoreIdentity)]
-public interface IAppSettings { }
 ```
 
-### Problem: "Tests are failing with cached values"
+### ✅ DO: Use DefaultOption for Custom Stores
 
-**Cause:** UserSecretsStore caches values in memory.
-
-**Solution:**
 ```csharp
-[TearDown]
-public void TearDown()
-{
-    UserSecretsStore.ClearCache();  // Clear cache after each test
-}
+[DefaultOption(ProfileKey = "MyCustomStore")]
+public interface ISettings { ... }
 ```
 
----
+### ✅ DO: Provide Default Values
 
-## Additional Resources
+```csharp
+[Option(Alias = "Timeout", DefaultValue = 30)]
+int Timeout { get; }
+```
 
-- **[GETTING_STARTED.md](GETTING_STARTED.md)** - Quick start guide
-- **[MIGRATION.md](MIGRATION.md)** - Migrating from older versions
-- **[AppCfgDemoUserSecrets](AppCfgDemoUserSecrets/)** - Complete working demo
-- **[AppCfgDemoEnvironmentVariables](AppCfgDemoEnvironmentVariables/)** - Environment variables example
-- **[AppCfgDemoMssql](AppCfgDemoMssql/)** - Custom store example
-- **[AppCfgDemoRedis](AppCfgDemoRedis/)** - Redis store example
+### ✅ DO: Use Strongly-Typed Properties
+
+```csharp
+int Port { get; } // ✅ Good
+string Port { get; } // ❌ Avoid - parse manually
+```
+
+### ✅ DO: Keep Secrets Out of Source Control
+
+Use User Secrets or Environment Variables for sensitive data.
+
+### ❌ DON'T: Access Configuration in Static Constructors
+
+Initialize AppCfg before accessing any settings.
+
+### ❌ DON'T: Cache Settings in Static Fields (if dynamic)
+
+If configuration can change, call `MyAppCfg.Get<T>()` each time.
 
 ---
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
-## Support & Donate
+## Links
 
-**If you like this project and would like to support, you can buy me a coffee ☕**
+- **NuGet Package:** https://www.nuget.org/packages/AppCfg.Net/
+- **GitHub Repository:** https://github.com/minhhungit/AppCfg.Net
+- **Issue Tracker:** https://github.com/minhhungit/AppCfg.Net/issues
 
-<a href='https://ko-fi.com/I2I13GAGL' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi4.png?v=2' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+---
 
-**I would appreciate it!**
+**Built with ❤️ for .NET developers who value type safety and clean code.**

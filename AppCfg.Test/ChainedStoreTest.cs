@@ -9,9 +9,8 @@ namespace AppCfg.Test
     [TestFixture]
     public class ChainedStoreTest
     {
-        // For testing, we use a custom store identity
-        // In your app, use: MyAppCfg.Configure() which uses MyAppCfg.DefaultStoreIdentity
-        private const string TestStoreIdentity = "AppCfg:Test";
+        // For testing, we use a custom profile key
+        // In your app, use: MyAppCfg.Configure() which uses MyAppCfg.DefaultProfileKey
         private const string TestUserSecretsId = "appcfg-test-chained";
         private string _testSecretsPath;
         private string _testSecretsDirectory;
@@ -68,12 +67,13 @@ namespace AppCfg.Test
         [Test]
         public void ChainedStore_EnvironmentVariableFirst_ReturnsEnvVarValue()
         {
-            // Arrange
             Environment.SetEnvironmentVariable("APPCFG__PriorityTest", "from-env");
             CreateTestSecretsFile(@"{ ""PriorityTest"": ""from-secrets"" }");
 
-            // Register ChainedStore - it auto-registers UserSecretsStore internally!
-            ChainedStore.Register(TestStoreIdentity, "APPCFG__", TestUserSecretsId);
+            MyAppCfg.Configure(
+                envVarPrefix: "APPCFG__",
+                userSecretsId: TestUserSecretsId
+            );
 
             // Act
             var settings = MyAppCfg.Get<ITestChainedSettings>();
@@ -85,11 +85,13 @@ namespace AppCfg.Test
         [Test]
         public void ChainedStore_NoEnvVar_FallsBackToSecrets()
         {
-            // Arrange - No env var, only secrets
             CreateTestSecretsFile(@"{ ""PriorityTest"": ""from-secrets"" }");
 
             // Register ChainedStore only - auto-handles everything!
-            ChainedStore.Register(TestStoreIdentity, "APPCFG__", TestUserSecretsId);
+            MyAppCfg.Configure(
+                envVarPrefix: "APPCFG__",
+                userSecretsId: TestUserSecretsId
+            );
 
             // Act
             var settings = MyAppCfg.Get<ITestChainedSettings>();
@@ -101,8 +103,10 @@ namespace AppCfg.Test
         [Test]
         public void ChainedStore_NoEnvVarOrSecrets_FallsBackToAppSettings()
         {
-            // Arrange - No env var, no secrets, only AppSettings (Age=29 in App.config)
-            ChainedStore.Register(TestStoreIdentity, "APPCFG__", TestUserSecretsId);
+            MyAppCfg.Configure(
+                envVarPrefix: "APPCFG__",
+                userSecretsId: TestUserSecretsId
+            );
 
             // Act
             var settings = MyAppCfg.Get<ITestChainedSettings>();
@@ -114,8 +118,10 @@ namespace AppCfg.Test
         [Test]
         public void ChainedStore_AllSourcesMissing_UsesDefaultValue()
         {
-            // Arrange - Nothing set anywhere
-            ChainedStore.Register(TestStoreIdentity, "APPCFG__", TestUserSecretsId);
+            MyAppCfg.Configure(
+                 envVarPrefix: "APPCFG__",
+                 userSecretsId: TestUserSecretsId
+             );
 
             // Act
             var settings = MyAppCfg.Get<ITestChainedSettings>();
@@ -130,15 +136,13 @@ namespace AppCfg.Test
             File.WriteAllText(_testSecretsPath, content);
         }
 
-        // Test interface
-        [DefaultOption(StoreType = SettingStoreType.Custom,
-                       StoreIdentity = TestStoreIdentity)]
+        // Test interface - when Configure() is called, automatically uses priority-based loading
         public interface ITestChainedSettings
         {
             [Option(Alias = "PriorityTest", DefaultValue = "default-value")]
             string PriorityTest { get; }
 
-            [Option(Alias = "Age", DefaultValue = "")]
+            [Option(Alias = "Age")]
             string AppSettingValue { get; }
         }
     }

@@ -10,7 +10,7 @@ namespace AppCfg.Test
     public class UserSecretsStoreTest
     {
         private const string TestUserSecretsId = "appcfg-test-usersecrets";
-        private const string TestStoreIdentity = "UserSecrets:appcfg-test-usersecrets";
+        private const string TestProfileKey = "UserSecrets:appcfg-test-usersecrets";
         private string _testSecretsPath;
         private string _testSecretsDirectory;
 
@@ -36,7 +36,7 @@ namespace AppCfg.Test
 
             // Clear the cache and register the store before each test
             UserSecretsStore.ClearCache();
-            UserSecretsStore.Register(TestUserSecretsId, TestStoreIdentity);
+            UserSecretsStore.Register(TestUserSecretsId, TestProfileKey);
         }
 
         [TearDown]
@@ -233,8 +233,7 @@ namespace AppCfg.Test
         }
 
         // Test interfaces - using DefaultOption to avoid repetition
-        [DefaultOption(StoreType = SettingStoreType.Custom,
-                       StoreIdentity = TestStoreIdentity)]
+        [DefaultOption(ProfileKey = TestProfileKey)]
         public interface ITestSecretSettings
         {
             [Option(Alias = "TestKey", DefaultValue = "default-value")]
@@ -244,28 +243,26 @@ namespace AppCfg.Test
             string ApiKey { get; }
         }
 
-        [DefaultOption(StoreType = SettingStoreType.Custom,
-                       StoreIdentity = TestStoreIdentity)]
+        [DefaultOption(ProfileKey = TestProfileKey)]
         public interface ITestHierarchicalSettings
         {
-            [Option(Alias = "Database:Host", DefaultValue = "")]
+            [Option(Alias = "Database:Host")]
             string DatabaseHost { get; }
 
-            [Option(Alias = "Database:Port", DefaultValue = 0)]
+            [Option(Alias = "Database:Port")]
             int DatabasePort { get; }
 
-            [Option(Alias = "Database:Password", DefaultValue = "")]
+            [Option(Alias = "Database:Password")]
             string DatabasePassword { get; }
         }
 
-        [DefaultOption(StoreType = SettingStoreType.Custom,
-                       StoreIdentity = TestStoreIdentity)]
+        [DefaultOption(ProfileKey = TestProfileKey)]
         public interface ITestTypedSettings
         {
-            [Option(Alias = "IntValue", DefaultValue = 0)]
+            [Option(Alias = "IntValue")]
             int IntValue { get; }
 
-            [Option(Alias = "BoolValue", DefaultValue = false)]
+            [Option(Alias = "BoolValue")]
             bool BoolValue { get; }
 
             [Option(Alias = "GuidValue")]

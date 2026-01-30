@@ -2,7 +2,6 @@
 {
     public interface ISettingStore
     {
-        SettingStoreType SettingStoreType { get; }
-        string StoreIdentity { get; }
+        string ProfileKey { get; }
     }
 }

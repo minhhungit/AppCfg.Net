@@ -7,15 +7,15 @@ namespace AppCfg
     {
         public class SettingStoreMetadata
         {
-            public SettingStoreMetadata(string storeIdentity, string tenantKey, string settingKey, Type typeOfSetting)
+            public SettingStoreMetadata(string profileKey, string tenantKey, string settingKey, Type typeOfSetting)
             {
-                StoreIdentity = storeIdentity;
+                ProfileKey = profileKey;
                 TenantKey = tenantKey;
                 SettingKey = settingKey;
                 TypeOfSetting = typeOfSetting;
             }
 
-            public string StoreIdentity { get; set; }
+            public string ProfileKey { get; set; }
             public string TenantKey { get; set; }
             public string SettingKey { get; set; }
             public Type TypeOfSetting { get; set; }
@@ -23,35 +23,43 @@ namespace AppCfg
 
         public class SettingStores
         {
-            private static readonly IDictionary<KeyValuePair<SettingStoreType, string>, Func<SettingStoreMetadata, string>> _settingStore = new Dictionary<KeyValuePair<SettingStoreType, string>, Func<SettingStoreMetadata, string>>();
+            private static readonly IDictionary<string, Func<SettingStoreMetadata, string>> _settingStore = new Dictionary<string, Func<SettingStoreMetadata, string>>();
 
-            public static void RegisterCustomStore(Func<SettingStoreMetadata, string> getRawValueFunc)
+            public static void RegisterStore(string profileKey, Func<SettingStoreMetadata, string> getRawValueFunc)
             {
-                RegisterCustomStore(null, getRawValueFunc);
-            }
-
-            public static void RegisterCustomStore(string storeIdentity, Func<SettingStoreMetadata, string> getRawValueFunc)
-            {
-                var key = new KeyValuePair<SettingStoreType, string>(SettingStoreType.Custom, storeIdentity);
-                if (!_settingStore.ContainsKey(key))
+                if (string.IsNullOrEmpty(profileKey))
                 {
-                    _settingStore.Add(key, getRawValueFunc);
+                    throw new ArgumentException("Profile key cannot be null or empty.", nameof(profileKey));
+                }
+
+                if (getRawValueFunc == null)
+                {
+                    throw new ArgumentNullException(nameof(getRawValueFunc), "getRawValueFunc cannot be null.");
+                }
+
+                if (!_settingStore.ContainsKey(profileKey))
+                {
+                    _settingStore.Add(profileKey, getRawValueFunc);
                 }
                 else
                 {
-                    _settingStore[key] = getRawValueFunc;
+                    _settingStore[profileKey] = getRawValueFunc;
                 }
             }
 
-            internal static object Get(SettingStoreType type, string identity)
+            internal static object Get(string profileKey)
             {
-                var key = new KeyValuePair<SettingStoreType, string>(type, identity);
-                if (!_settingStore.ContainsKey(key))
+                if (string.IsNullOrEmpty(profileKey))
                 {
                     return null;
                 }
 
-                return _settingStore[key];
+                if (!_settingStore.ContainsKey(profileKey))
+                {
+                    return null;
+                }
+
+                return _settingStore[profileKey];
             }
         }
     }

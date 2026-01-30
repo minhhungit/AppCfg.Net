@@ -33,3 +33,7 @@
 /AppCfgDemoUserSecrets/bin/Debug
 /AppCfgDemoUserSecrets/obj/Debug
 .vs
+/AppCfgDemoComplete/bin/Debug
+/.claude
+/.vscode
+/AppCfgDemoComplete/obj/Debug

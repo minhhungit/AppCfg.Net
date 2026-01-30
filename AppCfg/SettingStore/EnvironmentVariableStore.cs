@@ -10,17 +10,8 @@ namespace AppCfg.SettingStore
     public static class EnvironmentVariableStore
     {
         /// <summary>
-        /// Register an Environment Variables store with default prefix "APPCFG__".
-        /// Store identity will be: "EnvironmentVariables:APPCFG__"
-        /// </summary>
-        public static void Register()
-        {
-            Register("APPCFG__");
-        }
-
-        /// <summary>
         /// Register an Environment Variables store with custom prefix.
-        /// Store identity will be: "EnvironmentVariables:{prefix}"
+        /// Profile key will be: "EnvironmentVariables:{prefix}"
         /// </summary>
         /// <param name="prefix">The prefix for environment variable names (e.g., "MYAPP__" or "APP_")</param>
         public static void Register(string prefix)
@@ -30,28 +21,28 @@ namespace AppCfg.SettingStore
                 throw new ArgumentException("Prefix cannot be null or empty", nameof(prefix));
             }
 
-            var storeIdentity = $"EnvironmentVariables:{prefix}";
-            Register(prefix, storeIdentity);
+            var profileKey = $"EnvironmentVariables:{prefix}";
+            Register(prefix, profileKey);
         }
 
         /// <summary>
-        /// Register an Environment Variables store with custom prefix and store identity.
+        /// Register an Environment Variables store with custom prefix and profile key.
         /// </summary>
         /// <param name="prefix">The prefix for environment variable names</param>
-        /// <param name="storeIdentity">The custom store identity to use in [Option] attributes</param>
-        public static void Register(string prefix, string storeIdentity)
+        /// <param name="profileKey">The custom profile key to use in [Option] attributes</param>
+        public static void Register(string prefix, string profileKey)
         {
             if (string.IsNullOrEmpty(prefix))
             {
                 throw new ArgumentException("Prefix cannot be null or empty", nameof(prefix));
             }
 
-            if (string.IsNullOrWhiteSpace(storeIdentity))
+            if (string.IsNullOrWhiteSpace(profileKey))
             {
-                throw new ArgumentException("Store identity cannot be null or empty", nameof(storeIdentity));
+                throw new ArgumentException("Profile key cannot be null or empty", nameof(profileKey));
             }
 
-            MyAppCfg.SettingStores.RegisterCustomStore(storeIdentity, metadata =>
+            MyAppCfg.SettingStores.RegisterStore(profileKey, metadata =>
             {
                 try
                 {

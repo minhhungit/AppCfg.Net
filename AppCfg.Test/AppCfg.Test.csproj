@@ -41,6 +41,7 @@
       <HintPath>..\packages\NUnit.3.10.1\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -50,21 +51,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NestedTest.cs" />
-    <Compile Include="ConnnectionStringTest.cs" />
+    <Compile Include="BaseTypeParserTest.cs" />
+    <Compile Include="ChainedStoreTest.cs" />
+    <Compile Include="ComputedPropertyAdvancedTest.cs" />
+    <Compile Include="ComputedPropertyTest.cs" />
+    <Compile Include="ConnectionStringTest.cs" />
     <Compile Include="CustomParserTest.cs" />
     <Compile Include="CustomParser\ParserWithRawBuilder.cs" />
+    <Compile Include="CustomStoreTest.cs" />
+    <Compile Include="DefaultOptionAttributeTest.cs" />
+    <Compile Include="EnvironmentVariableStoreTest.cs" />
+    <Compile Include="ErrorHandlingTest.cs" />
     <Compile Include="JsonParserTest.cs" />
     <Compile Include="Models\JsonAnimalTestModel.cs" />
     <Compile Include="Models\JsonMachineTestModel.cs" />
     <Compile Include="Models\JsonPersonTestModel.cs" />
-    <Compile Include="BaseTypeParserTest.cs" />
+    <Compile Include="MultiTenancyTest.cs" />
+    <Compile Include="NestedTest.cs" />
     <Compile Include="OptionsTest.cs" />
-    <Compile Include="UserSecretsStoreTest.cs" />
-    <Compile Include="EnvironmentVariableStoreTest.cs" />
-    <Compile Include="DefaultOptionAttributeTest.cs" />
-    <Compile Include="ChainedStoreTest.cs" />
+    <Compile Include="PriorityConfigurationIntegrationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeParserEdgeCasesTest.cs" />
+    <Compile Include="UserSecretsStoreTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

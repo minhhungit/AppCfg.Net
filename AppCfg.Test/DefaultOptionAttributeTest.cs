@@ -14,8 +14,8 @@ namespace AppCfg.Test
         [SetUp]
         public void Setup()
         {
-            // Register a simple custom store for testing
-            MyAppCfg.SettingStores.RegisterCustomStore(TestStoreId, metadata =>
+            // Register a simple profile store for testing
+            MyAppCfg.SettingStores.RegisterStore(TestStoreId, metadata =>
             {
                 // Return test values based on key
                 switch (metadata.SettingKey)
@@ -31,7 +31,7 @@ namespace AppCfg.Test
         }
 
         [Test]
-        public void DefaultOption_AllPropertiesUseDefault_LoadsFromCustomStore()
+        public void DefaultOption_AllPropertiesUseDefault_LoadsFromProfileStore()
         {
             // Act
             var settings = MyAppCfg.Get<ITestDefaultStoreSettings>();
@@ -42,14 +42,14 @@ namespace AppCfg.Test
         }
 
         [Test]
-        public void DefaultOption_PropertyOverridesStoreType_LoadsFromAppSettings()
+        public void DefaultOption_PropertyOverridesProfileKey_LoadsFromAppSettings()
         {
             // Act
             var settings = MyAppCfg.Get<ITestMixedStoreSettings>();
 
             // Assert
-            Assert.AreEqual("custom-value", settings.FromCustomStore); // Uses default (custom)
-            Assert.AreEqual("29", settings.FromAppSettings); // Overrides to AppSettings
+            Assert.AreEqual("custom-value", settings.FromCustomStore); // Uses default (TestStoreId)
+            Assert.AreEqual("29", settings.FromAppSettings); // Overrides to App.config
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace AppCfg.Test
         }
 
         // Test interfaces
-        [DefaultOption(StoreType = SettingStoreType.Custom, StoreIdentity = TestStoreId)]
+        [DefaultOption(ProfileKey = TestStoreId)]
         public interface ITestDefaultStoreSettings
         {
             [Option(Alias = "FromCustomStore")]
@@ -86,24 +86,22 @@ namespace AppCfg.Test
             string MissingValue { get; }
         }
 
-        [DefaultOption(StoreType = SettingStoreType.Custom, StoreIdentity = TestStoreId)]
+        [DefaultOption(ProfileKey = TestStoreId)]
         public interface ITestMixedStoreSettings
         {
-            // Uses default (Custom store)
+            // Uses default (custom store)
             [Option(Alias = "FromCustomStore")]
             string FromCustomStore { get; }
 
-            // Overrides to use AppSettings (StoreIdentity must be set to override)
-            [Option(Alias = "Age", StoreType = SettingStoreType.AppSetting, StoreIdentity = "")]
+            // Overrides to use AppSettings (ProfileKey = "")
+            [Option(Alias = "Age", ProfileKey = "")]
             string FromAppSettings { get; }
         }
 
         // Interface without DefaultOption (backward compatibility)
         public interface ITestNoDefaultSettings
         {
-            [Option(Alias = "FromCustomStore",
-                    StoreType = SettingStoreType.Custom,
-                    StoreIdentity = TestStoreId)]
+            [Option(Alias = "FromCustomStore", ProfileKey = TestStoreId)]
             string ExplicitCustomStore { get; }
         }
     }

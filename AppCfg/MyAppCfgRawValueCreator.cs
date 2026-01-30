@@ -8,15 +8,23 @@ namespace AppCfg
     {
         private static string GetRawValue(Type typeOfSetting, string tenantKey, string settingNameKey, ITypeParserOptions parserOpt)
         {
-            switch (parserOpt.StoreType)
+            var profileKey = parserOpt.ProfileKey;
+
+            // If ProfileKey is null or empty, check if Configure() was called
+            if (string.IsNullOrEmpty(profileKey))
             {
-                case SettingStoreType.AppSetting:
-                    return GetRawValueForAppSettingStore(typeOfSetting, settingNameKey);
-                case SettingStoreType.Custom:
-                    return GetRawValueForCustomStore(parserOpt.StoreType, parserOpt.StoreIdentity, tenantKey, typeOfSetting, settingNameKey);;
+                // If Configure() was called, use priority-based loading (the default chain)
+                if (_isConfigured && _defaultStoreChain != null)
+                {
+                    return _defaultStoreChain(settingNameKey);
+                }
+
+                // Otherwise, use traditional App.config/Web.config
+                return GetRawValueForAppSettingStore(typeOfSetting, settingNameKey);
             }
 
-            throw new Exception($"Settting store {parserOpt.StoreType} is not supported");
+            // For explicit profile keys, look up the registered store
+            return GetRawValueForProfileStore(profileKey, tenantKey, typeOfSetting, settingNameKey);
         }
 
         private static string GetRawValueForAppSettingStore(Type typeOfSetting, string settingNameKey)
@@ -31,23 +39,23 @@ namespace AppCfg
             }
         }
 
-        private static string GetRawValueForCustomStore(SettingStoreType settingStoreType, string storeIdentity, string tenantKey, Type typeOfSetting, string settingKey)
+        private static string GetRawValueForProfileStore(string profileKey, string tenantKey, Type typeOfSetting, string settingKey)
         {
-            if (SettingStores.Get(SettingStoreType.Custom, storeIdentity) is Func<SettingStoreMetadata, string> getRawValueFunc)
+            if (SettingStores.Get(profileKey) is Func<SettingStoreMetadata, string> getRawValueFunc)
             {
                 if (getRawValueFunc != null)
                 {
-                    return getRawValueFunc.Invoke(new SettingStoreMetadata(storeIdentity, tenantKey, settingKey, typeOfSetting));
+                    return getRawValueFunc.Invoke(new SettingStoreMetadata(profileKey, tenantKey, settingKey, typeOfSetting));
                 }
                 else
                 {
-                    throw new Exception("Please setup method 'GetRawValueFunc(storeIdentity, tenantKey, settingKey)' for Custom source");
+                    throw new Exception($"GetRawValueFunc is null for profile key '{profileKey}'");
                 }
             }
             else
             {
-                throw new AppCfgException($"Please config for Custom source: Can not load sourceConfig for storeIdentity {storeIdentity}");
+                throw new AppCfgException($"No store registered for profile key '{profileKey}'. Please call MyAppCfg.SettingStores.RegisterStore(\"{profileKey}\", ...) first.");
             }
-        }        
+        }
     }
 }

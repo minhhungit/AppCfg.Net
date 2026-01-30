@@ -4,34 +4,26 @@ using System.Collections.Generic;
 namespace AppCfg.SettingStore
 {
     /// <summary>
-    /// A chained store that checks multiple stores in priority order.
+    /// Priority-based configuration loading that checks multiple stores in order.
     /// Returns the first non-null value found.
     ///
-    /// Typical priority order:
+    /// Priority order:
     /// 1. Environment Variables (highest priority)
-    /// 2. User Secrets
-    /// 3. AppSettings/Database/Redis (lowest priority)
+    /// 2. User Secrets (if configured)
+    /// 3. AppSettings (fallback)
     /// </summary>
-    public static class ChainedStore
+    internal static class ChainedStore
     {
         /// <summary>
-        /// Register a chained store with default priority order:
-        /// 1. Environment Variables (prefix: envVarPrefix)
-        /// 2. User Secrets (if userSecretsId provided)
-        /// 3. AppSettings
+        /// Build a priority-based configuration chain.
+        /// Returns a function that checks stores in order and returns the first non-null value.
         /// </summary>
-        /// <param name="storeIdentity">The identity for this chained store (e.g., "ChainedStore:Default")</param>
         /// <param name="envVarPrefix">Environment variable prefix (default: "APPCFG__")</param>
         /// <param name="userSecretsId">User secrets ID (optional, if null, skips user secrets)</param>
-        public static void Register(string storeIdentity = "ChainedStore:Default",
-                                     string envVarPrefix = "APPCFG__",
-                                     string userSecretsId = null)
+        /// <returns>A function that takes a setting key and returns its value from the highest-priority source</returns>
+        internal static Func<string, string> BuildChain(string envVarPrefix = "APPCFG__",
+                                                         string userSecretsId = null)
         {
-            if (string.IsNullOrWhiteSpace(storeIdentity))
-            {
-                throw new ArgumentException("Store identity cannot be null or empty", nameof(storeIdentity));
-            }
-
             // Build the chain of stores to check
             var chain = new List<Func<string, string>>();
 
@@ -50,13 +42,13 @@ namespace AppCfg.SettingStore
             // 3. AppSettings (lowest priority - fallback)
             chain.Add(settingKey => GetFromAppSettings(settingKey));
 
-            // Register the chained store
-            MyAppCfg.SettingStores.RegisterCustomStore(storeIdentity, metadata =>
+            // Return a function that executes the chain
+            return settingKey =>
             {
                 // Check each store in order, return first non-null value
                 foreach (var getFunc in chain)
                 {
-                    var value = getFunc(metadata.SettingKey);
+                    var value = getFunc(settingKey);
                     if (value != null)
                     {
                         return value;
@@ -65,63 +57,7 @@ namespace AppCfg.SettingStore
 
                 // No store had a value
                 return null;
-            });
-        }
-
-        /// <summary>
-        /// Register a chained store with custom store chain.
-        /// Stores are checked in the order provided.
-        /// </summary>
-        /// <param name="storeIdentity">The identity for this chained store</param>
-        /// <param name="storeChain">List of (storeIdentity, storeType) to check in order</param>
-        public static void RegisterCustomChain(string storeIdentity, params (string identity, StoreType type)[] storeChain)
-        {
-            if (string.IsNullOrWhiteSpace(storeIdentity))
-            {
-                throw new ArgumentException("Store identity cannot be null or empty", nameof(storeIdentity));
-            }
-
-            if (storeChain == null || storeChain.Length == 0)
-            {
-                throw new ArgumentException("Store chain cannot be empty", nameof(storeChain));
-            }
-
-            MyAppCfg.SettingStores.RegisterCustomStore(storeIdentity, metadata =>
-            {
-                // Check each store in the chain
-                foreach (var (identity, type) in storeChain)
-                {
-                    string value = null;
-
-                    switch (type)
-                    {
-                        case StoreType.EnvironmentVariables:
-                            value = GetFromEnvironmentVariables(identity, metadata.SettingKey);
-                            break;
-                        case StoreType.UserSecrets:
-                            value = GetFromUserSecrets(identity, metadata.SettingKey);
-                            break;
-                        case StoreType.AppSettings:
-                            value = GetFromAppSettings(metadata.SettingKey);
-                            break;
-                        case StoreType.CustomStore:
-                            // Delegate to another custom store
-                            var customStore = MyAppCfg.SettingStores.Get(SettingStoreType.Custom, identity);
-                            if (customStore is Func<MyAppCfg.SettingStoreMetadata, string> func)
-                            {
-                                value = func(metadata);
-                            }
-                            break;
-                    }
-
-                    if (value != null)
-                    {
-                        return value;
-                    }
-                }
-
-                return null;
-            });
+            };
         }
 
         /// <summary>
@@ -164,21 +100,21 @@ namespace AppCfg.SettingStore
             try
             {
                 // Auto-register UserSecretsStore if not already registered
-                var storeIdentity = $"UserSecrets:{userSecretsId}";
+                var profileKey = $"UserSecrets:{userSecretsId}";
 
                 // Check if already registered
-                var existingStore = MyAppCfg.SettingStores.Get(SettingStoreType.Custom, storeIdentity);
+                var existingStore = MyAppCfg.SettingStores.Get(profileKey);
                 if (existingStore == null)
                 {
                     // Register it automatically
-                    UserSecretsStore.Register(userSecretsId, storeIdentity);
+                    UserSecretsStore.Register(userSecretsId, profileKey);
                 }
 
                 // Now get the value
-                var store = MyAppCfg.SettingStores.Get(SettingStoreType.Custom, storeIdentity);
+                var store = MyAppCfg.SettingStores.Get(profileKey);
                 if (store is Func<MyAppCfg.SettingStoreMetadata, string> func)
                 {
-                    var metadata = new MyAppCfg.SettingStoreMetadata(storeIdentity, null, settingKey, typeof(string));
+                    var metadata = new MyAppCfg.SettingStoreMetadata(profileKey, null, settingKey, typeof(string));
                     return func(metadata);
                 }
 
@@ -191,29 +127,32 @@ namespace AppCfg.SettingStore
         }
 
         /// <summary>
-        /// Gets value from app settings
+        /// Gets value from app settings or connection strings
         /// </summary>
         private static string GetFromAppSettings(string settingKey)
         {
             try
             {
-                return System.Configuration.ConfigurationManager.AppSettings[settingKey];
+                // First try AppSettings
+                var value = System.Configuration.ConfigurationManager.AppSettings[settingKey];
+                if (value != null)
+                {
+                    return value;
+                }
+
+                // Then try ConnectionStrings
+                var connString = System.Configuration.ConfigurationManager.ConnectionStrings[settingKey];
+                if (connString != null)
+                {
+                    return connString.ConnectionString;
+                }
+
+                return null;
             }
             catch
             {
                 return null;
             }
-        }
-
-        /// <summary>
-        /// Store types for custom chain configuration
-        /// </summary>
-        public enum StoreType
-        {
-            EnvironmentVariables,
-            UserSecrets,
-            AppSettings,
-            CustomStore
         }
     }
 }

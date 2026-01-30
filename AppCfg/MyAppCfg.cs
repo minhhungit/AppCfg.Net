@@ -9,13 +9,11 @@ namespace AppCfg
 {
     public partial class MyAppCfg
     {
-        /// <summary>
-        /// Default store identity used by MyAppCfg.Configure()
-        /// Use this in [DefaultOption] attribute to use the configured stores
-        /// </summary>
-        public const string DefaultStoreIdentity = "AppCfg:Default";
-
         public static JsonSerializerSettings JsonSerializerSettings { get; set; }
+
+        // Internal flag to track if Configure() was called
+        private static bool _isConfigured = false;
+        private static Func<string, string> _defaultStoreChain = null;
 
         /// <summary>
         /// Configure AppCfg with automatic priority-based configuration loading.
@@ -25,6 +23,9 @@ namespace AppCfg
         /// 1. Environment Variables (highest priority) - perfect for Docker/Kubernetes
         /// 2. User Secrets (if provided) - for local development
         /// 3. AppSettings (app.config/web.config) - fallback defaults
+        ///
+        /// After calling Configure(), all settings without explicit ProfileKey will automatically
+        /// use this priority-based loading. No need for [DefaultOption] attributes!
         /// </summary>
         /// <param name="envVarPrefix">Environment variable prefix (default: "APPCFG__"). Use double underscore for hierarchy.</param>
         /// <param name="userSecretsId">User secrets directory name (optional). If null, user secrets are skipped.</param>
@@ -36,22 +37,21 @@ namespace AppCfg
         ///     userSecretsId: "my-app-secrets"
         /// );
         ///
-        /// // Use in your interface:
-        /// [DefaultOption(StoreType = SettingStoreType.Custom,
-        ///                StoreIdentity = MyAppCfg.DefaultStoreIdentity)]
+        /// // Just define your interface:
         /// public interface IAppSettings
         /// {
         ///     [Option(Alias = "ApiKey")]
         ///     string ApiKey { get; }
         /// }
         ///
-        /// // Load settings:
+        /// // Load settings - automatically uses priority-based loading!
         /// var settings = MyAppCfg.Get&lt;IAppSettings&gt;();
         /// </code>
         /// </example>
         public static void Configure(string envVarPrefix = "APPCFG__", string userSecretsId = null)
         {
-            ChainedStore.Register(DefaultStoreIdentity, envVarPrefix, userSecretsId);
+            _defaultStoreChain = ChainedStore.BuildChain(envVarPrefix, userSecretsId);
+            _isConfigured = true;
         }
 
         /// <summary>
@@ -80,8 +80,18 @@ namespace AppCfg
             // Get interface-level defaults if they exist
             var interfaceDefaults = typeof(TSetting).GetCustomAttribute<DefaultOptionAttribute>();
 
+            // Track computed properties to process after config properties are loaded
+            var computedProperties = new System.Collections.Generic.List<PropertyInfo>();
+
             foreach (var prop in props)
             {
+                // Check if this is a computed property
+                var computedAttr = prop.GetCustomAttribute<ComputedAttribute>();
+                if (computedAttr != null)
+                {
+                    computedProperties.Add(prop);
+                    continue; // Skip loading from config
+                }
                 if (TypeParsers.Get(prop.PropertyType) == null)
                 {
                     object settingObj = null;                   
@@ -173,7 +183,57 @@ namespace AppCfg
                 else
                 {
                     throw new AppCfgException($"There is no type parser for type [{prop.PropertyType}]. You maybe need to create a custom type parser for it");
-                }                
+                }
+            }
+
+            // Process computed properties after all config properties are loaded
+            foreach (var computedProp in computedProperties)
+            {
+                try
+                {
+                    var computedAttr = computedProp.GetCustomAttribute<ComputedAttribute>();
+
+                    // Find the static method
+                    var method = computedAttr.HelperType.GetMethod(
+                        computedAttr.MethodName,
+                        BindingFlags.Public | BindingFlags.Static,
+                        null,
+                        new[] { typeof(TSetting) },
+                        null
+                    );
+
+                    if (method == null)
+                    {
+                        throw new AppCfgException(
+                            $"Computed method not found: {computedAttr.HelperType.FullName}.{computedAttr.MethodName}(${typeof(TSetting).Name}). " +
+                            $"Ensure the method is public, static, and accepts a single parameter of type {typeof(TSetting).Name}."
+                        );
+                    }
+
+                    // Verify return type matches property type
+                    if (method.ReturnType != computedProp.PropertyType)
+                    {
+                        throw new AppCfgException(
+                            $"Computed method return type mismatch for property '{computedProp.Name}'. " +
+                            $"Expected: {computedProp.PropertyType.Name}, but method returns: {method.ReturnType.Name}"
+                        );
+                    }
+
+                    // Invoke the method with the settings instance
+                    var computedValue = method.Invoke(null, new object[] { setting });
+
+                    // Set the property value
+                    computedProp.SetValue(setting, computedValue);
+                }
+                catch (Exception ex)
+                {
+                    throw new AppCfgException(
+                        $"Error computing property '{computedProp.Name}': {ex.InnerException?.Message ?? ex.Message}\n" +
+                        $" - Setting: {typeof(TSetting)}\n" +
+                        $" - Property Type: {computedProp.PropertyType}",
+                        ex
+                    );
+                }
             }
 
             return setting;
@@ -183,19 +243,12 @@ namespace AppCfg
         /// Merges property-level [Option] attributes with interface-level [DefaultOption] attributes.
         ///
         /// Rules:
-        /// 1. If property sets StoreIdentity (even to empty string), it's explicitly configuring the store
+        /// 1. If property sets ProfileKey (even to empty string), it's explicitly configuring the store
         /// 2. Otherwise, inherit from interface defaults
-        ///
-        /// To override back to AppSetting from Custom default: Set StoreIdentity = "" (empty string)
+        /// 3. If no ProfileKey is set anywhere (null), settings will be loaded from App.config
         /// </summary>
         private static OptionAttribute MergeOptionWithDefaults(OptionAttribute propOption, DefaultOptionAttribute interfaceDefaults)
         {
-            if (interfaceDefaults == null)
-            {
-                // No interface defaults, return property options as-is
-                return propOption;
-            }
-
             // Create a new OptionAttribute with merged values
             var merged = new OptionAttribute
             {
@@ -206,21 +259,24 @@ namespace AppCfg
                 Separator = propOption.Separator
             };
 
-            // Check if property explicitly set StoreIdentity (including empty string)
+            // Check if property explicitly set ProfileKey (including empty string)
             // We consider null as "not set", any other value (including "") as "set"
-            var propertySetStoreIdentity = propOption.StoreIdentity != null;
+            var propertySetProfileKey = propOption.ProfileKey != null;
 
-            if (propertySetStoreIdentity)
+            if (propertySetProfileKey)
             {
-                // Property explicitly configured store (even if empty for AppSetting override)
-                merged.StoreType = propOption.StoreType;
-                merged.StoreIdentity = propOption.StoreIdentity;
+                // Property explicitly configured profile key
+                merged.ProfileKey = propOption.ProfileKey;
+            }
+            else if (interfaceDefaults != null && interfaceDefaults.ProfileKey != null)
+            {
+                // Property didn't set ProfileKey, inherit interface defaults
+                merged.ProfileKey = interfaceDefaults.ProfileKey;
             }
             else
             {
-                // Property didn't set StoreIdentity, inherit interface defaults
-                merged.StoreType = interfaceDefaults.StoreType;
-                merged.StoreIdentity = interfaceDefaults.StoreIdentity;
+                // No ProfileKey set anywhere, use null (will load from App.config)
+                merged.ProfileKey = null;
             }
 
             return merged;
