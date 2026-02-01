@@ -6,29 +6,41 @@ using System.Collections.Generic;
 namespace AppCfg.Test
 {
     [TestFixture]
+    [Description("Tests for Computed property attribute functionality")]
     public class ComputedPropertyTest
     {
+        [SetUp]
+        public void Setup()
+        {
+            // Values are in App.config
+        }
+
+        #region Basic Computed Property Tests
+
         [Test]
+        [Description("Verifies that computed property returns a simple string combining host and port")]
         public void ComputedProperty_SimpleString_ReturnsComputedValue()
         {
             // Act
             var settings = MyAppCfg.Get<IDatabaseSettings>();
 
             // Assert
-            Assert.AreEqual("localhost:5432", settings.HostAndPort);
+            Assert.AreEqual("localhost:5432", settings.HostAndPort, "Computed HostAndPort should combine Host and Port");
         }
 
         [Test]
+        [Description("Verifies that computed property can build a complex connection string")]
         public void ComputedProperty_ComplexLogic_ReturnsComputedValue()
         {
             // Act
             var settings = MyAppCfg.Get<IDatabaseSettings>();
 
             // Assert
-            Assert.AreEqual("Server=localhost;Port=5432;Database=testdb;", settings.ConnectionString);
+            Assert.AreEqual("Server=localhost;Port=5432;Database=testdb;", settings.ConnectionString, "Computed ConnectionString should build correct format");
         }
 
         [Test]
+        [Description("Verifies that computed property can access multiple properties from the settings interface")]
         public void ComputedProperty_AccessesMultipleProperties_WorksCorrectly()
         {
             // Act
@@ -36,10 +48,11 @@ namespace AppCfg.Test
 
             // Assert
             // FullPath should be computed from Host, Port, and Database
-            Assert.AreEqual("localhost:5432/testdb", settings.FullPath);
+            Assert.AreEqual("localhost:5432/testdb", settings.FullPath, "Computed FullPath should combine Host, Port, and Database");
         }
 
         [Test]
+        [Description("Verifies that computed property works correctly with default values")]
         public void ComputedProperty_WithDefaultValue_UsesDefault()
         {
             // Act
@@ -47,44 +60,56 @@ namespace AppCfg.Test
 
             // Assert
             // Timeout has default, so computed should use it
-            Assert.AreEqual("Timeout is: 30", settings.TimeoutMessage);
+            Assert.AreEqual("Timeout is: 30", settings.TimeoutMessage, "Computed should use default value when setting is missing");
         }
 
+        #endregion
+
+        #region Different Return Type Tests
+
         [Test]
+        [Description("Verifies that computed properties work with different return types (string and int)")]
         public void ComputedProperty_DifferentTypes_WorksCorrectly()
         {
             // Act
             var settings = MyAppCfg.Get<IApiSettings>();
 
             // Assert
-            Assert.AreEqual("https://api.example.com/v2", settings.FullApiUrl);
-            Assert.AreEqual(10, settings.MaxRetriesDoubled);
+            Assert.AreEqual("https://api.example.com/v2", settings.FullApiUrl, "Computed string URL should be built correctly");
+            Assert.AreEqual(10, settings.MaxRetriesDoubled, "Computed int should double the MaxRetries value");
         }
 
         [Test]
+        [Description("Verifies that computed property can return null")]
         public void ComputedProperty_ReturnsNull_AllowsNull()
         {
             // Act
             var settings = MyAppCfg.Get<IApiSettings>();
 
             // Assert
-            Assert.IsNull(settings.OptionalValue);
+            Assert.IsNull(settings.OptionalValue, "Computed property should be able to return null");
         }
 
         [Test]
+        [Description("Verifies that computed property can return a List")]
         public void ComputedProperty_ReturnsList_WorksCorrectly()
         {
             // Act
             var settings = MyAppCfg.Get<IApiSettings>();
 
             // Assert
-            Assert.IsNotNull(settings.AllEndpoints);
-            Assert.AreEqual(2, settings.AllEndpoints.Count);
-            Assert.Contains("https://api.example.com/v2/users", settings.AllEndpoints);
-            Assert.Contains("https://api.example.com/v2/products", settings.AllEndpoints);
+            Assert.IsNotNull(settings.AllEndpoints, "Computed list should not be null");
+            Assert.AreEqual(2, settings.AllEndpoints.Count, "Computed list should contain 2 endpoints");
+            Assert.Contains("https://api.example.com/v2/users", settings.AllEndpoints, "List should contain users endpoint");
+            Assert.Contains("https://api.example.com/v2/products", settings.AllEndpoints, "List should contain products endpoint");
         }
 
+        #endregion
+
+        #region Error Handling Tests
+
         [Test]
+        [Description("Verifies that invalid method name in Computed attribute throws AppCfgException")]
         public void ComputedProperty_InvalidMethodName_ThrowsException()
         {
             // Act & Assert
@@ -94,11 +119,12 @@ namespace AppCfg.Test
                 var _ = settings.BadProperty;
             });
 
-            Assert.That(ex.Message, Does.Contain("Computed method not found"));
-            Assert.That(ex.Message, Does.Contain("NonExistentMethod"));
+            Assert.That(ex.Message, Does.Contain("Computed method not found"), "Exception should indicate method not found");
+            Assert.That(ex.Message, Does.Contain("NonExistentMethod"), "Exception should include the invalid method name");
         }
 
         [Test]
+        [Description("Verifies that wrong return type in compute method throws AppCfgException")]
         public void ComputedProperty_WrongReturnType_ThrowsException()
         {
             // Act & Assert
@@ -108,10 +134,11 @@ namespace AppCfg.Test
                 var _ = settings.WrongType;
             });
 
-            Assert.That(ex.Message, Does.Contain("return type mismatch"));
+            Assert.That(ex.Message, Does.Contain("return type mismatch"), "Exception should indicate return type mismatch");
         }
 
         [Test]
+        [Description("Verifies that exception thrown in compute method is wrapped in AppCfgException")]
         public void ComputedProperty_ThrowsException_WrapsInAppCfgException()
         {
             // Act & Assert
@@ -121,15 +148,11 @@ namespace AppCfg.Test
                 var _ = settings.ThrowingProperty;
             });
 
-            Assert.That(ex.Message, Does.Contain("Error computing property"));
-            Assert.That(ex.Message, Does.Contain("ThrowingProperty"));
+            Assert.That(ex.Message, Does.Contain("Error computing property"), "Exception should indicate computation error");
+            Assert.That(ex.Message, Does.Contain("ThrowingProperty"), "Exception should include the property name");
         }
 
-        [SetUp]
-        public void Setup()
-        {
-            // Values are in App.config
-        }
+        #endregion
 
         // Test interfaces
         public interface IDatabaseSettings

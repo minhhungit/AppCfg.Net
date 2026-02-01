@@ -7,6 +7,7 @@ using System.Configuration;
 namespace AppCfg.Test
 {
     [TestFixture]
+    [Description("Tests for DefaultOptionAttribute functionality at interface level")]
     public class DefaultOptionAttributeTest
     {
         private const string TestStoreId = "TestStore";
@@ -31,45 +32,49 @@ namespace AppCfg.Test
         }
 
         [Test]
+        [Description("Verifies that all properties load from the profile store when DefaultOption is set at interface level")]
         public void DefaultOption_AllPropertiesUseDefault_LoadsFromProfileStore()
         {
             // Act
             var settings = MyAppCfg.Get<ITestDefaultStoreSettings>();
 
             // Assert
-            Assert.AreEqual("custom-value", settings.FromCustomStore);
-            Assert.AreEqual("another-custom", settings.AnotherCustomValue);
+            Assert.AreEqual("custom-value", settings.FromCustomStore, "FromCustomStore should load from custom store defined in DefaultOption");
+            Assert.AreEqual("another-custom", settings.AnotherCustomValue, "AnotherCustomValue should load from custom store defined in DefaultOption");
         }
 
         [Test]
+        [Description("Verifies that individual property can override the default ProfileKey to load from App.config")]
         public void DefaultOption_PropertyOverridesProfileKey_LoadsFromAppSettings()
         {
             // Act
             var settings = MyAppCfg.Get<ITestMixedStoreSettings>();
 
             // Assert
-            Assert.AreEqual("custom-value", settings.FromCustomStore); // Uses default (TestStoreId)
-            Assert.AreEqual("29", settings.FromAppSettings); // Overrides to App.config
+            Assert.AreEqual("custom-value", settings.FromCustomStore, "FromCustomStore should use default ProfileKey (TestStoreId)");
+            Assert.AreEqual("29", settings.FromAppSettings, "FromAppSettings should override to empty ProfileKey and load from App.config");
         }
 
         [Test]
+        [Description("Verifies backward compatibility when interface does not have DefaultOption attribute")]
         public void DefaultOption_WithoutDefaultOption_UsesPropertySettings()
         {
             // Act - Interface without DefaultOption should work as before
             var settings = MyAppCfg.Get<ITestNoDefaultSettings>();
 
             // Assert
-            Assert.AreEqual("custom-value", settings.ExplicitCustomStore);
+            Assert.AreEqual("custom-value", settings.ExplicitCustomStore, "Property with explicit ProfileKey should still work without DefaultOption");
         }
 
         [Test]
+        [Description("Verifies that DefaultValue on property is used when custom store returns null")]
         public void DefaultOption_WithDefaultValues_AppliesCorrectly()
         {
             // Act
             var settings = MyAppCfg.Get<ITestDefaultStoreSettings>();
 
             // Assert - Property with no custom store value should use DefaultValue
-            Assert.AreEqual("fallback", settings.MissingValue);
+            Assert.AreEqual("fallback", settings.MissingValue, "MissingValue should use DefaultValue attribute when store returns null");
         }
 
         // Test interfaces

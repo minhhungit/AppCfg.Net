@@ -6,6 +6,7 @@ using System;
 namespace AppCfg.Test
 {
     [TestFixture]
+    [Description("Tests for loading configuration from environment variables")]
     public class EnvironmentVariableStoreTest
     {
         private const string TestPrefix = "APPCFGTEST__";
@@ -25,6 +26,7 @@ namespace AppCfg.Test
         }
 
         [Test]
+        [Description("Verifies that a simple key-value pair is correctly loaded from environment variable")]
         public void LoadFromEnvironmentVariable_SimpleKey_ReturnsCorrectValue()
         {
             // Arrange
@@ -35,10 +37,11 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestEnvSettings>();
 
             // Assert
-            Assert.AreEqual("test-value", settings.TestKey);
+            Assert.AreEqual("test-value", settings.TestKey, "TestKey should be loaded from environment variable");
         }
 
         [Test]
+        [Description("Verifies that hierarchical keys with double underscore separator are correctly loaded")]
         public void LoadFromEnvironmentVariable_HierarchicalKey_ReturnsCorrectValue()
         {
             // Arrange
@@ -50,11 +53,12 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestHierarchicalEnvSettings>();
 
             // Assert
-            Assert.AreEqual("localhost", settings.DatabaseHost);
-            Assert.AreEqual(5432, settings.DatabasePort);
+            Assert.AreEqual("localhost", settings.DatabaseHost, "Database:Host should be loaded from hierarchical env var");
+            Assert.AreEqual(5432, settings.DatabasePort, "Database:Port should be loaded and parsed as integer");
         }
 
         [Test]
+        [Description("Verifies that missing environment variable falls back to DefaultValue attribute")]
         public void LoadFromEnvironmentVariable_MissingVariable_UsesDefaultValue()
         {
             // Arrange - Don't set environment variable
@@ -64,10 +68,11 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestEnvSettings>();
 
             // Assert - Should use default value
-            Assert.AreEqual("default-value", settings.TestKey);
+            Assert.AreEqual("default-value", settings.TestKey, "Missing env var should fall back to DefaultValue");
         }
 
         [Test]
+        [Description("Verifies that setting environment variable to empty string uses DefaultValue (as empty deletes the var)")]
         public void LoadFromEnvironmentVariable_EmptyValue_UsesDefaultValue()
         {
             // Arrange
@@ -80,10 +85,11 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestEnvSettings>();
 
             // Assert - Setting to "" deletes the var, so default value is used
-            Assert.AreEqual("default-value", settings.TestKey);
+            Assert.AreEqual("default-value", settings.TestKey, "Empty env var should be treated as deleted and use DefaultValue");
         }
 
         [Test]
+        [Description("Verifies that environment variable values are correctly parsed to different types")]
         public void LoadFromEnvironmentVariable_WithTypeParsing_ParsesCorrectly()
         {
             // Arrange
@@ -96,26 +102,31 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestTypedEnvSettings>();
 
             // Assert
-            Assert.AreEqual(42, settings.IntValue);
-            Assert.AreEqual(true, settings.BoolValue);
-            Assert.AreEqual(new Guid("12345678-1234-1234-1234-123456789abc"), settings.GuidValue);
+            Assert.AreEqual(42, settings.IntValue, "Integer value should be parsed correctly from env var");
+            Assert.AreEqual(true, settings.BoolValue, "Boolean value should be parsed correctly from env var");
+            Assert.AreEqual(new Guid("12345678-1234-1234-1234-123456789abc"), settings.GuidValue, "Guid value should be parsed correctly from env var");
         }
 
         [Test]
+        [Description("Verifies that Register throws ArgumentException when prefix is null")]
         public void Register_WithNullPrefix_ThrowsException()
         {
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => EnvironmentVariableStore.Register(null));
+            var ex = Assert.Throws<ArgumentException>(() => EnvironmentVariableStore.Register(null));
+            Assert.IsNotNull(ex, "ArgumentException should be thrown for null prefix");
         }
 
         [Test]
+        [Description("Verifies that Register throws ArgumentException when prefix is empty string")]
         public void Register_WithEmptyPrefix_ThrowsException()
         {
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => EnvironmentVariableStore.Register(""));
+            var ex = Assert.Throws<ArgumentException>(() => EnvironmentVariableStore.Register(""));
+            Assert.IsNotNull(ex, "ArgumentException should be thrown for empty prefix");
         }
 
         [Test]
+        [Description("Verifies that DefaultOption attribute works correctly with environment variable store")]
         public void LoadFromEnvironmentVariable_DefaultOption_AppliesCorrectly()
         {
             // Arrange
@@ -126,7 +137,7 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestDefaultOptionEnvSettings>();
 
             // Assert
-            Assert.AreEqual("my-api-key", settings.ApiKey);
+            Assert.AreEqual("my-api-key", settings.ApiKey, "ApiKey should be loaded using DefaultOption ProfileKey");
         }
 
         // Test interfaces

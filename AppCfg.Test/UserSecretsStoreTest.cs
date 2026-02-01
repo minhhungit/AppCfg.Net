@@ -7,6 +7,7 @@ using System.IO;
 namespace AppCfg.Test
 {
     [TestFixture]
+    [Description("Tests for loading configuration from user secrets JSON file")]
     public class UserSecretsStoreTest
     {
         private const string TestUserSecretsId = "appcfg-test-usersecrets";
@@ -60,6 +61,7 @@ namespace AppCfg.Test
         }
 
         [Test]
+        [Description("Verifies that valid JSON secrets file is parsed and values are returned correctly")]
         public void LoadSecrets_WithValidJson_ReturnsCorrectValues()
         {
             // Arrange
@@ -72,11 +74,12 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestSecretSettings>();
 
             // Assert
-            Assert.AreEqual("TestValue", settings.TestKey);
-            Assert.AreEqual("sk_test_12345", settings.ApiKey);
+            Assert.AreEqual("TestValue", settings.TestKey, "TestKey should be loaded from secrets.json");
+            Assert.AreEqual("sk_test_12345", settings.ApiKey, "ApiKey should be loaded from secrets.json");
         }
 
         [Test]
+        [Description("Verifies that hierarchical keys with colon separator are correctly loaded")]
         public void LoadSecrets_WithHierarchicalKeys_ReturnsCorrectValues()
         {
             // Arrange
@@ -90,12 +93,13 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestHierarchicalSettings>();
 
             // Assert
-            Assert.AreEqual("localhost", settings.DatabaseHost);
-            Assert.AreEqual(5432, settings.DatabasePort);
-            Assert.AreEqual("secret123", settings.DatabasePassword);
+            Assert.AreEqual("localhost", settings.DatabaseHost, "Database:Host should be loaded correctly");
+            Assert.AreEqual(5432, settings.DatabasePort, "Database:Port should be parsed as integer");
+            Assert.AreEqual("secret123", settings.DatabasePassword, "Database:Password should be loaded correctly");
         }
 
         [Test]
+        [Description("Verifies that nested JSON objects are flattened to hierarchical keys")]
         public void LoadSecrets_WithNestedJsonObject_FlattenCorrectly()
         {
             // Arrange
@@ -110,11 +114,12 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestHierarchicalSettings>();
 
             // Assert
-            Assert.AreEqual("localhost", settings.DatabaseHost);
-            Assert.AreEqual(5432, settings.DatabasePort);
+            Assert.AreEqual("localhost", settings.DatabaseHost, "Nested Database.Host should be flattened to Database:Host");
+            Assert.AreEqual(5432, settings.DatabasePort, "Nested Database.Port should be flattened and parsed as integer");
         }
 
         [Test]
+        [Description("Verifies that missing secrets file falls back to DefaultValue attribute")]
         public void LoadSecrets_WithMissingFile_UsesDefaultValues()
         {
             // Arrange - Don't create secrets file
@@ -122,11 +127,12 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestSecretSettings>();
 
             // Assert - Should use default values
-            Assert.AreEqual("default-value", settings.TestKey);
-            Assert.AreEqual("default-api-key", settings.ApiKey);
+            Assert.AreEqual("default-value", settings.TestKey, "Missing file should use DefaultValue for TestKey");
+            Assert.AreEqual("default-api-key", settings.ApiKey, "Missing file should use DefaultValue for ApiKey");
         }
 
         [Test]
+        [Description("Verifies that missing keys in secrets file fall back to DefaultValue attribute")]
         public void LoadSecrets_WithMissingKeys_UsesDefaultValues()
         {
             // Arrange - Create file with only one key
@@ -138,21 +144,24 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestSecretSettings>();
 
             // Assert
-            Assert.AreEqual("TestValue", settings.TestKey);
-            Assert.AreEqual("default-api-key", settings.ApiKey); // Should use default
+            Assert.AreEqual("TestValue", settings.TestKey, "Existing key should return its value");
+            Assert.AreEqual("default-api-key", settings.ApiKey, "Missing key should use DefaultValue");
         }
 
         [Test]
+        [Description("Verifies that invalid JSON format throws AppCfgException")]
         public void LoadSecrets_WithInvalidJson_ThrowsException()
         {
             // Arrange
             CreateTestSecretsFile("{ invalid json }");
 
             // Act & Assert
-            Assert.Throws<AppCfgException>(() => MyAppCfg.Get<ITestSecretSettings>());
+            var ex = Assert.Throws<AppCfgException>(() => MyAppCfg.Get<ITestSecretSettings>());
+            Assert.IsNotNull(ex, "AppCfgException should be thrown for invalid JSON");
         }
 
         [Test]
+        [Description("Verifies that empty secrets file falls back to DefaultValue attribute")]
         public void LoadSecrets_WithEmptyFile_UsesDefaultValues()
         {
             // Arrange
@@ -162,11 +171,12 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestSecretSettings>();
 
             // Assert - Should use default values
-            Assert.AreEqual("default-value", settings.TestKey);
-            Assert.AreEqual("default-api-key", settings.ApiKey);
+            Assert.AreEqual("default-value", settings.TestKey, "Empty file should use DefaultValue for TestKey");
+            Assert.AreEqual("default-api-key", settings.ApiKey, "Empty file should use DefaultValue for ApiKey");
         }
 
         [Test]
+        [Description("Verifies that secrets are cached and subsequent loads use cached values")]
         public void LoadSecrets_CachesResults()
         {
             // Arrange
@@ -176,7 +186,7 @@ namespace AppCfg.Test
 
             // Act - Load first time
             var settings1 = MyAppCfg.Get<ITestSecretSettings>();
-            Assert.AreEqual("FirstValue", settings1.TestKey);
+            Assert.AreEqual("FirstValue", settings1.TestKey, "First load should return 'FirstValue'");
 
             // Change the file
             CreateTestSecretsFile(@"{
@@ -185,29 +195,34 @@ namespace AppCfg.Test
 
             // Load again - should still get cached value
             var settings2 = MyAppCfg.Get<ITestSecretSettings>();
-            Assert.AreEqual("FirstValue", settings2.TestKey); // Still cached
+            Assert.AreEqual("FirstValue", settings2.TestKey, "Second load should return cached 'FirstValue'");
 
             // Clear cache and load again
             UserSecretsStore.ClearCache(TestUserSecretsId);
             var settings3 = MyAppCfg.Get<ITestSecretSettings>();
-            Assert.AreEqual("SecondValue", settings3.TestKey); // New value
+            Assert.AreEqual("SecondValue", settings3.TestKey, "After cache clear, should return new 'SecondValue'");
         }
 
         [Test]
+        [Description("Verifies that Register throws ArgumentException when userSecretsId is null")]
         public void Register_WithNullUserSecretsId_ThrowsException()
         {
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => UserSecretsStore.Register(null));
+            var ex = Assert.Throws<ArgumentException>(() => UserSecretsStore.Register(null));
+            Assert.IsNotNull(ex, "ArgumentException should be thrown for null userSecretsId");
         }
 
         [Test]
+        [Description("Verifies that Register throws ArgumentException when userSecretsId is empty string")]
         public void Register_WithEmptyUserSecretsId_ThrowsException()
         {
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => UserSecretsStore.Register(""));
+            var ex = Assert.Throws<ArgumentException>(() => UserSecretsStore.Register(""));
+            Assert.IsNotNull(ex, "ArgumentException should be thrown for empty userSecretsId");
         }
 
         [Test]
+        [Description("Verifies that secrets values are correctly parsed to different types")]
         public void LoadSecrets_WithTypeParsing_ParsesCorrectly()
         {
             // Arrange
@@ -221,9 +236,9 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestTypedSettings>();
 
             // Assert
-            Assert.AreEqual(42, settings.IntValue);
-            Assert.AreEqual(true, settings.BoolValue);
-            Assert.AreEqual(new Guid("12345678-1234-1234-1234-123456789abc"), settings.GuidValue);
+            Assert.AreEqual(42, settings.IntValue, "Integer value should be parsed correctly from secrets");
+            Assert.AreEqual(true, settings.BoolValue, "Boolean value should be parsed correctly from secrets");
+            Assert.AreEqual(new Guid("12345678-1234-1234-1234-123456789abc"), settings.GuidValue, "Guid value should be parsed correctly from secrets");
         }
 
         private void CreateTestSecretsFile(string content)

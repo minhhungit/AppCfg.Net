@@ -7,6 +7,7 @@ using System.IO;
 namespace AppCfg.Test
 {
     [TestFixture]
+    [Description("Tests for ChainedStore functionality with priority-based configuration loading")]
     public class ChainedStoreTest
     {
         // For testing, we use a custom profile key
@@ -65,8 +66,10 @@ namespace AppCfg.Test
         }
 
         [Test]
+        [Description("Verifies that environment variable takes highest priority in the chained store")]
         public void ChainedStore_EnvironmentVariableFirst_ReturnsEnvVarValue()
         {
+            // Arrange
             Environment.SetEnvironmentVariable("APPCFG__PriorityTest", "from-env");
             CreateTestSecretsFile(@"{ ""PriorityTest"": ""from-secrets"" }");
 
@@ -79,12 +82,14 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestChainedSettings>();
 
             // Assert - Env var has highest priority
-            Assert.AreEqual("from-env", settings.PriorityTest);
+            Assert.AreEqual("from-env", settings.PriorityTest, "Environment variable should take highest priority in chained store");
         }
 
         [Test]
+        [Description("Verifies that user secrets is used when no environment variable exists")]
         public void ChainedStore_NoEnvVar_FallsBackToSecrets()
         {
+            // Arrange
             CreateTestSecretsFile(@"{ ""PriorityTest"": ""from-secrets"" }");
 
             // Register ChainedStore only - auto-handles everything!
@@ -97,12 +102,14 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestChainedSettings>();
 
             // Assert - Falls back to secrets
-            Assert.AreEqual("from-secrets", settings.PriorityTest);
+            Assert.AreEqual("from-secrets", settings.PriorityTest, "Chained store should fall back to user secrets when env var is missing");
         }
 
         [Test]
+        [Description("Verifies that App.config is used when no environment variable or user secret exists")]
         public void ChainedStore_NoEnvVarOrSecrets_FallsBackToAppSettings()
         {
+            // Arrange
             MyAppCfg.Configure(
                 envVarPrefix: "APPCFG__",
                 userSecretsId: TestUserSecretsId
@@ -112,12 +119,14 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestChainedSettings>();
 
             // Assert - Falls back to AppSettings
-            Assert.AreEqual("29", settings.AppSettingValue);
+            Assert.AreEqual("29", settings.AppSettingValue, "Chained store should fall back to App.config when env var and secrets are missing");
         }
 
         [Test]
+        [Description("Verifies that DefaultValue is used when all configuration sources are missing")]
         public void ChainedStore_AllSourcesMissing_UsesDefaultValue()
         {
+            // Arrange
             MyAppCfg.Configure(
                  envVarPrefix: "APPCFG__",
                  userSecretsId: TestUserSecretsId
@@ -127,7 +136,7 @@ namespace AppCfg.Test
             var settings = MyAppCfg.Get<ITestChainedSettings>();
 
             // Assert - Uses default value
-            Assert.AreEqual("default-value", settings.PriorityTest);
+            Assert.AreEqual("default-value", settings.PriorityTest, "Chained store should use DefaultValue when all sources are missing");
         }
 
         private void CreateTestSecretsFile(string content)
