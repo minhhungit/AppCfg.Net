@@ -2,17 +2,17 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <Title>AppCfg.Net</Title>
-    <Version>2.1.1</Version>
+    <Version>2.2.0</Version>
     <Copyright>Copyright 2018 HungVo &lt;it.minhhung@gmail.com&gt;</Copyright>
     <Description>Type-safe, easy and power configuration framework for .NET developers</Description>
     <Authors>Hung Vo</Authors>
-    <PackageLicenseUrl>https://github.com/minhhungit/AppCfg/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/minhhungit/AppCfg/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/minhhungit/AppCfg/</RepositoryUrl>
     <PackageTags>configuration appsetting json dotnet csharp netstandard20 dotnetcore</PackageTags>
-    <PackageReleaseNotes>add enum parser</PackageReleaseNotes>
-    <AssemblyVersion>2.0.1</AssemblyVersion>
-    <FileVersion>2.0.1</FileVersion>
+    <PackageReleaseNotes>2.2.0: UserSecretsMigrator (App.config/Web.config/appsettings.json -> secrets.json), MigrationOptions incl. DryRun, MyAppCfg.ResetConfiguration(), UserSecretsStore.GetSecretsFilePath(). Fixes: Configure() no longer hides a malformed secrets.json; secrets.json arrays flatten to Key:0/Key:1 and null values use DefaultValue; SqlConnectionStringBuilder prefers connectionStrings in the Configure() chain; thread-safe store registry.</PackageReleaseNotes>
+    <AssemblyVersion>2.2.0</AssemblyVersion>
+    <FileVersion>2.2.0</FileVersion>
     <Company />
     <PackageIconUrl>https://raw.githubusercontent.com/minhhungit/AppCfg/master/wiki/icon.ico</PackageIconUrl>
     <PackageId>AppCfg.Net</PackageId>
