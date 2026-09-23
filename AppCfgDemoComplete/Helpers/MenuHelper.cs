@@ -33,6 +33,7 @@ namespace AppCfgDemoComplete.Helpers
             WriteMenuOption("13", "Advanced Features Demo", "IReadOnlyList, RawValue");
             WriteMenuOption("14", "Error Handling Demo", "Missing values, type errors");
             WriteMenuOption("15", "Computed Settings Demo", "Derive values from config");
+            WriteMenuOption("16", "Migration Demo", "App.config -> secrets.json (UserSecretsMigrator)");
 
             Console.WriteLine();
             WriteMenuOption("A", "Run All Demos", "Execute all demos sequentially");

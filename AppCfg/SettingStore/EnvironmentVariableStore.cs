@@ -42,32 +42,37 @@ namespace AppCfg.SettingStore
                 throw new ArgumentException("Profile key cannot be null or empty", nameof(profileKey));
             }
 
-            MyAppCfg.SettingStores.RegisterStore(profileKey, metadata =>
+            MyAppCfg.SettingStores.RegisterStore(profileKey, metadata => GetValue(prefix, metadata.SettingKey));
+        }
+
+        /// <summary>
+        /// Read a single setting from environment variables.
+        /// "Database:Password" with prefix "APPCFG__" reads APPCFG__Database__Password.
+        /// Returns null when the variable is not set (so default values apply).
+        /// </summary>
+        internal static string GetValue(string prefix, string settingKey)
+        {
+            try
             {
-                try
+                var envVarName = ConvertKeyToEnvironmentVariable(prefix, settingKey);
+
+                // Get the environment variable (case-insensitive on Windows, case-sensitive on Unix)
+                var value = Environment.GetEnvironmentVariable(envVarName);
+
+                if (value == null && !IsWindows())
                 {
-                    // Convert the setting key to environment variable format
-                    // Example: "Database:Password" → "APPCFG__Database__Password"
-                    var envVarName = ConvertKeyToEnvironmentVariable(prefix, metadata.SettingKey);
-
-                    // Get the environment variable (case-insensitive on Windows, case-sensitive on Unix)
-                    var value = Environment.GetEnvironmentVariable(envVarName);
-
-                    if (value == null && !IsWindows())
-                    {
-                        // On Unix systems, try case-insensitive search
-                        value = GetEnvironmentVariableCaseInsensitive(envVarName);
-                    }
-
-                    return value; // Returns null if not found (allows default values to work)
+                    // On Unix systems, try case-insensitive search
+                    value = GetEnvironmentVariableCaseInsensitive(envVarName);
                 }
-                catch (Exception ex)
-                {
-                    throw new AppCfgException(
-                        $"Error loading environment variable for key '{metadata.SettingKey}' with prefix '{prefix}': {ex.Message}",
-                        ex);
-                }
-            });
+
+                return value;
+            }
+            catch (Exception ex)
+            {
+                throw new AppCfgException(
+                    $"Error loading environment variable for key '{settingKey}' with prefix '{prefix}': {ex.Message}",
+                    ex);
+            }
         }
 
         /// <summary>

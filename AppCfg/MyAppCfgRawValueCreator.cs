@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Configuration;
 using System.Data.SqlClient;
 
@@ -16,7 +16,7 @@ namespace AppCfg
                 // If Configure() was called, use priority-based loading (the default chain)
                 if (_isConfigured && _defaultStoreChain != null)
                 {
-                    return _defaultStoreChain(settingNameKey);
+                    return _defaultStoreChain(settingNameKey, typeOfSetting);
                 }
 
                 // Otherwise, use traditional App.config/Web.config

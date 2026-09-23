@@ -241,6 +241,52 @@ namespace AppCfg.Test
             Assert.AreEqual(new Guid("12345678-1234-1234-1234-123456789abc"), settings.GuidValue, "Guid value should be parsed correctly from secrets");
         }
 
+        [Test]
+        [Description("Verifies that JSON arrays are flattened to indexed keys (Hosts:0, Hosts:1) like .NET Core")]
+        public void LoadSecrets_WithArrayValues_FlattensWithIndexKeys()
+        {
+            // Arrange
+            CreateTestSecretsFile(@"{
+                ""Hosts"": [ ""alpha"", ""beta"" ]
+            }");
+
+            // Act
+            var settings = MyAppCfg.Get<ITestArraySettings>();
+
+            // Assert
+            Assert.AreEqual("alpha", settings.FirstHost, "Hosts[0] should be exposed as Hosts:0");
+            Assert.AreEqual("beta", settings.SecondHost, "Hosts[1] should be exposed as Hosts:1");
+        }
+
+        [Test]
+        [Description("Verifies that a JSON null value is treated as missing so DefaultValue applies")]
+        public void LoadSecrets_WithNullValue_UsesDefaultValue()
+        {
+            // Arrange
+            CreateTestSecretsFile(@"{
+                ""TestKey"": null,
+                ""ApiKey"": ""present""
+            }");
+
+            // Act
+            var settings = MyAppCfg.Get<ITestSecretSettings>();
+
+            // Assert
+            Assert.AreEqual("default-value", settings.TestKey, "JSON null should fall back to DefaultValue");
+            Assert.AreEqual("present", settings.ApiKey, "Other keys should still load");
+        }
+
+        [Test]
+        [Description("Verifies that GetSecretsFilePath returns the platform-specific secrets.json location")]
+        public void GetSecretsFilePath_ReturnsPlatformSpecificPath()
+        {
+            // Act
+            var path = UserSecretsStore.GetSecretsFilePath(TestUserSecretsId);
+
+            // Assert
+            Assert.AreEqual(_testSecretsPath, path, "Path should match the .NET Core Secret Manager convention");
+        }
+
         private void CreateTestSecretsFile(string content)
         {
             Directory.CreateDirectory(_testSecretsDirectory);
@@ -269,6 +315,16 @@ namespace AppCfg.Test
 
             [Option(Alias = "Database:Password")]
             string DatabasePassword { get; }
+        }
+
+        [DefaultOption(ProfileKey = TestProfileKey)]
+        public interface ITestArraySettings
+        {
+            [Option(Alias = "Hosts:0")]
+            string FirstHost { get; }
+
+            [Option(Alias = "Hosts:1")]
+            string SecondHost { get; }
         }
 
         [DefaultOption(ProfileKey = TestProfileKey)]

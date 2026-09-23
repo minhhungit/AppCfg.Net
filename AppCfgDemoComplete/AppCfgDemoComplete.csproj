@@ -61,6 +61,7 @@
     <Compile Include="DemoSections\EnvironmentVariablesDemo.cs" />
     <Compile Include="DemoSections\ErrorHandlingDemo.cs" />
     <Compile Include="DemoSections\JsonDemo.cs" />
+    <Compile Include="DemoSections\MigrationDemo.cs" />
     <Compile Include="DemoSections\MultiTenancyDemo.cs" />
     <Compile Include="DemoSections\NestedSettingsDemo.cs" />
     <Compile Include="DemoSections\RedisStoreDemo.cs" />

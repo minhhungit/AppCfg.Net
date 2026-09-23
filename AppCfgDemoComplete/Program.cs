@@ -110,6 +110,10 @@ namespace AppCfgDemoComplete
                         ComputedSettingsDemo.Run();
                         break;
 
+                    case "16":
+                        MigrationDemo.Run();
+                        break;
+
                     case "A":
                         RunAllDemos();
                         break;
@@ -136,7 +140,7 @@ namespace AppCfgDemoComplete
             Console.WriteLine("                 RUNNING ALL DEMOS SEQUENTIALLY");
             Console.WriteLine("═══════════════════════════════════════════════════════════════");
             Console.ResetColor();
-            Console.WriteLine("\nThis will run all 15 demos in order...");
+            Console.WriteLine("\nThis will run all 16 demos in order...");
             Console.WriteLine("Press any key to start, or ESC to cancel.");
 
             var key = Console.ReadKey(true);
@@ -161,7 +165,8 @@ namespace AppCfgDemoComplete
                 NestedSettingsDemo.Run,
                 AdvancedFeaturesDemo.Run,
                 ErrorHandlingDemo.Run,
-                ComputedSettingsDemo.Run
+                ComputedSettingsDemo.Run,
+                MigrationDemo.Run
             };
 
             var demoNames = new string[]
@@ -180,7 +185,8 @@ namespace AppCfgDemoComplete
                 "Nested Settings",
                 "Advanced Features",
                 "Error Handling",
-                "Computed Settings"
+                "Computed Settings",
+                "App.config → User Secrets Migration"
             };
 
             for (int i = 0; i < demos.Length; i++)

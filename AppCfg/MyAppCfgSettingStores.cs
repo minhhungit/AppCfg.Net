@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
+using System.Collections.Concurrent;
 
 namespace AppCfg
 {
@@ -23,7 +23,8 @@ namespace AppCfg
 
         public class SettingStores
         {
-            private static readonly IDictionary<string, Func<SettingStoreMetadata, string>> _settingStore = new Dictionary<string, Func<SettingStoreMetadata, string>>();
+            private static readonly ConcurrentDictionary<string, Func<SettingStoreMetadata, string>> _settingStore
+                = new ConcurrentDictionary<string, Func<SettingStoreMetadata, string>>();
 
             public static void RegisterStore(string profileKey, Func<SettingStoreMetadata, string> getRawValueFunc)
             {
@@ -37,14 +38,7 @@ namespace AppCfg
                     throw new ArgumentNullException(nameof(getRawValueFunc), "getRawValueFunc cannot be null.");
                 }
 
-                if (!_settingStore.ContainsKey(profileKey))
-                {
-                    _settingStore.Add(profileKey, getRawValueFunc);
-                }
-                else
-                {
-                    _settingStore[profileKey] = getRawValueFunc;
-                }
+                _settingStore[profileKey] = getRawValueFunc;
             }
 
             internal static object Get(string profileKey)
@@ -54,12 +48,7 @@ namespace AppCfg
                     return null;
                 }
 
-                if (!_settingStore.ContainsKey(profileKey))
-                {
-                    return null;
-                }
-
-                return _settingStore[profileKey];
+                return _settingStore.TryGetValue(profileKey, out var store) ? store : null;
             }
         }
     }

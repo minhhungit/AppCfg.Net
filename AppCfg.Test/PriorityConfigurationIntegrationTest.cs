@@ -183,7 +183,9 @@ namespace AppCfg.Test
         [Description("Verifies that without calling Configure(), only App.config is used (backward compatibility)")]
         public void WithoutConfigure_UsesAppConfigOnly()
         {
-            // Arrange - Don't call Configure()
+            // Arrange - undo any Configure() done by earlier tests in this process
+            CreateTestSecretsFile(@"{ ""Priority1"": ""from-secrets"" }");
+            MyAppCfg.ResetConfiguration();
 
             // Act
             var settings = MyAppCfg.Get<IPriorityTestSettings>();

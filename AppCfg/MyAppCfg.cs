@@ -1,4 +1,4 @@
-﻿using AppCfg.SettingStore;
+using AppCfg.SettingStore;
 using AppCfg.TypeParsers;
 using Newtonsoft.Json;
 using System;
@@ -13,7 +13,7 @@ namespace AppCfg
 
         // Internal flag to track if Configure() was called
         private static bool _isConfigured = false;
-        private static Func<string, string> _defaultStoreChain = null;
+        private static Func<string, Type, string> _defaultStoreChain = null;
 
         /// <summary>
         /// Configure AppCfg with automatic priority-based configuration loading.
@@ -52,6 +52,16 @@ namespace AppCfg
         {
             _defaultStoreChain = ChainedStore.BuildChain(envVarPrefix, userSecretsId);
             _isConfigured = true;
+        }
+
+        /// <summary>
+        /// Undo <see cref="Configure(string, string)"/>. Settings without an explicit ProfileKey go back to
+        /// reading App.config/Web.config only. Mainly useful in tests.
+        /// </summary>
+        public static void ResetConfiguration()
+        {
+            _defaultStoreChain = null;
+            _isConfigured = false;
         }
 
         /// <summary>

@@ -139,6 +139,43 @@ namespace AppCfg.Test
             Assert.AreEqual("default-value", settings.PriorityTest, "Chained store should use DefaultValue when all sources are missing");
         }
 
+        [Test]
+        [Description("Verifies that a malformed secrets.json is reported instead of silently ignored when using Configure()")]
+        public void ChainedStore_InvalidSecretsJson_ThrowsAppCfgException()
+        {
+            // Arrange
+            CreateTestSecretsFile("{ invalid json }");
+
+            MyAppCfg.Configure(
+                envVarPrefix: "APPCFG__",
+                userSecretsId: TestUserSecretsId
+            );
+
+            // Act & Assert
+            var ex = Assert.Throws<AppCfgException>(() => MyAppCfg.Get<ITestChainedSettings>());
+            Assert.That(ex.Message, Does.Contain("secrets"), "Error should point at the secrets file");
+        }
+
+        [Test]
+        [Description("Verifies that ResetConfiguration() turns priority-based loading off again")]
+        public void ChainedStore_AfterResetConfiguration_UsesAppConfigOnly()
+        {
+            // Arrange
+            CreateTestSecretsFile(@"{ ""PriorityTest"": ""from-secrets"" }");
+            MyAppCfg.Configure(
+                envVarPrefix: "APPCFG__",
+                userSecretsId: TestUserSecretsId
+            );
+            Assert.AreEqual("from-secrets", MyAppCfg.Get<ITestChainedSettings>().PriorityTest, "Precondition: secrets are read while configured");
+
+            // Act
+            MyAppCfg.ResetConfiguration();
+            var settings = MyAppCfg.Get<ITestChainedSettings>();
+
+            // Assert - secrets are no longer consulted, App.config has no value, so DefaultValue applies
+            Assert.AreEqual("default-value", settings.PriorityTest, "After ResetConfiguration() only App.config should be used");
+        }
+
         private void CreateTestSecretsFile(string content)
         {
             Directory.CreateDirectory(_testSecretsDirectory);

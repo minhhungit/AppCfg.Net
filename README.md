@@ -14,6 +14,7 @@ AppCfg.Net provides a clean, strongly-typed approach to application configuratio
   - [Priority-Based Configuration (Recommended)](#priority-based-configuration-recommended)
   - [Environment Variables](#environment-variables)
   - [User Secrets](#user-secrets)
+  - [Migrating App.config Secrets to secrets.json](#migrating-appconfig-secrets-to-secretsjson)
   - [App.config / Web.config](#appconfig--webconfig)
   - [Custom Stores (Database, Redis, etc.)](#custom-stores)
 - [Type Parsers](#type-parsers)
@@ -288,6 +289,87 @@ MyAppCfg.Configure(userSecretsId: "my-app-secrets");
 }
 ```
 
+**secrets.json format:** flat `"Section:Key"` names (what `dotnet user-secrets set` writes), nested objects, and arrays (`"Hosts": ["a","b"]` becomes `Hosts:0`, `Hosts:1`) are all accepted, exactly like the .NET Core JSON provider. A `null` value counts as missing, so `DefaultValue` applies. A malformed secrets.json throws `AppCfgException` instead of being silently ignored.
+
+---
+
+### Migrating App.config Secrets to secrets.json
+
+Moving from a classic .NET Framework project? Passwords and API keys usually live in `App.config` / `Web.config` and end up in source control. A full step-by-step walkthrough for both .NET Framework (`App.config` / `Web.config`) and .NET Core (`appsettings.json`) is in [docs/MIGRATION-TO-SECRETS.md](docs/MIGRATION-TO-SECRETS.md). `UserSecretsMigrator` copies them into `secrets.json` in one call, so you can delete them from the config file and switch to `Configure()` without retyping anything.
+
+**Option 1 - one line of C# (run once, e.g. from a scratch console app or a unit test):**
+
+```csharp
+using AppCfg.SettingStore;
+
+// Migrate the running app's App.config (appSettings + connectionStrings)
+var result = UserSecretsMigrator.MigrateFromCurrentConfig(
+    "my-app-secrets",
+    new MigrationOptions
+    {
+        // Optional: only move the sensitive keys
+        KeyFilter = key => key.EndsWith("Password") || key.EndsWith("Key") || key.Contains("Secret"),
+        IncludeConnectionStrings = true,   // default: connection strings are migrated under their name
+        OverwriteExisting = false          // default: values already in secrets.json are kept
+    });
+
+Console.WriteLine($"Wrote {result.MigratedKeys.Count} secrets to {result.SecretsFilePath}");
+// result.SkippedKeys lists keys that already existed in secrets.json
+
+// Or migrate any config file on disk (Web.config, MyApp.exe.config, ...):
+UserSecretsMigrator.MigrateFromConfigFile(@"C:\src\MyApp\Web.config", "my-app-secrets");
+
+// .NET Core appsettings.json (nested objects/arrays are flattened to "A:B" / "A:0"):
+UserSecretsMigrator.MigrateFromJsonFile(@"C:\src\MyApp\appsettings.Development.json", "my-app-secrets");
+
+// Preview without writing:
+IDictionary<string, string> preview = UserSecretsMigrator.ReadConfigFile(@"C:\src\MyApp\Web.config");
+```
+
+`<appSettings file="...">`, `configSource="..."`, `<remove>` and `<clear>` are honoured. Connection strings inherited from machine.config (`LocalSqlServer`) are ignored.
+
+**Option 2 - PowerShell, nothing to build:**
+
+```powershell
+# Scripts/Migrate-AppConfigToUserSecrets.ps1 (Windows PowerShell 5.1 or PowerShell 7+)
+.\Scripts\Migrate-AppConfigToUserSecrets.ps1 -ConfigPath .\Web.config -UserSecretsId my-app-secrets `
+    -Include '*Password*','*Key','*Secret*' -WhatIf     # dry run: shows what would be written
+
+.\Scripts\Migrate-AppConfigToUserSecrets.ps1 -ConfigPath .\Web.config -UserSecretsId my-app-secrets `
+    -Include '*Password*','*Key','*Secret*'             # write it
+# -Exclude '*Timeout*'      skip keys
+# -SkipConnectionStrings    leave <connectionStrings> alone
+# -Overwrite                replace values already in secrets.json
+```
+
+**Option 3 - `appcfg-migrate` command-line tool (dotnet tool):**
+
+```bash
+# Install once (needs the .NET SDK; the tool is a small net8.0 app that runs on any newer runtime too)
+dotnet tool install -g AppCfg.Net.Migrate
+
+# Preview
+appcfg-migrate .\Web.config --id my-app-secrets --dry-run
+
+# Migrate only the sensitive keys
+appcfg-migrate .\Web.config --id my-app-secrets -i "*Password*" -i "*Key" -i "*Secret*"
+
+# .NET Core: pass a .json file instead (appsettings.json, appsettings.Development.json, ...)
+appcfg-migrate .ppsettings.Development.json --id my-app-secrets -i "ConnectionStrings:*" -i "*Secret*"
+
+# Options: -i/--include <wildcard>  -e/--exclude <wildcard>  --no-connection-strings  --overwrite  -n/--dry-run
+```
+
+Until the package is published, build it from this repo: `dotnet pack AppCfg.Migrate -c Release` then `dotnet tool install -g AppCfg.Net.Migrate --add-source AppCfg.Migrate/nupkg`.
+
+**After migrating:**
+
+1. Delete the migrated keys from `App.config` / `Web.config` (keep non-secret settings there).
+2. Call `MyAppCfg.Configure(envVarPrefix: "MYAPP__", userSecretsId: "my-app-secrets")` at startup.
+3. Your `[Option(Alias = "...")]` names do not change: `secrets.json` now overrides `App.config`, and environment variables override both.
+
+The secrets file location is available from code via `UserSecretsStore.GetSecretsFilePath("my-app-secrets")`.
+
 ---
 
 ### App.config / Web.config
@@ -527,7 +609,7 @@ The **AppCfgDemoComplete** project demonstrates all features in an interactive m
 2. Set `AppCfgDemoComplete` as startup project
 3. Run the application
 
-### Demo Features (14 Interactive Demos)
+### Demo Features (16 Interactive Demos)
 
 1. **Basic Types Demo** - All primitive types and collections
 2. **JSON Configuration Demo** - Complex objects from JSON
@@ -543,6 +625,8 @@ The **AppCfgDemoComplete** project demonstrates all features in an interactive m
 12. **Nested Settings Demo** - Hierarchical configuration
 13. **Advanced Features Demo** - IReadOnlyList, RawValue inline defaults
 14. **Error Handling Demo** - Missing values, type errors
+15. **Computed Settings Demo** - Derive values from other settings
+16. **Migration Demo** - App.config → secrets.json with `UserSecretsMigrator`
 
 ### Optional Features
 

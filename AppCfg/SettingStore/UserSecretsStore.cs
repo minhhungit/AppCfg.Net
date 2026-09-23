@@ -50,33 +50,35 @@ namespace AppCfg.SettingStore
                 throw new ArgumentException("Profile key cannot be null or empty", nameof(profileKey));
             }
 
-            MyAppCfg.SettingStores.RegisterStore(profileKey, metadata =>
+            MyAppCfg.SettingStores.RegisterStore(profileKey, metadata => GetValue(userSecretsId, metadata.SettingKey));
+        }
+
+        /// <summary>
+        /// Read a single value from the secrets.json of the given user secrets ID.
+        /// Returns null when the file or the key does not exist (so default values apply).
+        /// Throws <see cref="AppCfgException"/> when the file exists but cannot be read or parsed.
+        /// </summary>
+        internal static string GetValue(string userSecretsId, string settingKey)
+        {
+            try
             {
-                try
-                {
-                    // Load or get cached secrets for this userSecretsId
-                    var secrets = _secretsCache.GetOrAdd(userSecretsId, id =>
-                    {
-                        var path = GetUserSecretsPath(id);
-                        return LoadSecrets(path);
-                    });
+                // Load or get cached secrets for this userSecretsId
+                var secrets = _secretsCache.GetOrAdd(userSecretsId, id => LoadSecrets(GetUserSecretsPath(id)));
 
-                    // Try to get the value by key
-                    if (secrets != null && secrets.TryGetValue(metadata.SettingKey, out var value))
-                    {
-                        return value;
-                    }
-
-                    // Return null to allow default values to work
-                    return null;
-                }
-                catch (Exception ex)
+                if (secrets != null && secrets.TryGetValue(settingKey, out var value))
                 {
-                    throw new AppCfgException(
-                        $"Error loading secret '{metadata.SettingKey}' from User Secrets (ID: {userSecretsId}): {ex.Message}",
-                        ex);
+                    return value;
                 }
-            });
+
+                // Return null to allow default values to work
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new AppCfgException(
+                    $"Error loading secret '{settingKey}' from User Secrets (ID: {userSecretsId}): {ex.Message}",
+                    ex);
+            }
         }
 
         /// <summary>
@@ -100,8 +102,21 @@ namespace AppCfg.SettingStore
         }
 
         /// <summary>
-        /// Get the full path to the secrets.json file for the given user secrets ID.
+        /// Get the full path to the secrets.json file for the given user secrets ID,
+        /// following the .NET Core Secret Manager convention:
+        /// Windows: %APPDATA%\Microsoft\UserSecrets\{id}\secrets.json,
+        /// Linux/macOS: ~/.microsoft/usersecrets/{id}/secrets.json
         /// </summary>
+        public static string GetSecretsFilePath(string userSecretsId)
+        {
+            if (string.IsNullOrWhiteSpace(userSecretsId))
+            {
+                throw new ArgumentException("User secrets ID cannot be null or empty", nameof(userSecretsId));
+            }
+
+            return GetUserSecretsPath(userSecretsId);
+        }
+
         private static string GetUserSecretsPath(string userSecretsId)
         {
             string basePath;
@@ -137,7 +152,7 @@ namespace AppCfg.SettingStore
         /// Load secrets from the JSON file at the specified path.
         /// Supports both flat keys and hierarchical keys with colon notation (e.g., "Database:Password").
         /// </summary>
-        private static Dictionary<string, string> LoadSecrets(string path)
+        internal static Dictionary<string, string> LoadSecrets(string path)
         {
             if (!File.Exists(path))
             {
@@ -178,32 +193,42 @@ namespace AppCfg.SettingStore
         }
 
         /// <summary>
-        /// Recursively flatten a JObject into a dictionary with colon-separated keys.
+        /// Recursively flatten a JSON token into a dictionary with colon-separated keys,
+        /// following the same rules as the .NET Core JSON configuration provider:
+        /// objects become "Parent:Child", arrays become "Parent:0", "Parent:1", ...
+        /// and null values are skipped (treated as missing so default values apply).
         /// Example: {"Database": {"Password": "test"}} becomes {"Database:Password": "test"}
         /// </summary>
-        private static void FlattenJson(JObject jObject, Dictionary<string, string> result, string prefix)
+        internal static void FlattenJson(JToken token, IDictionary<string, string> result, string prefix)
         {
-            foreach (var property in jObject.Properties())
+            switch (token)
             {
-                var key = string.IsNullOrEmpty(prefix) ? property.Name : $"{prefix}:{property.Name}";
+                case JObject obj:
+                    foreach (var property in obj.Properties())
+                    {
+                        FlattenJson(property.Value, result, Combine(prefix, property.Name));
+                    }
+                    break;
 
-                if (property.Value is JObject nestedObject)
-                {
-                    // Recursively flatten nested objects
-                    FlattenJson(nestedObject, result, key);
-                }
-                else if (property.Value is JArray)
-                {
-                    // Arrays are not supported in this simple implementation
-                    // Could be extended to support array indexing (e.g., "Array:0", "Array:1")
-                    throw new AppCfgException($"Array values are not supported in User Secrets. Key: {key}");
-                }
-                else
-                {
-                    // Store the value as a string
-                    result[key] = property.Value.ToString();
-                }
+                case JArray array:
+                    for (var i = 0; i < array.Count; i++)
+                    {
+                        FlattenJson(array[i], result, Combine(prefix, i.ToString()));
+                    }
+                    break;
+
+                case JValue value:
+                    if (value.Type != JTokenType.Null && value.Type != JTokenType.Undefined)
+                    {
+                        result[prefix] = value.ToString();
+                    }
+                    break;
             }
+        }
+
+        private static string Combine(string prefix, string name)
+        {
+            return string.IsNullOrEmpty(prefix) ? name : $"{prefix}:{name}";
         }
     }
 }

@@ -37,3 +37,6 @@
 /.claude
 /.vscode
 /AppCfgDemoComplete/obj/Debug
+/AppCfg.Migrate/bin
+/AppCfg.Migrate/obj
+/AppCfg.Migrate/nupkg

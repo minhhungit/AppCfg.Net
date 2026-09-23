@@ -78,6 +78,26 @@ namespace AppCfg.Test
             Assert.AreEqual("Microsoft", settings.IamConn.InitialCatalog, "InitialCatalog should still be 'Microsoft' after Configure()");
         }
 
+        [Test]
+        [Description("Verifies that with Configure(), a SqlConnectionStringBuilder key present in both appSettings and connectionStrings is read from connectionStrings")]
+        public void ConnectionString_WithConfigure_KeyAlsoInAppSettings_PrefersConnectionStrings()
+        {
+            // Arrange
+            MyAppCfg.Configure(envVarPrefix: "TEST__", userSecretsId: null);
+
+            // Act
+            var settings = MyAppCfg.Get<IDuplicateKeyConnectionSetting>();
+
+            // Assert
+            Assert.AreEqual("DupDb", settings.DupConn.InitialCatalog, "connectionStrings entry should win for SqlConnectionStringBuilder");
+        }
+
+        public interface IDuplicateKeyConnectionSetting
+        {
+            [Option(Alias = "dupConn")]
+            SqlConnectionStringBuilder DupConn { get; }
+        }
+
         // Test interface
         public interface IConnectionStringSetting
         {
