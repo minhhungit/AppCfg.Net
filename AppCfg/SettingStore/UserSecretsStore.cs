@@ -10,10 +10,18 @@ namespace AppCfg.SettingStore
 {
     /// <summary>
     /// Helper class for registering User Secrets store (similar to .NET Core Secret Manager).
-    /// Reads secrets from JSON files in the user's profile directory.
+    /// Reads secrets from JSON files in the user's profile directory, or under the folder named by
+    /// the <see cref="RootEnvironmentVariable"/> environment variable when it is set.
     /// </summary>
     public static class UserSecretsStore
     {
+        /// <summary>
+        /// Environment variable that overrides the folder holding the per-ID secrets folders.
+        /// When set, secrets are read from {root}\{userSecretsId}\secrets.json instead of the user profile,
+        /// e.g. for an IIS application pool that runs without a loaded user profile.
+        /// </summary>
+        public const string RootEnvironmentVariable = "APPCFG_USERSECRETS_ROOT";
+
         private static readonly ConcurrentDictionary<string, Dictionary<string, string>> _secretsCache
             = new ConcurrentDictionary<string, Dictionary<string, string>>();
 
@@ -63,7 +71,14 @@ namespace AppCfg.SettingStore
             try
             {
                 // Load or get cached secrets for this userSecretsId
-                var secrets = _secretsCache.GetOrAdd(userSecretsId, id => LoadSecrets(GetUserSecretsPath(id)));
+                // No secrets location (no root override and no user profile) means no secrets, like a missing file
+                var secrets = _secretsCache.GetOrAdd(userSecretsId, id =>
+                {
+                    var path = ResolveSecretsPath(id);
+                    return path == null
+                        ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                        : LoadSecrets(path);
+                });
 
                 if (secrets != null && secrets.TryGetValue(settingKey, out var value))
                 {
@@ -102,10 +117,12 @@ namespace AppCfg.SettingStore
         }
 
         /// <summary>
-        /// Get the full path to the secrets.json file for the given user secrets ID,
-        /// following the .NET Core Secret Manager convention:
+        /// Get the full path to the secrets.json file for the given user secrets ID.
+        /// When the <see cref="RootEnvironmentVariable"/> environment variable is set: {root}\{id}\secrets.json.
+        /// Otherwise the .NET Core Secret Manager convention:
         /// Windows: %APPDATA%\Microsoft\UserSecrets\{id}\secrets.json,
         /// Linux/macOS: ~/.microsoft/usersecrets/{id}/secrets.json
+        /// Throws <see cref="AppCfgException"/> when no location can be determined.
         /// </summary>
         public static string GetSecretsFilePath(string userSecretsId)
         {
@@ -119,33 +136,57 @@ namespace AppCfg.SettingStore
 
         private static string GetUserSecretsPath(string userSecretsId)
         {
-            string basePath;
-
-            // Determine platform-specific base path
-            if (Environment.OSVersion.Platform == PlatformID.Unix ||
-                Environment.OSVersion.Platform == PlatformID.MacOSX)
+            var secretsPath = ResolveSecretsPath(userSecretsId);
+            if (secretsPath == null)
             {
-                // Linux/macOS: ~/.microsoft/usersecrets/{id}/secrets.json
-                var home = Environment.GetEnvironmentVariable("HOME");
-                if (string.IsNullOrWhiteSpace(home))
-                {
-                    throw new AppCfgException("HOME environment variable is not set");
-                }
-                basePath = Path.Combine(home, ".microsoft", "usersecrets");
-            }
-            else
-            {
-                // Windows: %APPDATA%\Microsoft\UserSecrets\{id}\secrets.json
-                var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                if (string.IsNullOrWhiteSpace(appData))
-                {
-                    throw new AppCfgException("ApplicationData folder path could not be determined");
-                }
-                basePath = Path.Combine(appData, "Microsoft", "UserSecrets");
+                throw new AppCfgException(IsUnix()
+                    ? $"HOME environment variable is not set and {RootEnvironmentVariable} is not set"
+                    : $"ApplicationData folder path could not be determined and {RootEnvironmentVariable} is not set");
             }
 
-            var secretsPath = Path.Combine(basePath, userSecretsId, "secrets.json");
             return secretsPath;
+        }
+
+        /// <summary>
+        /// Resolve the secrets.json path for the given ID, or null when there is no root override
+        /// and no user profile (e.g. an IIS application pool with Load User Profile off).
+        /// </summary>
+        private static string ResolveSecretsPath(string userSecretsId)
+        {
+            var basePath = Environment.GetEnvironmentVariable(RootEnvironmentVariable);
+
+            if (string.IsNullOrWhiteSpace(basePath))
+            {
+                // Determine platform-specific base path
+                if (IsUnix())
+                {
+                    // Linux/macOS: ~/.microsoft/usersecrets/{id}/secrets.json
+                    var home = Environment.GetEnvironmentVariable("HOME");
+                    if (string.IsNullOrWhiteSpace(home))
+                    {
+                        return null;
+                    }
+                    basePath = Path.Combine(home, ".microsoft", "usersecrets");
+                }
+                else
+                {
+                    // Windows: %APPDATA%\Microsoft\UserSecrets\{id}\secrets.json
+                    var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                    if (string.IsNullOrWhiteSpace(appData))
+                    {
+                        return null;
+                    }
+                    basePath = Path.Combine(appData, "Microsoft", "UserSecrets");
+                }
+            }
+
+            return Path.Combine(basePath, userSecretsId, "secrets.json");
+        }
+
+        private static bool IsUnix()
+        {
+            return Environment.OSVersion.Platform == PlatformID.Unix ||
+                   Environment.OSVersion.Platform == PlatformID.MacOSX;
         }
 
         /// <summary>

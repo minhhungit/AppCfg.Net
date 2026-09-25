@@ -278,6 +278,9 @@ MyAppCfg.Configure(userSecretsId: "my-app-secrets");
 **Secrets File Location:**
 - **Windows:** `%APPDATA%\Microsoft\UserSecrets\my-app-secrets\secrets.json`
 - **Linux/Mac:** `~/.microsoft/usersecrets/my-app-secrets/secrets.json`
+- **Override:** when the `APPCFG_USERSECRETS_ROOT` environment variable is set, the file is `%APPCFG_USERSECRETS_ROOT%\my-app-secrets\secrets.json` on every platform. Use it on servers where the process has no user profile, e.g. an IIS application pool with *Load User Profile* off (`setx /M APPCFG_USERSECRETS_ROOT D:\AppSecrets`, then `iisreset`), and grant the pool identity read access to its folder only.
+
+If neither the override nor a user profile is available, user secrets are skipped (as if the file did not exist) instead of throwing.
 
 **secrets.json Example:**
 

@@ -287,6 +287,59 @@ namespace AppCfg.Test
             Assert.AreEqual(_testSecretsPath, path, "Path should match the .NET Core Secret Manager convention");
         }
 
+        [Test]
+        [Description("Verifies that the root environment variable moves the secrets file out of the user profile")]
+        public void GetSecretsFilePath_WithRootEnvironmentVariable_UsesRoot()
+        {
+            var root = Path.Combine(Path.GetTempPath(), "appcfg-test-secrets-root");
+            try
+            {
+                // Arrange
+                Environment.SetEnvironmentVariable(UserSecretsStore.RootEnvironmentVariable, root);
+
+                // Act
+                var path = UserSecretsStore.GetSecretsFilePath(TestUserSecretsId);
+
+                // Assert
+                Assert.AreEqual(Path.Combine(root, TestUserSecretsId, "secrets.json"), path);
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable(UserSecretsStore.RootEnvironmentVariable, null);
+            }
+        }
+
+        [Test]
+        [Description("Verifies that secrets are loaded from the root environment variable folder when it is set")]
+        public void LoadSecrets_WithRootEnvironmentVariable_ReadsFromRoot()
+        {
+            var root = Path.Combine(Path.GetTempPath(), "appcfg-test-secrets-root");
+            try
+            {
+                // Arrange: same key in the profile file and the root file, the root file must win
+                CreateTestSecretsFile(@"{ ""TestKey"": ""ProfileValue"" }");
+                var rootDirectory = Path.Combine(root, TestUserSecretsId);
+                Directory.CreateDirectory(rootDirectory);
+                File.WriteAllText(Path.Combine(rootDirectory, "secrets.json"), @"{ ""TestKey"": ""RootValue"" }");
+                Environment.SetEnvironmentVariable(UserSecretsStore.RootEnvironmentVariable, root);
+
+                // Act
+                var settings = MyAppCfg.Get<ITestSecretSettings>();
+
+                // Assert
+                Assert.AreEqual("RootValue", settings.TestKey, "TestKey should be loaded from the root folder");
+                Assert.AreEqual("default-api-key", settings.ApiKey, "Missing key should use the default value");
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable(UserSecretsStore.RootEnvironmentVariable, null);
+                if (Directory.Exists(root))
+                {
+                    Directory.Delete(root, true);
+                }
+            }
+        }
+
         private void CreateTestSecretsFile(string content)
         {
             Directory.CreateDirectory(_testSecretsDirectory);
