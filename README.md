@@ -278,9 +278,37 @@ MyAppCfg.Configure(userSecretsId: "my-app-secrets");
 **Secrets File Location:**
 - **Windows:** `%APPDATA%\Microsoft\UserSecrets\my-app-secrets\secrets.json`
 - **Linux/Mac:** `~/.microsoft/usersecrets/my-app-secrets/secrets.json`
-- **Override:** when the `APPCFG_USERSECRETS_ROOT` environment variable is set, the file is `%APPCFG_USERSECRETS_ROOT%\my-app-secrets\secrets.json` on every platform. Use it on servers where the process has no user profile, e.g. an IIS application pool with *Load User Profile* off (`setx /M APPCFG_USERSECRETS_ROOT D:\AppSecrets`, then `iisreset`), and grant the pool identity read access to its folder only.
+- **Override:** when the `APPCFG_USERSECRETS_ROOT` environment variable is set, the file is `%APPCFG_USERSECRETS_ROOT%\my-app-secrets\secrets.json` on every platform. Use it on servers where the process has no user profile, e.g. an IIS application pool with *Load User Profile* off. See [Server setup for IIS](#server-setup-for-iis) below.
 
 If neither the override nor a user profile is available, user secrets are skipped (as if the file did not exist) instead of throwing.
+
+#### Server setup for IIS
+
+1. Set the variable at **machine** level (a user-level variable is invisible to IIS):
+   ```powershell
+   [Environment]::SetEnvironmentVariable('APPCFG_USERSECRETS_ROOT', 'D:\AppSecrets', 'Machine')
+   ```
+2. **Restart IIS so worker processes pick up the new variable.** Recycling the application pool or `iisreset` is not always enough, because `w3wp.exe` inherits its environment from the Windows Process Activation Service:
+   ```powershell
+   net stop was /y; net start w3svc
+   ```
+   If the variable is still not seen, reboot the server. Windows services (console consumers, job hosts) also need a restart.
+3. **Give the IIS identity read access to the secrets folder.** Without it, the file looks missing and settings silently fall back to App.config/Web.config, with no error:
+   ```powershell
+   icacls D:\AppSecrets\my-app-secrets /grant "IIS APPPOOL\MyAppPool:(OI)(CI)RX"
+   ```
+   (`BUILTIN\IIS_IUSRS` covers every application pool identity if you prefer one grant for all.)
+
+**If settings still do not load, check that the variable really reaches the process:**
+```powershell
+[Environment]::GetEnvironmentVariable('APPCFG_USERSECRETS_ROOT', 'Machine')   # must print the root
+[Environment]::GetEnvironmentVariable('APPCFG_USERSECRETS_ROOT', 'User')      # should be empty
+Test-Path D:\AppSecrets\my-app-secrets\secrets.json                          # must be True
+```
+Open `w3wp.exe` in Sysinternals Process Explorer > Properties > **Environment** to see the variables the worker process actually has. To rule out WAS entirely, set the variable on the application pool itself:
+```powershell
+& "$env:windir\system32\inetsrv\appcmd.exe" set config -section:system.applicationHost/applicationPools /+"[name='MyAppPool'].environmentVariables.[name='APPCFG_USERSECRETS_ROOT',value='D:\AppSecrets']" /commit:apphost
+```
 
 **secrets.json Example:**
 
